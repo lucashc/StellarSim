@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 
 
 M = 1e6
-r0 = np.array([100, 0, 0])
-v0 = np.array([0, 10, 0])
+r0 = np.array([50, 0, 0])
+v0 = np.array([0, 180, 0])
 state0 = np.concatenate((r0, v0))
 
 def f(t, state):
@@ -17,6 +17,7 @@ def f(t, state):
     return np.concatenate((r_dot, v_dot))
 
 
-s = solve_ivp(f, (0, 2.5), state0, max_step=0.5e-4)
+s = solve_ivp(f, (0, 2.5), state0, max_step=1e-2)
 plt.plot(s.y[0], s.y[1])
+plt.plot([0], [0], marker="o")
 plt.show()
