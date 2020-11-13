@@ -1,8 +1,9 @@
 #include "geometry.hpp"
 #include "tree.cpp"
 #include <cmath>
+#include <vector>
 
-void treewalk(OctNode node, OctNode node0, float thetamax, float G){
+void TreeWalk(OctNode node, OctNode node0, float thetamax, float G){
     float dx = node.COM - node0.COM;
     float r = sqrt((dx*dx).sum());
     if (r>0){
@@ -11,8 +12,28 @@ void treewalk(OctNode node, OctNode node0, float thetamax, float G){
         }
         else{
             for(auto child: node.children){
-                treewalk(child, node0, thetamax, G)
+                TreeWalk(child, node0, thetamax, G)
             }
         }
     }
+}
+
+
+
+
+
+
+
+
+//    for(int i; i<2; ++i){
+//        for(int j; j<2; ++j){
+//            for(int k; k<2; ++k){
+//                bool[n] in_octant;
+//                for(int i; i < n; i++){
+//                    in_octant[i] =
+//                }
+//            }
+//        }
+//    }
+
 }
