@@ -36,7 +36,7 @@ public:
     vec3_<T>() : x{0}, y{0}, z{0}{};
     vec3_<T>(const T x, const T y, const T z) : x(x), y(y), z(z) {};
     inline vec3_<T> operator+(const vec3_<T>& v) {
-        return vec3_<T>(this->x+v.x, this->y+v.x, this->z+v.z);
+        return vec3_<T>(this->x+v.x, this->y+v.y, this->z+v.z);
     }
     inline vec3_<T> operator-(const vec3_<T>& v) {
         return vec3_<T>(this->x-v.x, this->y-v.x, this->z-v.z);
