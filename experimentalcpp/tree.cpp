@@ -50,23 +50,24 @@ public:
 
             }
             vec3 new_center;
+            vec3 special = vec3(-size/2, -size/2, -size/2);
             switch (oc) {
                 // false, false, false
-                case 0: new_center = center + vec3(-size/2, -size/2, -size/2);
+                case 0: new_center = center + vec3(-size/2, -size/2, -size/2); break;
                 // true, false, false
-                case 1: new_center = center + vec3(size/2, -size/2, -size/2);
+                case 1: new_center = center + vec3(size/2, -size/2, -size/2); break;
                 // false, true, false
-                case 2: new_center = center + vec3(-size/2, size/2, -size/2);
+                case 2: new_center = center + vec3(-size/2, size/2, -size/2); break;
                 // true, true, false
-                case 3: new_center = center + vec3(size/2, size/2, -size/2);
+                case 3: new_center = center + vec3(size/2, size/2, -size/2); break;
                 // false, false, true
-                case 4: new_center = center + vec3(-size/2, -size/2, size/2);
+                case 4: new_center = center + vec3(-size/2, -size/2, size/2); break;
                 // true, false, true
-                case 5: new_center = center + vec3(size/2, -size/2, size/2);
+                case 5: new_center = center + vec3(size/2, -size/2, size/2); break;
                 // false, true, true
-                case 6: new_center = center + vec3(-size/2, size/2, size/2);
+                case 6: new_center = center + vec3(-size/2, size/2, size/2); break;
                 // true, true, true
-                case 7: new_center = center + vec3(size/2, size/2, size/2);
+                case 7: new_center = center + vec3(size/2, size/2, size/2); break;
             };
             std::cout << "We are putting " << childm.size() << " children in octant " << oc << " with size "<< size/2 << " and center " << new_center.x << new_center.y << new_center.z << std::endl; 
             children.push_back(new OctNode(new_center, size/2, childm, childp, leaves));

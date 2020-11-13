@@ -18,8 +18,8 @@ using namespace std;
 int main() {
     auto p = std::vector<vec3>({vec3(0.0,0,0), vec3(2,1,0), vec3(-1, -1, 0), vec3(0, 2, 1)});
     auto m = std::vector<float>({100.0, 1.0, 2.0});
-    veclist newp;
-    scalist newm;
+    auto newp = veclist();
+    auto newm = scalist();
     for (int i = 0; i < p.size(); i++) {
         newp.push_back(&p[i]);
         newm.push_back(&m[i]);
