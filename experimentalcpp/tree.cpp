@@ -29,28 +29,28 @@ public:
         }
     }
 
-    void GenerateChildren(veclist &points, scalist &masses, std::vector<OctNode*> leaves){
+    void GenerateChildren(veclist &points, scalist &masses, const std::vector<OctNode*> &leaves){
         int n = points.size();
         veclist octant_points[8];  // contains a vector of points for each octant
-        scalist octant_masses[8]; // contains a vector of masses for each octant
+        scalist octant_masses[8];  //          "           masses       "
         vec3 center {this->center};
         for(int index = 0; index < n; ++index){  // assign each point (and corresponding mass) to an octant
             vec3* point = points[index];
             int i = point->x > center.x;
             int j = point->y > center.y;
             int k = point->z > center.z;
-            int octant_index = 4*k + 2*j + i; // construct binary number to choose octant
+            int octant_index = 4*k + 2*j + i;  // construct binary number to choose octant
             octant_points[octant_index].push_back(point);    // point = points[i]
             octant_masses[octant_index].push_back(masses[i]);
         }
 
-        for(int octant_index = 0; octant_index < 8; ++octant_index){  // create child nodes for each octant
+        for(unsigned int octant_index = 0; octant_index < 8; ++octant_index){  // create child nodes for each octant
             if(octant_points[octant_index].empty()){continue;}
-            float i = octant_index % 2;  // not very elegant, but reverse-engineers i,j,k from octant index
-            float j = (octant_index>>1) % 2;  // which we need to calculate the offset dx of the child node
-            float k = (octant_index>>2) % 2;
+            float i = octant_index & 1;  // gets i,j,k from octant index
+            float j = octant_index & 2;  // which we need to calculate the offset dx of the child node
+            float k = octant_index & 4;
             float a = 0.5*this->size;
-            vec3 dx {(vec3(i, j, k) - vec3(1,1,1)) * (0.5*this->size)};
+            vec3 dx {(vec3(i, j, k) - vec3(1,1,1)*0.5) * (0.5*this->size)};
             scalist this_octant_masses {octant_masses[octant_index]};
             veclist this_octant_points {octant_points[octant_index]};
             OctNode new_octnode = OctNode(center + dx, this->size/2, this_octant_masses, this_octant_points, leaves);
