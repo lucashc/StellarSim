@@ -20,7 +20,7 @@ public:
             mass = *masses[0];
         } else {
             std::cout << "We have " << n_points << " here" << std::endl;
-            generate_children(points, masses, leaves);
+            GenerateChildren(points, masses, leaves);
             for (auto c : children) {
                 mass += c->mass;
                 COM += c->COM;
@@ -29,7 +29,7 @@ public:
         }
     }
 
-    void GenerateChildren(veclist &points, scalist &masses, const std::vector<OctNode*> &leaves){
+    void GenerateChildren(veclist &points, scalist &masses, std::vector<OctNode*> &leaves){
         int n = points.size();
         veclist octant_points[8];  // contains a vector of points for each octant
         scalist octant_masses[8];  //          "           masses       "
@@ -53,8 +53,8 @@ public:
             vec3 dx {(vec3(i, j, k) - vec3(1,1,1)*0.5) * (0.5*this->size)};
             scalist this_octant_masses {octant_masses[octant_index]};
             veclist this_octant_points {octant_points[octant_index]};
-            OctNode new_octnode = OctNode(center + dx, this->size/2, this_octant_masses, this_octant_points, leaves);
-            this->children.push_back(&new_octnode);
+            OctNode *new_octnode = new OctNode(center + dx, this->size/2, this_octant_masses, this_octant_points, leaves);
+            this->children.push_back(new_octnode);
         }
     }
 
