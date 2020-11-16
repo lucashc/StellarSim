@@ -57,8 +57,6 @@ cdef class Body3:
     
     def __dealloc__(self):
         del self.body
-    cdef Body* get_ptr(self):
-        return self.body.get_ptr()
 
 Body3_t = np.dtype(Body3)
 
