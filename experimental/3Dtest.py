@@ -3,6 +3,8 @@ from scipy.constants import G
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
+from matplotlib import cm, colors, animation
+import time
 
 G = 1
 
@@ -34,16 +36,59 @@ def f(t, y):
     return np.hstack((rdot, vdot_new)).flatten()
 
 #f(0, np.hstack((r0, v0)))
-s = solve_ivp(f, (0,12), np.hstack((r0, v0)).flatten(), max_step=1e-2)
+s = solve_ivp(f, (0,20), np.hstack((r0, v0)).flatten(), max_step=1e-2)
 #
-print(s.t)
-print(s.y)
+
+until_timestep = 2500
+large_limits = {"xlim": (-140, 70), "ylim": (-120, 60), "zlim":(-15, 15)}
+sun_limits = {"xlim": (-20, 1), "ylim": (-10, 10), "zlim": (-1, 5)}
+starting_angle = 0  # default 270, 0 for sun zoom
+rotation_speed = 40  # default 40
+elevation = 0  # default 0
+def data_gen(index):
+    ax.clear()
+    #ax.axis('off')
+    ax.grid('off')
+    plot0 = ax.plot3D(s.y[0][:index], s.y[1][:index], s.y[2][:index], linewidth=2)
+    plot1 = ax.plot3D(s.y[6][:index], s.y[7][:index], s.y[8][:index])
+    plot2 = ax.plot3D(s.y[12][:index], s.y[13][:index], s.y[14][:index])
+    plot3 = ax.plot3D(s.y[18][:index], s.y[19][:index], s.y[20][:index])
+    ax.set(**sun_limits)
+    ax.view_init(elev=elevation, azim=index/until_timestep*rotation_speed + starting_angle)
+    return plot0, plot1, plot2, plot3
+
+
+# preview a frame
+fig = plt.figure()
+ax = fig.add_subplot(1, 1, 1, projection='3d')
+data_gen(until_timestep//2)
+plt.show()
+
+
 
 fig = plt.figure()
-ax = plt.axes(projection='3d')
-ax.plot3D(s.y[6], s.y[7], s.y[8], 'gray')
-ax.plot3D([0],[0],[0], marker='o')
-plt.show()
+#ax = plt.axes(projection='3d')
+ax = fig.add_subplot(1, 1, 1, projection='3d')
+
+grav_ani = animation.FuncAnimation(fig, data_gen, frames=np.arange(0, until_timestep, 10),
+                              interval=30, blit=False)
+
+plt.rcParams['animation.ffmpeg_path'] = 'C:/FFmpeg/bin/ffmpeg.exe'
+Writer = animation.writers['ffmpeg']
+writer = Writer(fps=20, metadata=dict(artist='Benjamin Oudejans'), bitrate=1800)
+filename = 'C:/Users/benja/Pictures/MathViz/grav_ani_sunzoom.mp4'
+print('0%')
+begin = time.time()
+grav_ani.save(filename, writer=writer)
+print('100%')
+end = time.time()
+print("Animation time:", end-begin, " s")
+
+
+#
+# ax.plot3D(s.y[6], s.y[7], s.y[8], 'gray')
+# ax.plot3D([0],[0],[0], marker='o')
+# plt.show()
 # for i in range(s.t.shape[0]):
 #     if i % 10 != 0:
 #         continue
