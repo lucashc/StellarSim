@@ -1,32 +1,12 @@
-#ifndef DEFS
-#define DEFS
+#ifndef VEC3
+#define VEC3
+
 #include <vector>
 #include <utility>
 #include <algorithm>
 #include <cmath>
 
-#define BASETYPE float
-
-class bool3 {
-public:
-    bool x, y, z;
-    bool3() : x(false), y(false), z(false) {};
-    bool3(const bool x, const bool y, const bool z) : x(z), y(y), z(z) {};
-    // Some basic operations
-    inline bool any() {
-        return x || y || z;
-    }
-    inline bool all() {
-        return x && y && z;
-    }
-    inline bool operator==(bool3 b) {
-        return x == b.x && y == b.y && z == b.z;
-    }
-    inline int get_octant() {
-        // Use binary to get unique id
-        return 1*x + 2*y + 4*z;
-    }
-};
+#define BASETYPE double
 
 
 template <class T>
@@ -55,9 +35,6 @@ public:
         this->y += v.y;
         this->z += v.z;
     }
-    inline bool3 operator>(const vec3_<T>&v) {
-        return bool3(this->x > v.x, this->y > v.y, this->z > v.z);
-    }
     inline T sum() {
         return this->x+this->y+this->z;
     }
@@ -75,9 +52,9 @@ public:
     }
 };
 
+// Derived types
 
 typedef vec3_<BASETYPE> vec3;
-
 typedef std::vector<vec3*> veclist;
 typedef std::vector<BASETYPE*> scalist;
 typedef std::vector<int> intlist;

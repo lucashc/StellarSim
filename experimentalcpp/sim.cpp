@@ -1,5 +1,5 @@
 #include "tree.cpp"
-#include "defs.hpp"
+#include "basetypes.hpp"
 #include <iostream>
 #include <vector>
 
@@ -17,7 +17,7 @@ using namespace std;
 
 int main() {
     auto p = std::vector<vec3>({vec3(0.0,0,0), vec3(2,1,0), vec3(-1, -1, 0), vec3(0, 2, 1)});
-    auto m = std::vector<float>({100.0, 1.0, 2.0});
+    auto m = std::vector<BASETYPE>({100.0, 1.0, 2.0});
     auto newp = veclist();
     auto newm = scalist();
     for (int i = 0; i < p.size(); i++) {
