@@ -1,3 +1,5 @@
+# distutils: language=c++
+
 import numpy as np
 
 cdef extern from "basetypes.hpp":
