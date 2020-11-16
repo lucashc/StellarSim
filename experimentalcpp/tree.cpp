@@ -1,5 +1,5 @@
 #include <vector>
-#include "defs.hpp"
+#include "basetypes.hpp"
 #include <iostream>
 
 class OctNode {
@@ -55,52 +55,6 @@ public:
             veclist this_octant_points {octant_points[octant_index]};
             OctNode *new_octnode = new OctNode(center + dx, this->size/2, this_octant_masses, this_octant_points, leaves);
             this->children.push_back(new_octnode);
-        }
-    }
-
-    void generate_children(veclist &points, scalist &masses, std::vector<OctNode*> leaves) {
-        intlist octants[8];
-        for (int i = 0; i < points.size(); i++) {
-            // Convert to defined bool3 type to get id
-            octants[((bool3)(*points[i] > center)).get_octant()].push_back(i);
-        }
-        for (int oc = 0; oc < 8; oc++) {
-            std::cout << oc << std::endl;
-            auto octant = octants[oc];
-            if (octant.size() < 1) {
-                std::cout << "Nothing in octant " << oc << std::endl;
-                continue;
-            }
-            veclist childp;
-            scalist childm;
-            for (auto i : octant) {
-                childp.push_back(points[i]);
-                childm.push_back(masses[i]);
-                std::cout << "Putting child " << points[i]->x << std::endl;
-
-            }
-            vec3 new_center;
-            vec3 special = vec3(-size/2, -size/2, -size/2);
-            switch (oc) {
-                // false, false, false
-                case 0: new_center = center + vec3(-size/2, -size/2, -size/2); break;
-                // true, false, false
-                case 1: new_center = center + vec3(size/2, -size/2, -size/2); break;
-                // false, true, false
-                case 2: new_center = center + vec3(-size/2, size/2, -size/2); break;
-                // true, true, false
-                case 3: new_center = center + vec3(size/2, size/2, -size/2); break;
-                // false, false, true
-                case 4: new_center = center + vec3(-size/2, -size/2, size/2); break;
-                // true, false, true
-                case 5: new_center = center + vec3(size/2, -size/2, size/2); break;
-                // false, true, true
-                case 6: new_center = center + vec3(-size/2, size/2, size/2); break;
-                // true, true, true
-                case 7: new_center = center + vec3(size/2, size/2, size/2); break;
-            };
-            std::cout << "We are putting " << childm.size() << " children in octant " << oc << " with size "<< size/2 << " and center " << new_center.x << new_center.y << new_center.z << std::endl; 
-            children.push_back(new OctNode(new_center, size/2, childm, childp, leaves));
         }
     }
     ~OctNode() {
