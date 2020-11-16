@@ -56,7 +56,7 @@ public:
 
 typedef vec3_<BASETYPE> vec3;
 typedef std::vector<vec3*> veclist;
-typedef std::vector<BASETYPE*> scalist;
+typedef std::vector<BASETYPE> scalist;
 typedef std::vector<int> intlist;
 
 std::pair<vec3, vec3> get_bounding_vectors(veclist &points) {
