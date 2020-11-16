@@ -15,7 +15,7 @@ public:
         {
         int n_points = bodies.size();
         if (n_points == 1) {
-            std::cout << "Done with point" << (bodies[0]->pos).x << std::endl;
+            std::cout << "Done with " << *bodies[0] << std::endl;
             leaves.push_back(this);
             COM = bodies[0]->pos;
             mass = bodies[0]->mass;
