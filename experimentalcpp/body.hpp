@@ -4,6 +4,7 @@
 #include "basetypes.hpp"
 
 class Body {
+public:
     vec3 pos, vel;
     BASETYPE mass;
 
