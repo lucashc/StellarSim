@@ -21,10 +21,15 @@ std::vector<OctNode*> accelerations(bodylist &bodies, float thetamax, float G) {
 using namespace std;
 
 int main() {
-    auto p = make_veclist(vector<vec3>{vec3(0, 0, 0), vec3(2, 1, 0), vec3(-1, -1, 0), vec3(0, 2, 1)});
-    auto m = scalist({100.0, 1.0, 2.0, 60.0});
-    auto v = make_veclist(vector<vec3>{vec3(0, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0) });
-    auto newb = zip_to_bodylist(p,v,m);
+    auto p = vector<vec3> {vec3(0, 0, 0), vec3(2, 1, 0), vec3(-1, -1, 0), vec3(0, 2, 1) };
+    auto m = scalist({100.0, 1.0, 2.0});
+    auto v = vector<vec3>{vec3(0, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0) };
+    veclist p_, v_;
+    for(int i = 0; i<p.size(); i++){
+        p_.push_back(&p[i]);
+        v_.push_back(&v[i]);
+    }
+    auto newb = zip_to_bodylist(p_,v_,m);
     auto result = accelerations(newb, 0.1, 1.0);
     for (auto c : result) {
         //
