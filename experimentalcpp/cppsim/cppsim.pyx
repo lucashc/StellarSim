@@ -71,6 +71,7 @@ cdef class BodyList3:
     def __init__(self, np.ndarray[object] b):
         if b.dtype != Body3_t:
             raise TypeError("Not a Body3 type")
+        self.bl.reserve(b.shape[0])
         cdef Body3 i3
         for i in b:
             # Cast object to Body3 object as to expose cython interface for pointer retrieval
