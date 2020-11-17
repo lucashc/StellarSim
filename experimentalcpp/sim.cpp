@@ -4,17 +4,18 @@
 #include "tree.cpp"
 
 
-std::vector<OctNode*> accelerations(bodylist &bodies, float thetamax, float G) {
+std::vector<OctNode*> accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
     veclist points;
     for (auto body : bodies) {
         points.push_back(&body->pos);
     }
     auto bounds = get_bounding_vectors(points);
     auto center = (bounds.first + bounds.second)/2;
-    float max_size = (bounds.first-bounds.second).abs().max();
+    BASETYPE max_size = (bounds.first-bounds.second).abs().max();
     std::cout << max_size << std::endl;
     std::vector<OctNode*> leaves;
     auto topnode = OctNode(center, max_size, bodies, leaves);
+    
     return leaves;
 }
 
