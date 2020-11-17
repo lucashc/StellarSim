@@ -62,7 +62,14 @@ typedef std::vector<BASETYPE> scalist;
 typedef std::vector<int> intlist;
 
 std::ostream& operator<<(std::ostream& os, const vec3& v) {  // for printing vec3s
-    return os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
+    BASETYPE coords[3] {v.x, v.y, v.z};
+    char strs[12][3];
+    os << "(";
+    for(int coordnum = 0; coordnum < 3; coordnum++){
+        sprintf(strs[coordnum], "%.4g", coords[coordnum]);
+        os << strs[coordnum] << ", ";
+    }
+    return os << "\b\b)"; // remove last comma
 }
 
 std::pair<vec3, vec3> get_bounding_vectors(veclist &points) {
