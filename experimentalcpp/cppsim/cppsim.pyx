@@ -20,7 +20,7 @@ cdef extern from "body.hpp":
 
 
 cdef class Body3:
-
+    # This class is by value, so deallocation of this class, deallocates the underlying object
     cdef Body body
 
     def __init__(self, np.ndarray[double] pos=np.array([0,0,0], dtype=np.double), np.ndarray[double] vel=np.array([0,0,0], dtype=np.double), double mass=0):
@@ -62,9 +62,10 @@ Body3_t = np.dtype(Body3)
 
 cdef class BodyList3:
 
+    # This class holds a vector of pointers to Body objects
+    # To prevent possible deallocation strict memory management is required
     cdef bodylist bl
-    # Needed to prevent garbage collector from freeing up objects
-    # So we store the objects here
+    # Save references here to prevent deallocation
     cdef object[:] b
 
     def __init__(self, np.ndarray[object] b):
@@ -72,9 +73,10 @@ cdef class BodyList3:
             raise TypeError("Not a Body3 type")
         cdef Body3 i3
         for i in b:
+            # Cast object to Body3 object as to expose cython interface for pointer retrieval
             i3 = <Body3>i
             self.bl.push_back(&i3.body)
-        # Increase reference count
+        # Save the array in the class as to increase the reference count of the needed objects
         self.b = b
     def __str__(self):
         return "BodyList3(size=" + str(self.bl.size()) + ")"
@@ -85,14 +87,17 @@ cdef class BodyList3:
     @cython.boundscheck(False)
     def __getitem__(self, int i):
         # Pass directly from numpy array, to allow mutation and reference
-        if i > self.b.shape[0]:
+        # Handles own index errors, so boundscheck is unnecessary
+        if 0 <= i > self.b.shape[0]:
             raise IndexError("Out of bounds")
         return self.b[i]
     
     @cython.boundscheck(False)
     def __setitem__(self, int i, Body3 b3):
         # Update numpy array directly, to allow copy, as addresses do not change and array is contiguous
-        if i > self.b.shape[0]:
+        # Also ensures proper reference count
+        # Handles own index errors, so boundscheck is unnecessary
+        if 0 <= i > self.b.shape[0]:
             raise IndexError("Out of bounds")
         cdef object obj
         obj = <object>b3
