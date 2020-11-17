@@ -4,7 +4,7 @@
 #include "tree.cpp"
 
 
-std::vector<OctNode*> accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
+OctNode* accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
     veclist points;
     for (auto body : bodies) {
         points.push_back(&body->pos);
@@ -14,9 +14,11 @@ std::vector<OctNode*> accelerations(bodylist &bodies, BASETYPE thetamax, BASETYP
     BASETYPE max_size = (bounds.first-bounds.second).abs().max();
     std::cout << max_size << std::endl;
     std::vector<OctNode*> leaves;
-    auto topnode = OctNode(center, max_size, bodies, leaves);
-    
-    return leaves;
+    auto topnode = new OctNode(center, max_size, bodies, leaves);
+    for (auto  leaf : leaves) {
+        TreeWalk(topnode, leaf, thetamax, G);
+    }
+    return topnode;
 }
 
 using namespace std;
@@ -32,7 +34,4 @@ int main() {
     }
     auto newb = zip_to_bodylist(p_,v_,m);
     auto result = accelerations(newb, 0.1, 1.0);
-    for (auto c : result) {
-        //
-    }
 }

@@ -9,6 +9,8 @@ public:
     BASETYPE mass, size;
     std::vector<OctNode*> children;
     vec3 g, COM, center;
+    // Use underlying body as ID
+    // Only defined when a leaf, otherwise nullptr
     Body* id;
 
     OctNode(vec3 center, BASETYPE size, bodylist &bodies, std::vector<OctNode*> &leaves) :
@@ -71,6 +73,7 @@ public:
 void TreeWalk(OctNode* node, OctNode* node0, BASETYPE thetamax, BASETYPE G) {
     vec3 dr = node->COM - node0->COM;
     BASETYPE r = dr.norm();
+    std::cout << "Walking for node " << *node0->id << std::endl;
     if (r > 0) {
         if (node->children.empty() || node->size / r < thetamax) {
             node0->g = node0->g + dr * G * node->mass / pow(r, 3);
