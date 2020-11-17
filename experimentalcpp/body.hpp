@@ -1,6 +1,8 @@
 #ifndef BODY
 #define BODY
 
+#include <ostream>
+
 #include "basetypes.hpp"
 
 class Body {

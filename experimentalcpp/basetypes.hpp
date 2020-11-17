@@ -5,6 +5,7 @@
 #include <utility>
 #include <algorithm>
 #include <cmath>
+#include <ostream>
 
 #define BASETYPE double
 
