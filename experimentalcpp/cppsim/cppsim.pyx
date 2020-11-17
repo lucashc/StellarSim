@@ -2,6 +2,7 @@
 import numpy as np
 cimport numpy as np
 from libcpp.vector cimport vector
+cimport cython
 
 cdef extern from "basetypes.hpp":
     cdef cppclass vec3:
@@ -20,7 +21,6 @@ cdef extern from "body.hpp":
 
 cdef class Body3:
 
-    # Value, so gets cleared automatically
     cdef Body body
 
     def __init__(self, np.ndarray[double] pos=np.array([0,0,0], dtype=np.double), np.ndarray[double] vel=np.array([0,0,0], dtype=np.double), double mass=0):
@@ -63,30 +63,40 @@ Body3_t = np.dtype(Body3)
 cdef class BodyList3:
 
     cdef bodylist bl
-    # Deallocation of this object does not deallocate Body3's
-    # Must be done by user
-    def __init__(self, b):
+    # Needed to prevent garbage collector from freeing up objects
+    # So we store the objects here
+    cdef object[:] b
+
+    def __init__(self, np.ndarray[object] b):
         if b.dtype != Body3_t:
             raise TypeError("Not a Body3 type")
         cdef Body3 i3
         for i in b:
             i3 = <Body3>i
             self.bl.push_back(&i3.body)
+        # Increase reference count
+        self.b = b
     def __str__(self):
         return "BodyList3(size=" + str(self.bl.size()) + ")"
     
     def __repr__(self):
         return self.__str__()
     
+    @cython.boundscheck(False)
     def __getitem__(self, int i):
-        # Read-only reference somehow
-        cdef Body* item = self.bl[i]
-        temp = Body3()
-        temp.body = item[0]
-        return temp
+        # Pass directly from numpy array, to allow mutation and reference
+        if i > self.b.shape[0]:
+            raise IndexError("Out of bounds")
+        return self.b[i]
     
-    def __setitem__(self, int index, Body3 b3):
-        self.bl[index] = &b3.body
+    @cython.boundscheck(False)
+    def __setitem__(self, int i, Body3 b3):
+        # Update numpy array directly, to allow copy, as addresses do not change and array is contiguous
+        if i > self.b.shape[0]:
+            raise IndexError("Out of bounds")
+        cdef object obj
+        obj = <object>b3
+        self.b[i] = obj
     
     def __len__(self):
         return self.bl.size()
