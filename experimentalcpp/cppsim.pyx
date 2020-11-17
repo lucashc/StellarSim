@@ -20,9 +20,11 @@ cdef extern from "body.hpp":
 
 cdef class Body3:
 
-    cdef Body *body
-    def __cinit__(self, np.ndarray[double] pos=np.array([0,0,0], dtype=np.double), np.ndarray[double] vel=np.array([0,0,0], dtype=np.double), double mass=0):
-        self.body = new Body(vec3(pos[0], pos[1], pos[2]), vec3(vel[0], vel[1], vel[2]), mass)
+    # Value, so gets cleared automatically
+    cdef Body body
+
+    def __init__(self, np.ndarray[double] pos=np.array([0,0,0], dtype=np.double), np.ndarray[double] vel=np.array([0,0,0], dtype=np.double), double mass=0):
+        self.body = Body(vec3(pos[0], pos[1], pos[2]), vec3(vel[0], vel[1], vel[2]), mass)
     
     @property
     def mass(self):
@@ -54,16 +56,40 @@ cdef class Body3:
     
     def __str__(self):
         return  self.__repr__()
-    
-    def __dealloc__(self):
-        del self.body
+
 
 Body3_t = np.dtype(Body3)
 
 cdef class BodyList3:
-    cdef bodylist bl
 
-    def __init__(self, np.ndarray[Body3_t] b):
+    cdef bodylist bl
+    # Deallocation of this object does not deallocate Body3's
+    # Must be done by user
+    def __init__(self, b):
         if b.dtype != Body3_t:
             raise TypeError("Not a Body3 type")
-        
+        cdef Body3 i3
+        for i in b:
+            i3 = <Body3>i
+            self.bl.push_back(&i3.body)
+    def __str__(self):
+        return "BodyList3(size=" + str(self.bl.size()) + ")"
+    
+    def __repr__(self):
+        return self.__str__()
+    
+    def __getitem__(self, int i):
+        # Read-only reference somehow
+        cdef Body* item = self.bl[i]
+        temp = Body3()
+        temp.body = item[0]
+        return temp
+    
+    def __setitem__(self, int index, Body3 b3):
+        self.bl[index] = &b3.body
+    
+    def __len__(self):
+        return self.bl.size()
+    
+
+
