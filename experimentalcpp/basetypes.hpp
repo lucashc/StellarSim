@@ -65,6 +65,13 @@ std::ostream& operator<<(std::ostream& os, const vec3& v) {  // for printing vec
     return os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
 }
 
+veclist make_veclist(const std::vector<vec3> &list){
+    veclist vectorlist;
+    for(auto v: list){
+        vectorlist.push_back(&v);
+    }
+    return vectorlist;
+}
 
 std::pair<vec3, vec3> get_bounding_vectors(veclist &points) {
     vec3 smallest;
