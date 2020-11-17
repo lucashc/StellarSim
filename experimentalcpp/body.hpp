@@ -12,6 +12,10 @@ public:
 };
 
 
+std::ostream& operator<<(std::ostream& os, const Body& b) {   // for printing Body objects
+    return os << "BODY[pos=" << b.pos << ", vel=" << b.vel << ", m=" << b.mass << "]";
+}
+
 typedef std::vector<Body*> bodylist;
 
 

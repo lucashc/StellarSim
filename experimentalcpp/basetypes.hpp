@@ -52,12 +52,18 @@ public:
     }
 };
 
+
+
 // Derived types
 
 typedef vec3_<BASETYPE> vec3;
 typedef std::vector<vec3*> veclist;
 typedef std::vector<BASETYPE> scalist;
 typedef std::vector<int> intlist;
+
+std::ostream& operator<<(std::ostream& os, const vec3& v) {  // for printing vec3s
+    return os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
+}
 
 std::pair<vec3, vec3> get_bounding_vectors(veclist &points) {
     vec3 smallest;

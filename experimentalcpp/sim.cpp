@@ -1,7 +1,8 @@
-#include "tree.cpp"
-#include "basetypes.hpp"
-#include <iostream>
 #include <vector>
+#include <iostream>
+#include "basetypes.hpp"
+#include "tree.cpp"
+
 
 std::vector<OctNode*> accelerations(bodylist &bodies, float thetamax, float G) {
     veclist points;
