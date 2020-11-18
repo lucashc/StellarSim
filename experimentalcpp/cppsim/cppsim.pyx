@@ -18,6 +18,10 @@ cdef extern from "body.hpp":
         Body(vec3, vec3, double, vec3)
     ctypedef vector[Body*] bodylist
 
+cdef extern from "sim.cpp":
+    void EulerForward(bodylist&, double, int, double, double)
+    bodylist* EulerForwardSave(bodylist&, double, int, double, double)
+
 
 cdef class Body3:
     # This class is by value, so deallocation of this class, deallocates the underlying object
@@ -81,7 +85,7 @@ cdef class BodyList3:
     # Save references here to prevent deallocation
     cdef object[:] b
 
-    def __init__(self, np.ndarray[object] b):
+    def __init__(self, np.ndarray[object] b=np.array([],dtype=Body3_t)):
         if b.dtype != Body3_t:
             raise TypeError("Not a Body3 type")
         self.bl.reserve(b.shape[0])
@@ -119,6 +123,18 @@ cdef class BodyList3:
     
     def __len__(self):
         return self.bl.size()
-    
 
+BodyList3_t = np.dtype(BodyList3)
 
+def EulerForwardC(BodyList3 bodies, double dt, int n_steps, double thetamax, double G):
+    EulerForward(bodies.bl, dt, n_steps, thetamax, G)
+
+def EulerForwardSaveC(BodyList3 bodies, double dt, int n_steps, double thetamax, double G):
+    cdef bodylist* saves
+    saves = EulerForwardSave(bodies.bl, dt, n_steps, thetamax, G)
+    save_result = np.empty(n_steps, dtype=BodyList3_t)
+    for i in range(n_steps):
+        x = BodyList3()
+        x.bl = saves[i]
+        save_result[i] = x
+    return save_result
