@@ -27,23 +27,30 @@ void EulerForward(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax,
     }
 }
 
-
-
-
-
-
-using namespace std;
-
-int main() {
-    auto p = vector<vec3> {vec3(0, 0, 0), vec3(2, 1, 0), vec3(-1, -1, 0), vec3(0, 2, 1) };
-    auto m = scalist({100.0, 1.0, 2.0, 123456});
-    auto v = vector<vec3>{vec3(0, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0) };
-    veclist p_, v_;
-    for(int i = 0; i<p.size(); i++){
-        p_.push_back(&p[i]);
-        v_.push_back(&v[i]);
+bodylist copy_bodylist(bodylist &bodies){
+    bodylist copy;
+    for(auto b: bodies){
+        Body* body_copy = new Body(b);
+        copy.push_back(body_copy);
     }
-    auto newb = zip_to_bodylist(p_,v_,m);
-    accelerations(newb, 0.1, 1.0);
-    std::cout << *newb[0] << std::endl;
+    return copy;
+}
+
+
+bodylist* EulerForwardSave(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G){
+    auto save_list = new bodylist[n_steps];
+    bodylist updated_bodies[n_steps + 1];
+    save_list[0] = copy_bodylist(bodies);   // save initial state
+    updated_bodies[0] = bodies;
+    for(int step = 0; step < n_steps; step++){
+        accelerations(bodies, thetamax, G);
+        for(auto body: bodies){
+            body->vel = body->g * dt;
+            body->pos = body->vel * dt;
+
+        }
+
+        save_list[step + 1] = copy_bodylist(bodies);   // save bodies after a step
+    }
+    return save_list;
 }
