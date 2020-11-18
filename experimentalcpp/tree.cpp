@@ -1,3 +1,5 @@
+#ifndef TREE
+#define TREE
 #include <vector>
 #include "basetypes.hpp"
 #include "body.hpp"
@@ -78,3 +80,5 @@ void TreeWalk(OctNode* node, Body* b, BASETYPE thetamax, BASETYPE G) {
         }
     }
 };
+
+#endif

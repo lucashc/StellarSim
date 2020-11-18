@@ -1,7 +1,7 @@
 import cppsim as cs
 import numpy as np
 b1 = cs.Body3()
-b2 = cs.Body3()
+b2 = cs.Body3(g=np.array([1,2,3], dtype=np.double))
 
 f = cs.BodyList3(np.array([b1, b2]))
 print(f)
@@ -19,3 +19,5 @@ f[0].pos = np.array([1,2,10], dtype=np.double)
 print(f[0])
 f[0] = cs.Body3()
 print(f[0])
+print(f[0].g)
+print(f[1].g)

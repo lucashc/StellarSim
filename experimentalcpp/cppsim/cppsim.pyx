@@ -12,10 +12,10 @@ cdef extern from "basetypes.hpp":
 
 cdef extern from "body.hpp":
     cdef cppclass Body:
-        vec3 pos, vel
+        vec3 pos, vel, g
         double mass
         Body()
-        Body(vec3, vec3, double)
+        Body(vec3, vec3, double, vec3)
     ctypedef vector[Body*] bodylist
 
 
@@ -23,8 +23,11 @@ cdef class Body3:
     # This class is by value, so deallocation of this class, deallocates the underlying object
     cdef Body body
 
-    def __init__(self, np.ndarray[double] pos=np.array([0,0,0], dtype=np.double), np.ndarray[double] vel=np.array([0,0,0], dtype=np.double), double mass=0):
-        self.body = Body(vec3(pos[0], pos[1], pos[2]), vec3(vel[0], vel[1], vel[2]), mass)
+    def __init__(self, np.ndarray[double] pos=np.array([0,0,0], dtype=np.double), 
+            np.ndarray[double] vel=np.array([0,0,0], dtype=np.double), 
+            double mass=0, np.ndarray[double] g=np.array([0,0,0], 
+            dtype=np.double)):
+        self.body = Body(vec3(pos[0], pos[1], pos[2]), vec3(vel[0], vel[1], vel[2]), mass, vec3(g[0], g[1], g[2]))
     
     @property
     def mass(self):
@@ -35,7 +38,7 @@ cdef class Body3:
     
     @property
     def pos(self):
-        return np.array([self.body.pos.x, self.body.pos.y, self.body.pos.z])
+        return np.array([self.body.pos.x, self.body.pos.y, self.body.pos.z], dtype=np.double)
     @pos.setter
     def pos(self, np.ndarray[double] pos):
         self.body.pos.x = pos[0]
@@ -44,15 +47,25 @@ cdef class Body3:
     
     @property
     def vel(self):
-        return np.array([self.body.vel.x, self.body.vel.y, self.body.vel.z])
+        return np.array([self.body.vel.x, self.body.vel.y, self.body.vel.z], dtype=np.double)
     @vel.setter
     def vel(self, np.ndarray[double] vel):
         self.body.vel.x = vel[0]
         self.body.vel.y = vel[1]
         self.body.vel.z = vel[2]
     
+    @property
+    def g(self):
+        return np.array([self.body.g.x, self.body.g.y, self.body.g.z], dtype=np.double)
+    
+    @g.setter
+    def g(self, np.ndarray[double] g):
+        self.body.g.x = g[0]
+        self.body.g.y = g[1]
+        self.body.g.z = g[2]
+    
     def __repr__(self):
-        return f"Body3(pos=[{self.body.pos.x}, {self.body.pos.y}, {self.body.pos.z}], vel=[{self.body.vel.x}, {self.body.vel.y}, {self.body.vel.z}], mass={self.body.mass})"
+        return f"Body3(pos=[{self.body.pos.x}, {self.body.pos.y}, {self.body.pos.z}], vel=[{self.body.vel.x}, {self.body.vel.y}, {self.body.vel.z}], mass={self.body.mass}, g=[{self.body.g.x}, {self.body.g.y}, {self.body.g.z}])"
     
     def __str__(self):
         return  self.__repr__()
