@@ -19,10 +19,12 @@ void accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
 
 void EulerForward(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G){
     for(int step = 0; step < n_steps; step++){
+        std::cout << std::endl;
+        std::cout << "Euler forward step " << step << std::endl;
         accelerations(bodies, thetamax, G);
-        for(auto body: bodies){
-            body->vel = body->g * dt;
-            body->pos = body->vel * dt;
+        for(auto body : bodies){
+            body->vel = body->vel + body->g * dt;
+            body->pos = body->pos + body->vel * dt;
         }
     }
 }
@@ -43,8 +45,8 @@ bodylist* EulerForwardSave(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE 
     for(int step = 0; step < n_steps; step++){
         accelerations(bodies, thetamax, G);
         for(auto body: bodies){
-            body->vel = body->g * dt;
-            body->pos = body->vel * dt;
+            body->vel = body->vel + body->g * dt;
+            body->pos = body->pos + body->vel * dt;
 
         }
 

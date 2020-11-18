@@ -18,6 +18,6 @@ int main() {
         v_.push_back(&v[i]);
     }
     auto newb = zip_to_bodylist(p_,v_,m);
-    EulerForward(newb, 20, 20, 0.5, 1);
+    EulerForward(newb, 1, 20, 0.5, 1);
     std::cout << *newb[0] << std::endl;
 }
