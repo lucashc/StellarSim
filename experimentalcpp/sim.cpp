@@ -18,8 +18,23 @@ void accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
         TreeWalk(topnode, b, thetamax, G);
     }
     delete topnode;
-    return;
 }
+
+
+void EulerForward(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G){
+    for(int step = 0; step < n_steps; step++){
+        accelerations(bodies, thetamax, G);
+        for(auto body: bodies){
+            body->vel = body->g * dt;
+            body->pos = body->vel * dt;
+        }
+    }
+}
+
+
+
+
+
 
 using namespace std;
 
