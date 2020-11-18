@@ -10,7 +10,7 @@ int main() {
     auto m = scalist({100.0, 1.0, 2.0, 123456});
     auto v = vector<vec3>{vec3(0, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0) };
     veclist p_, v_;
-    for(int i = 0; i<p.size(); i++){
+    for(long unsigned int i = 0; i < p.size(); i++){
         p_.push_back(&p[i]);
         v_.push_back(&v[i]);
     }
