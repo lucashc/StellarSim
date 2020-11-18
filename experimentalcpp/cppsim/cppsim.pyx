@@ -20,18 +20,18 @@ cdef extern from "body.hpp":
 
 cdef extern from "sim.cpp":
     void EulerForward(bodylist&, double, int, double, double)
-    bodylist* EulerForwardSave(bodylist&, double, int, double, double)
+    vector[bodylist] EulerForwardSave(bodylist&, double, int, double, double)
 
 
 cdef class Body3:
     # This class is by value, so deallocation of this class, deallocates the underlying object
-    cdef Body body
+    cdef Body *body
 
     def __init__(self, np.ndarray[double] pos=np.array([0,0,0], dtype=np.double), 
             np.ndarray[double] vel=np.array([0,0,0], dtype=np.double), 
             double mass=0, np.ndarray[double] g=np.array([0,0,0], 
             dtype=np.double)):
-        self.body = Body(vec3(pos[0], pos[1], pos[2]), vec3(vel[0], vel[1], vel[2]), mass, vec3(g[0], g[1], g[2]))
+        self.body = new Body(vec3(pos[0], pos[1], pos[2]), vec3(vel[0], vel[1], vel[2]), mass, vec3(g[0], g[1], g[2]))
     
     @property
     def mass(self):
@@ -73,6 +73,9 @@ cdef class Body3:
     
     def __str__(self):
         return  self.__repr__()
+    
+    def __deallocate__(self):
+        del self.body
 
 
 Body3_t = np.dtype(Body3)
@@ -93,7 +96,7 @@ cdef class BodyList3:
         for i in b:
             # Cast object to Body3 object as to expose cython interface for pointer retrieval
             i3 = <Body3>i
-            self.bl.push_back(&i3.body)
+            self.bl.push_back(i3.body)
         # Save the array in the class as to increase the reference count of the needed objects
         self.b = b
     def __str__(self):
@@ -132,12 +135,14 @@ BodyList3_t = np.dtype(BodyList3)
 def EulerForwardC(BodyList3 bodies, double dt, int n_steps, double thetamax, double G):
     EulerForward(bodies.bl, dt, n_steps, thetamax, G)
 
+
 def EulerForwardSaveC(BodyList3 bodies, double dt, int n_steps, double thetamax, double G):
-    cdef bodylist* saves
+    cdef vector[bodylist] saves
     saves = EulerForwardSave(bodies.bl, dt, n_steps, thetamax, G)
-    save_result = np.empty(n_steps, dtype=BodyList3_t)
-    for i in range(n_steps):
-        x = BodyList3()
-        x.bl = saves[i]
-        save_result[i] = x
+    save_result = np.empty((n_steps+1,len(bodies)), dtype=Body3_t)
+    for i in range(saves.size()):
+        for j in range(saves[i].size()):
+            x = Body3()
+            x.body = saves[i][j]
+            save_result[i, j] = x
     return save_result
