@@ -98,9 +98,7 @@ cdef class BodyList3:
         self.b = b
     def __str__(self):
         result = f"BodyList3(size={self.bl.size()}, bodies=["
-        for i in self.b:
-            result += str(i) + ", "
-        result[-2:] = ""
+        result += ", ".join(map(str, self.b))
         result += "]"
         return result
     
