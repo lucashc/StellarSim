@@ -13,7 +13,7 @@ public:
     vec3 COM, center;
 
     OctNode(vec3 center, BASETYPE size, bodylist &bodies) :
-            center(center), size{size}, children(), COM(), mass()
+            mass(), size(size), children(), COM(), center(center)
         {
         int n_points = bodies.size();
         if (n_points == 1) {
@@ -51,7 +51,6 @@ public:
             BASETYPE i = octant_index & 1;  // gets i,j,k from octant index
             BASETYPE j = octant_index & 2;  // which we need to calculate the offset dx of the child node
             BASETYPE k = octant_index & 4;
-            BASETYPE a = 0.5*this->size;
             vec3 dx {(vec3(i, j, k) - vec3(1,1,1)*0.5) * (0.5*this->size)};
             bodylist this_octant_bodies{ octant_bodies[octant_index] };
             OctNode *new_octnode = new OctNode(center + dx, this->size/2, this_octant_bodies);

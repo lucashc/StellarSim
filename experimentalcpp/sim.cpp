@@ -39,9 +39,7 @@ bodylist copy_bodylist(bodylist &bodies){
 
 bodylist* EulerForwardSave(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G){
     auto save_list = new bodylist[n_steps];
-    bodylist updated_bodies[n_steps + 1];
     save_list[0] = copy_bodylist(bodies);   // save initial state
-    updated_bodies[0] = bodies;
     for(int step = 0; step < n_steps; step++){
         accelerations(bodies, thetamax, G);
         for(auto body: bodies){
