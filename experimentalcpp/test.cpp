@@ -18,6 +18,7 @@ int main() {
         v_.push_back(&v[i]);
     }
     auto newb = zip_to_bodylist(p_,v_,m);
-    EulerForward(newb, 1, 20, 0.5, 1);
-    std::cout << *newb[0] << std::endl;
+    auto s = EulerForwardSave(newb, 1, 1, 0.5, 1);
+    std::cout << s.size() << std::endl;
+    std::cout << *s[0][0] << std::endl;
 }
