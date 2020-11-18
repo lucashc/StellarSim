@@ -10,7 +10,12 @@ class Body(object):
     def summary(self):
         """Gives all the information of the body in question"""
         print("Summary:")
-        print("Position:    x: ", '{:.3f}'.format(self.pos[0]), "    y: ", '{:.3f}'.format(self.pos[1]), "    z: ", '{:.3f}'.format(self.pos[2]))
-        print("Velocity:  v_x: ", '{:.3f}'.format(self.vel[0]), "  v_y: ", '{:.3f}'.format(self.vel[1]), "  v_z: ", '{:.3f}'.format(self.vel[2]), "  |v|: ", '{:.3f}'.format(np.linalg.norm(self.vel)))
+
+        # print("Position:    x: ", '{:.3f}'.format(self.pos[0]), "    y: ", '{:.3f}'.format(self.pos[1]), "    z: ", '{:.3f}'.format(self.pos[2]))
+        # print("Velocity:  v_x: ", '{:.3f}'.format(self.vel[0]), "  v_y: ", '{:.3f}'.format(self.vel[1]), "  v_z: ", '{:.3f}'.format(self.vel[2]), "  |v|: ", '{:.3f}'.format(np.linalg.norm(self.vel)))
+
+        print("Position:    x: {:.3f}, y: {:.3f}, z: {:.3f}".format(*list(self.pos))
+        print("Velocity:    v_x: {:.3f}, v_y: {:.3f}, v_z: {:.3f}, |v|: {:.3f}".format(*list(self.vel), np.linalg.norm(self.vel))
+
         print("Mass: ", '{:.3f}'.format(self.mass))
 
