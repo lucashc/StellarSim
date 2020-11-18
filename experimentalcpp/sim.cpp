@@ -31,7 +31,7 @@ void EulerForward(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax,
 
 bodylist copy_bodylist(bodylist &bodies){
     bodylist copy;
-    for(auto b: bodies){
+    for(auto b : bodies){
         Body* body_copy = new Body(b);
         copy.push_back(body_copy);
     }
@@ -39,9 +39,9 @@ bodylist copy_bodylist(bodylist &bodies){
 }
 
 
-bodylist* EulerForwardSave(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G){
-    auto save_list = new bodylist[n_steps];
-    save_list[0] = copy_bodylist(bodies);   // save initial state
+std::vector<bodylist> EulerForwardSave(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G){
+    std::vector<bodylist> save_list;
+    save_list.push_back(copy_bodylist(bodies));   // save initial state
     for(int step = 0; step < n_steps; step++){
         accelerations(bodies, thetamax, G);
         for(auto body: bodies){
@@ -50,7 +50,7 @@ bodylist* EulerForwardSave(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE 
 
         }
 
-        save_list[step + 1] = copy_bodylist(bodies);   // save bodies after a step
+        save_list.push_back(copy_bodylist(bodies));   // save bodies after a step
     }
     return save_list;
 }
