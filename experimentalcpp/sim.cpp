@@ -11,6 +11,7 @@ void accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
     std::cout << max_size << std::endl;
     auto topnode = new OctNode(center, max_size, bodies);
     for (auto  b : bodies) {
+        b->g = vec3(0,0,0);
         TreeWalk(topnode, b, thetamax, G);
     }
     delete topnode;
@@ -45,9 +46,8 @@ std::vector<bodylist> EulerForwardSave(bodylist &bodies, BASETYPE dt, int n_step
     for(int step = 0; step < n_steps; step++){
         accelerations(bodies, thetamax, G);
         for(auto body: bodies){
-            body->vel = body->vel + body->g * body->mass * dt;
+            body->vel = body->vel + body->g * dt;
             body->pos = body->pos + body->vel * dt;
-
         }
 
         save_list.push_back(copy_bodylist(bodies));   // save bodies after a step
