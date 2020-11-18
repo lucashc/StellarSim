@@ -73,30 +73,4 @@ std::ostream& operator<<(std::ostream& os, const vec3& v) {  // for printing vec
     return os << "\b\b)"; // remove last comma
 }
 
-std::pair<vec3, vec3> get_bounding_vectors(veclist &points) {
-    vec3 smallest;
-    vec3 largest;
-    for (auto p : points) {
-        if (p->x < smallest.x) {
-            smallest.x = p->x;
-        }
-        if (p->y < smallest.y) {
-            smallest.y = p->y;
-        }
-        if (p->z < smallest.z) {
-            smallest.z = p->z;
-        }
-        if (p->x > largest.x) {
-            largest.x = p->x;
-        }
-        if (p->y > largest.y) {
-            largest.y = p->y;
-        }
-        if (p->z > largest.z) {
-            largest.z = p->z;
-        }
-    }
-    return std::make_pair(smallest, largest);
-}
-
 #endif

@@ -30,4 +30,31 @@ bodylist zip_to_bodylist(veclist points, veclist velocities, scalist masses) {  
     }
     return bodies;
 }
+
+std::pair<vec3, vec3> get_bounding_vectors(bodylist &points) {
+    vec3 smallest;
+    vec3 largest;
+    for (auto p : points) {
+        if (p->pos.x < smallest.x) {
+            smallest.x = p->pos.x;
+        }
+        if (p->pos.y < smallest.y) {
+            smallest.y = p->pos.y;
+        }
+        if (p->pos.z < smallest.z) {
+            smallest.z = p->pos.z;
+        }
+        if (p->pos.x > largest.x) {
+            largest.x = p->pos.x;
+        }
+        if (p->pos.y > largest.y) {
+            largest.y = p->pos.y;
+        }
+        if (p->pos.z > largest.z) {
+            largest.z = p->pos.z;
+        }
+    }
+    return std::make_pair(smallest, largest);
+}
+
 #endif
