@@ -11,25 +11,28 @@ public:
     BASETYPE mass, size;
     std::vector<OctNode*> children;
     vec3 COM, center;
+    Body *id;
 
     OctNode(vec3 center, BASETYPE size, bodylist &bodies) :
             mass(), size(size), children(), COM(), center(center)
         {
         int n_points = bodies.size();
         if (n_points == 1) {
-            std::cout << std::endl;
-            std::cout << "Done with " << *bodies[0] << std::endl;
+            //std::cout << std::endl;
+            //std::cout << "Done with " << *bodies[0] << std::endl;
             COM = bodies[0]->pos;
             mass = bodies[0]->mass;
+            id = bodies[0];
         } else {
-            std::cout << std::endl;
-            std::cout << "We have " << n_points << " here at center " << center << " and size " << size << std::endl;
+            //std::cout << std::endl;
+            //std::cout << "We have " << n_points << " here at center " << center << " and size " << size << std::endl;
             GenerateChildren(bodies);
             for (auto c : children) {
                 mass += c->mass;
                 COM += c->COM;
             }
             COM = COM / mass;
+            id = nullptr;
         }
     }
 
@@ -45,7 +48,7 @@ public:
             int j = point->y > center.y;
             int k = point->z > center.z;
             int octant_index = 4*k + 2*j + i;  // construct binary number to choose octant
-            std::cout << "Putting body " << *bodies[index] << " in octant " << octant_index << std::endl;
+            //std::cout << "Putting body " << *bodies[index] << " in octant " << octant_index << std::endl;
             octant_bodies[octant_index].push_back(bodies[index]);
         }
 
@@ -54,7 +57,7 @@ public:
             int i = octant_index & 1;  // gets i,j,k from octant index
             int j = (octant_index & 2)/2;  // which we need to calculate the offset dx of the child node
             int k = (octant_index & 4)/4;
-            std::cout << "Found indices " << i << " " << j << " " << k << std::endl;
+            //std::cout << "Found indices " << i << " " << j << " " << k << std::endl;
             vec3 dx {(vec3(i, j, k) - vec3(1,1,1)*0.5) * (0.5*this->size)};
             OctNode *new_octnode = new OctNode(center + dx, this->size/2, octant_bodies[octant_index]);
             this->children.push_back(new_octnode);
@@ -71,8 +74,9 @@ public:
 void TreeWalk(OctNode* node, Body* b, BASETYPE thetamax, BASETYPE G) {
     vec3 dr = node->COM - b->pos;
     BASETYPE r = dr.norm();
-    if (r > 0) {
-        if (node->children.empty() || node->size / r < thetamax) {
+    if (r > 0.01) {
+        if ((node->children.empty() || node->size / r < thetamax) && node->id != b) {
+            std::cout << r << std::endl;
             b->g = b->g + dr * G * node->mass / pow(r, 3);
         }
         else {

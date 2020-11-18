@@ -8,7 +8,7 @@ void accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
     auto bounds = get_bounding_vectors(bodies);
     auto center = (bounds.first + bounds.second)/2;
     BASETYPE max_size = (bounds.first-bounds.second).abs().max();
-    std::cout << max_size << std::endl;
+    //std::cout << max_size << std::endl;
     auto topnode = new OctNode(center, max_size, bodies);
     for (auto  b : bodies) {
         b->g = vec3(0,0,0);
@@ -20,8 +20,8 @@ void accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
 
 void EulerForward(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G){
     for(int step = 0; step < n_steps; step++){
-        std::cout << std::endl;
-        std::cout << "Euler forward step " << step << std::endl;
+        //std::cout << std::endl;
+        //std::cout << "Euler forward step " << step << std::endl;
         accelerations(bodies, thetamax, G);
         for(auto body : bodies){
             body->vel = body->vel + body->g * dt;
