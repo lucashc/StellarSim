@@ -99,7 +99,7 @@ cdef class BodyList3:
     def __str__(self):
         result = f"BodyList3(size={self.bl.size()}, bodies=["
         result += ", ".join(map(str, self.b))
-        result += "]"
+        result += "])"
         return result
     
     def __repr__(self):
