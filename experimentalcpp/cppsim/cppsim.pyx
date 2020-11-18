@@ -97,7 +97,12 @@ cdef class BodyList3:
         # Save the array in the class as to increase the reference count of the needed objects
         self.b = b
     def __str__(self):
-        return "BodyList3(size=" + str(self.bl.size()) + ")"
+        result = f"BodyList3(size={self.bl.size()}, bodies=["
+        for i in self.b:
+            result += str(i) + ", "
+        result[-2:] = ""
+        result += "]"
+        return result
     
     def __repr__(self):
         return self.__str__()
