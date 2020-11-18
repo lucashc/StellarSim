@@ -8,34 +8,28 @@ class OctNode {
 public:
     BASETYPE mass, size;
     std::vector<OctNode*> children;
-    vec3 g, COM, center;
-    // Use underlying body as ID
-    // Only defined when a leaf, otherwise nullptr
-    Body* id;
+    vec3 COM, center;
 
-    OctNode(vec3 center, BASETYPE size, bodylist &bodies, std::vector<OctNode*> &leaves) :
-            center(center), size{size}, children(), COM(), mass(), g() 
+    OctNode(vec3 center, BASETYPE size, bodylist &bodies) :
+            center(center), size{size}, children(), COM(), mass()
         {
         int n_points = bodies.size();
         if (n_points == 1) {
             std::cout << "Done with " << *bodies[0] << std::endl;
-            leaves.push_back(this);
             COM = bodies[0]->pos;
             mass = bodies[0]->mass;
-            id = bodies[0];
         } else {
             std::cout << "We have " << n_points << " here" << std::endl;
-            GenerateChildren(bodies, leaves);
+            GenerateChildren(bodies);
             for (auto c : children) {
                 mass += c->mass;
                 COM += c->COM;
             }
             COM = COM / mass;
-            id = nullptr;
         }
     }
 
-    void GenerateChildren(bodylist &bodies, std::vector<OctNode*> &leaves){
+    void GenerateChildren(bodylist &bodies){
         int n = bodies.size();
         bodylist octant_bodies[8];  // contains a vector of bodies for each octant
         // veclist octant_points[8];  // contains a vector of points for each octant
@@ -58,7 +52,7 @@ public:
             BASETYPE a = 0.5*this->size;
             vec3 dx {(vec3(i, j, k) - vec3(1,1,1)*0.5) * (0.5*this->size)};
             bodylist this_octant_bodies{ octant_bodies[octant_index] };
-            OctNode *new_octnode = new OctNode(center + dx, this->size/2, this_octant_bodies, leaves);
+            OctNode *new_octnode = new OctNode(center + dx, this->size/2, this_octant_bodies);
             this->children.push_back(new_octnode);
         }
     }
@@ -70,17 +64,16 @@ public:
 };
 
 
-void TreeWalk(OctNode* node, OctNode* node0, BASETYPE thetamax, BASETYPE G) {
-    vec3 dr = node->COM - node0->COM;
+void TreeWalk(OctNode* node, Body* b, BASETYPE thetamax, BASETYPE G) {
+    vec3 dr = node->COM - b->pos;
     BASETYPE r = dr.norm();
-    std::cout << "Walking for node " << *node0->id << std::endl;
     if (r > 0) {
         if (node->children.empty() || node->size / r < thetamax) {
-            node0->g = node0->g + dr * G * node->mass / pow(r, 3);
+            b->g = b->g + dr * G * node->mass / pow(r, 3);
         }
         else {
             for (auto child : node->children) {
-                TreeWalk(child, node0, thetamax, G);
+                TreeWalk(child, b, thetamax, G);
             }
         }
     }

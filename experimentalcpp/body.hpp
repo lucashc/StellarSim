@@ -7,15 +7,16 @@
 
 class Body {
 public:
-    vec3 pos, vel;
+    vec3 pos, vel, g;
     BASETYPE mass;
     Body() : pos(), vel(), mass(1) {};
-    Body(vec3 pos, vec3 vel, BASETYPE mass) : pos(pos), vel(vel), mass(mass) {};
+    Body(vec3 pos, vec3 vel, BASETYPE mass) : pos(pos), vel(vel), mass(mass), g() {};
+    Body(vec3 pos, vec3 vel, BASETYPE mass, vec3 g) : pos(pos), vel(vel), mass(mass), g(g) {};
 };
 
 
 std::ostream& operator<<(std::ostream& os, const Body& b) {   // for printing Body objects
-    return os << "BODY[pos=" << b.pos << ", vel=" << b.vel << ", m=" << b.mass << "]";
+    return os << "BODY[pos=" << b.pos << ", vel=" << b.vel << ", m=" << b.mass << ", g=" << b.g << "]";
 }
 
 typedef std::vector<Body*> bodylist;
