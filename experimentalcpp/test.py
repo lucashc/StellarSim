@@ -5,15 +5,22 @@ from matplotlib import animation
 
 
 
-until_timestep = 100
-r0 = np.array([[0, 0, 0], [50, 0, 0], [0, 50, 0], [-100, -100, 0]], dtype=np.double)[:2]
-v0 = np.array([[0, 0, 0], [0, 100, 50], [-100, 0, 20], [-10, -30, 0]], dtype=np.double)[:2]
-m = np.array([1e6, 1, 10000, 10], dtype=np.double)[:2]
+until_timestep = 1000
+r0 = np.array([[0, 0, 0], [50, 0, 0], [0, 50, 0], [-100, -100, 0]], dtype=np.double)
+v0 = np.array([[0, 0, 0], [0, 100, 50], [-100, 0, 20], [-10, -30, 0]], dtype=np.double)
+m = np.array([1e6, 1, 10000, 10], dtype=np.double)
 N = len(r0)
+
+# N = 2
+# until_timestep = int(1e5)
+# r0 = np.array([[-50, 0, 0], [50, 0, 0]], dtype=np.double)
+# v0 = np.array([[0, -0.7, 0], [0, 0.7, 0]], dtype=np.double)
+# m = np.array([100, 100], dtype=np.double)
+
 bodies = np.array([cs.Body3(r0[i], v0[i], m[i]) for i in range(N)])
 bodylist = cs.BodyList3(bodies)
 
-result = cs.EulerForwardSaveC(bodylist, 1e-2, until_timestep, 1, 1)
+result = cs.EulerForwardSaveC(bodylist, 1e-2, until_timestep, 0, 1)
 
 s = np.empty((until_timestep, N, 3))
 for i in range(until_timestep):
@@ -31,8 +38,8 @@ def data_gen(index):
     ax.clear()
     #ax.axis('off')
     ax.grid('off')
-    plot0 = ax.plot3D(s[:index, 0, 0], s[:index, 0, 1], s[:index, 0, 2], linewidth=2)
-    plot1 = ax.plot3D(s[:index, 1, 0], s[:index, 1, 1], s[:index, 1, 2])
+    plot0 = ax.plot3D(s[:index, 0, 0], s[:index, 0, 1], s[:index, 0, 2], linewidth=1)
+    plot1 = ax.plot3D(s[:index, 1, 0], s[:index, 1, 1], s[:index, 1, 2],)
     plot2 = ax.plot3D(s[:index, 2, 0], s[:index, 2, 1], s[:index, 2, 2])
     plot3 = ax.plot3D(s[:index, 3, 0], s[:index, 3, 1], s[:index, 3, 2])
     ax.set(**large_limits)

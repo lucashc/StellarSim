@@ -29,10 +29,11 @@ public:
             GenerateChildren(bodies);
             for (auto c : children) {
                 mass += c->mass;
-                COM += c->COM;
+                COM += c->COM * c->mass;
             }
             COM = COM / mass;
             id = nullptr;
+            //std::cout << COM <<std::endl;
         }
     }
 
@@ -76,9 +77,9 @@ void TreeWalk(OctNode* node, Body* b, BASETYPE thetamax, BASETYPE G) {
     BASETYPE r = dr.norm();
     if (r > 0.01) {
         if ((node->children.empty() || node->size / r < thetamax) && node->id != b) {
-            std::cout << r << std::endl;
+            //std::cout << "Contribution of node with COM = " << node->COM << " and mass = " << node->mass << " on body " << *b << " is " << dr * G * node->mass / pow(r, 3) << "(dr = " << dr << ")" << std::endl;
             b->g = b->g + dr * G * node->mass / pow(r, 3);
-            std::cout << b->g + dr * G * node->mass / pow(r, 3) << "r = " << r << std::endl;
+            //std::cout << b->g << ", r = " << r << std::endl;
         }
         else {
             for (auto child : node->children) {

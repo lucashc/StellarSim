@@ -20,7 +20,7 @@ public:
         return vec3_<T>(this->x+v.x, this->y+v.y, this->z+v.z);
     }
     inline vec3_<T> operator-(const vec3_<T>& v) {
-        return vec3_<T>(this->x-v.x, this->y-v.x, this->z-v.z);
+        return vec3_<T>(this->x-v.x, this->y-v.y, this->z-v.z);
     }
     inline vec3_<T>operator*(const T x) {
         return vec3_<T>(this->x*x, this->y*x, this->z*x);
