@@ -11,6 +11,7 @@ public:
     BASETYPE mass, size;
     std::vector<OctNode*> children;
     vec3 COM, center;
+    Body *id;
 
     OctNode(vec3 center, BASETYPE size, bodylist &bodies) :
             mass(), size(size), children(), COM(), center(center)
@@ -21,6 +22,7 @@ public:
             //std::cout << "Done with " << *bodies[0] << std::endl;
             COM = bodies[0]->pos;
             mass = bodies[0]->mass;
+            id = bodies[0];
         } else {
             //std::cout << std::endl;
             //std::cout << "We have " << n_points << " here at center " << center << " and size " << size << std::endl;
@@ -30,6 +32,7 @@ public:
                 COM += c->COM;
             }
             COM = COM / mass;
+            id = nullptr;
         }
     }
 
@@ -71,8 +74,9 @@ public:
 void TreeWalk(OctNode* node, Body* b, BASETYPE thetamax, BASETYPE G) {
     vec3 dr = node->COM - b->pos;
     BASETYPE r = dr.norm();
-    if (r > 0) {
-        if (node->children.empty() || node->size / r < thetamax) {
+    if (r > 0.01) {
+        if ((node->children.empty() || node->size / r < thetamax) && node->id != b) {
+            std::cout << r << std::endl;
             b->g = b->g + dr * G * node->mass / pow(r, 3);
             std::cout << b->g + dr * G * node->mass / pow(r, 3) << "r = " << r << std::endl;
         }
