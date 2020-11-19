@@ -12,7 +12,7 @@ cdef extern from "vec3.cpp":
 
 cdef extern from "body.cpp":
     cdef cppclass Body:
-        vec3 pos, vel
+        vec3 pos, vel, g
         double mass
         Body()
         Body(vec3, vec3, double, vec3)
