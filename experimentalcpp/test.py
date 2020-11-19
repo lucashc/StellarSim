@@ -4,27 +4,28 @@ import matplotlib.pyplot as plt
 from matplotlib import animation
 
 
-N = 4
-until_timestep = 5000
-r0 = np.array([[0, 0, 0], [50, 0, 0], [0, 50, 0], [-100, -100, 0]], dtype=np.double)
-v0 = np.array([[0, 0, 0], [0, 100, 50], [-100, 0, 20], [-10, -30, 0]], dtype=np.double)
-m = np.array([1e6, 1, 10000, 10], dtype=np.double)
+
+until_timestep = 100
+r0 = np.array([[0, 0, 0], [50, 0, 0], [0, 50, 0], [-100, -100, 0]], dtype=np.double)[:2]
+v0 = np.array([[0, 0, 0], [0, 100, 50], [-100, 0, 20], [-10, -30, 0]], dtype=np.double)[:2]
+m = np.array([1e6, 1, 10000, 10], dtype=np.double)[:2]
+N = len(r0)
 bodies = np.array([cs.Body3(r0[i], v0[i], m[i]) for i in range(N)])
 bodylist = cs.BodyList3(bodies)
 
-result = cs.EulerForwardSaveC(bodylist, 1e-2, until_timestep, 0.5, 1)
+result = cs.EulerForwardSaveC(bodylist, 1e-2, until_timestep, 1, 1)
 
 s = np.empty((until_timestep, N, 3))
 for i in range(until_timestep):
     for j in range(N):
-        s[i, j, :] = result[i,j].pos
+        s[i, j, :] = result[i, j].pos
 
 
 large_limits = {"xlim": (-1000, 1000), "ylim": (-1000, 1000), "zlim":(-1000, 1000)}
 sun_limits = {"xlim": (-20, 1), "ylim": (-10, 10), "zlim": (-1, 5)}
-starting_angle = 0  # default 270, 0 for sun zoom
+starting_angle = 270  # default 270, 0 for sun zoom
 rotation_speed = 40  # default 40
-elevation = 0  # default 0
+elevation = 10  # default 0
 
 def data_gen(index):
     ax.clear()
@@ -44,7 +45,6 @@ fig = plt.figure()
 ax = fig.add_subplot(1, 1, 1, projection='3d')
 data_gen(until_timestep//2)
 plt.show()
-
 
 
 fig = plt.figure()
