@@ -2,25 +2,39 @@ import cppsim as cs
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import animation
+import experimental.sim_utils as utils
 
 
-
-until_timestep = 1000
-r0 = np.array([[0, 0, 0], [50, 0, 0], [0, 50, 0], [-100, -100, 0]], dtype=np.double)
-v0 = np.array([[0, 0, 0], [0, 100, 50], [-100, 0, 20], [-10, -30, 0]], dtype=np.double)
-m = np.array([1e6, 1, 10000, 10], dtype=np.double)
-N = len(r0)
+until_timestep = 50
+# r0 = np.array([[0, 0, 0], [50, 0, 0], [0, 50, 0], [-100, -100, 0]], dtype=np.double)
+# v0 = np.array([[0, 0, 0], [0, 100, 50], [-100, 0, 20], [-10, -30, 0]], dtype=np.double)
+# m = np.array([1e6, 1, 10000, 10], dtype=np.double)
+# N = len(r0)
 
 # N = 2
 # until_timestep = int(1e5)
-# r0 = np.array([[-50, 0, 0], [50, 0, 0]], dtype=np.double)
-# v0 = np.array([[0, -0.7, 0], [0, 0.7, 0]], dtype=np.double)
-# m = np.array([100, 100], dtype=np.double)
+r0 = [[-50, 0, 0], [50, 0, 0]]
+v0 = [[0, -0.7, 0], [0, 0.7, 0]]
+m = [100, 100]
+#bodies = np.array([cs.Body3(r0[i], v0[i], m[i]) for i in range(N)])
+#bodylist = cs.BodyList3(bodies)
+bodylist = utils.zip_to_bodylist(r0, v0, m)
 
-bodies = np.array([cs.Body3(r0[i], v0[i], m[i]) for i in range(N)])
-bodylist = cs.BodyList3(bodies)
+galaxy_bodies = [utils.make_body(np.zeros(3), np.zeros(3), 10000)]  # black hole
+for r in np.arange(1, 10):      # add stars
+    for theta in np.linspace(0, 2*np.pi, int(3*r)):
+        pos = np.array([r*np.sin(theta), r*np.cos(theta), 0], dtype=np.double)
+        v = np.array([r*np.cos(theta), -r*np.sin(theta), 0], dtype=np.double)
+        m = np.double(10)
+        galaxy_bodies.append(cs.Body3(pos, v, m))
 
-result = cs.EulerForwardSaveC(bodylist, 1e-2, until_timestep, 0, 1)
+
+N = len(galaxy_bodies)
+bodylist = cs.BodyList3(np.array(galaxy_bodies))
+
+
+result = cs.EulerForwardSaveC(bodylist, 1e-2, until_timestep, 1, 1)
+print("simulation done")
 
 s = np.empty((until_timestep, N, 3))
 for i in range(until_timestep):
