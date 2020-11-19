@@ -4,34 +4,57 @@
 #include "tree.cpp"
 
 
-OctNode* accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
-    veclist points;
-    for (auto body : bodies) {
-        points.push_back(&body->pos);
-    }
-    auto bounds = get_bounding_vectors(points);
+void accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
+    auto bounds = get_bounding_vectors(bodies);
     auto center = (bounds.first + bounds.second)/2;
     BASETYPE max_size = (bounds.first-bounds.second).abs().max();
-    std::cout << max_size << std::endl;
-    std::vector<OctNode*> leaves;
-    auto topnode = new OctNode(center, max_size, bodies, leaves);
-    for (auto  leaf : leaves) {
-        TreeWalk(topnode, leaf, thetamax, G);
+    //std::cout << max_size << std::endl;
+    auto topnode = new OctNode(center, max_size, bodies);
+    for (auto  b : bodies) {
+        b->g = vec3(0,0,0);
+        TreeWalk(topnode, b, thetamax, G);
+        //std::cout << topnode->children.size() << std::endl;
     }
-    return topnode;
+    delete topnode;
 }
 
-using namespace std;
 
-int main() {
-    auto p = vector<vec3> {vec3(0, 0, 0), vec3(2, 1, 0), vec3(-1, -1, 0), vec3(0, 2, 1) };
-    auto m = scalist({100.0, 1.0, 2.0, 123456});
-    auto v = vector<vec3>{vec3(0, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0), vec3(0, 0, 0) };
-    veclist p_, v_;
-    for(int i = 0; i<p.size(); i++){
-        p_.push_back(&p[i]);
-        v_.push_back(&v[i]);
+void EulerForward(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G){
+    for(int step = 0; step < n_steps; step++){
+        //std::cout << std::endl;
+        //std::cout << "Euler forward step " << step << std::endl;
+        accelerations(bodies, thetamax, G);
+        for(auto body : bodies){
+            body->vel = body->vel + body->g * dt;
+            body->pos = body->pos + body->vel * dt;
+        }
     }
-    auto newb = zip_to_bodylist(p_,v_,m);
-    auto result = accelerations(newb, 0.1, 1.0);
+}
+
+bodylist copy_bodylist(bodylist &bodies){
+    bodylist copy;
+    for(auto b : bodies){
+        Body* body_copy = new Body(b);
+        copy.push_back(body_copy);
+    }
+    return copy;
+}
+
+
+std::vector<bodylist> EulerForwardSave(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G){
+    std::vector<bodylist> save_list;
+    save_list.push_back(copy_bodylist(bodies));   // save initial state
+    //std::cout << *bodies[0] << std::endl;
+    //std::cout << *bodies[1] << std::endl;
+    for(int step = 0; step < n_steps; step++){
+        accelerations(bodies, thetamax, G);
+        for(auto body: bodies){
+            //std::cout << *body << std::endl;
+            body->vel = body->vel + body->g * dt;
+            body->pos = body->pos + body->vel * dt;
+        }
+
+        save_list.push_back(copy_bodylist(bodies));   // save bodies after a step
+    }
+    return save_list;
 }
