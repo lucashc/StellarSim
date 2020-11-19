@@ -4,13 +4,13 @@ cimport numpy as np
 from libcpp.vector cimport vector
 cimport cython
 
-cdef extern from "basetypes.hpp":
+cdef extern from "vec3.cpp":
     cdef cppclass vec3:
         double x, y, z
         vec3()
         vec3(double, double, double)
 
-cdef extern from "body.hpp":
+cdef extern from "body.cpp":
     cdef cppclass Body:
         vec3 pos, vel
         double mass
