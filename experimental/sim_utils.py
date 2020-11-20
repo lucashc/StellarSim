@@ -13,3 +13,24 @@ def zip_to_bodylist(pos_list, vel_list, m_list):
      Accepts native python & numpy objects"""
     bodies = [make_body(pos, vel, m) for pos, vel, m in zip(pos_list, vel_list, m_list)]
     return cs.BodyList3(np.array(bodies))
+
+
+def get_attribute(result, attr):
+    """Get attribute from bodies from C++ simulation """
+    n_steps = len(result)
+    N = len(result[0])
+    s = np.empty((n_steps, N, 3))
+    for i in range(n_steps):
+        for j in range(N):
+            s[i, j, :] = getattr(result[i, j], attr)
+
+    return s
+
+def get_positions(result):
+    """Get positions from bodies from C++ simulation """
+    return get_attribute(result, 'pos')
+
+
+def get_velocities(result):
+    """Get velocities from bodies from C++ simulation """
+    return get_attribute(result, 'vel')
