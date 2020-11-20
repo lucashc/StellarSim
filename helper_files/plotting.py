@@ -32,7 +32,7 @@ def data_gen(ax, dataset, index, particle_indices, frame_config, plotting_config
 
 def movie3d(dataset, particle_indices, **CONFIG):
     VIDEO_CONFIG = {
-        "filename": 'plots/test.mp4',
+        "filename": 'test.mp4',
         "preview": True,
         "until_timestep": len(dataset) - 1,
         "skip_steps": 1,
