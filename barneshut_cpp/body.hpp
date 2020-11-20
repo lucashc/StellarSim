@@ -2,6 +2,8 @@
 #define BODY
 
 #include <ostream>
+#include <fstream>
+#include <string>
 
 #include "basetypes.hpp"
 
@@ -57,5 +59,38 @@ std::pair<vec3, vec3> get_bounding_vectors(bodylist &points) {
     }
     return std::make_pair(smallest, largest);
 }
+
+void save_bodylist(const bodylist &bl, std::string filename) {
+    std::ofstream wf(filename, std::ofstream::out | std::ofstream::binary);
+    if (!wf) {
+        throw "Cannot open file!";
+    }
+    int len = bl.size();
+    wf << len;
+    for (auto b : bl) {
+        wf.write((char*) b, sizeof(Body));
+    }
+    wf.close();
+    if (!wf.good()) {
+        throw "Error writing!";
+    }
+}
+
+bodylist read_bodylist(std::string filename) {
+    std::ifstream rf(filename, std::ofstream::out | std::ofstream::binary);
+    if (!rf) {
+        throw "Cannot open file!";
+    }
+    int len;
+    rf >> len;
+    bodylist bl;
+    for (int i = 0; i < len; i++) {
+        Body b;
+        rf.read((char*) &b, sizeof(Body));
+        bl.push_back(new Body(&b));
+    }
+    return bl;
+}
+
 
 #endif
