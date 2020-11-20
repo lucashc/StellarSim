@@ -1,10 +1,10 @@
-import cppsim as cs
+import barneshut_cpp.cppsim as cs
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import animation
-import experimental.sim_utils as utils
+import helper_files.sim_utils as utils
 import time
-import experimental.plotting as plotting
+import helper_files.plotting as plotting
 
 G = 1
 thetamax = 0.5
@@ -38,14 +38,10 @@ for r in np.arange(1, 10)*25:      # add stars
         galaxy_bodies.append(cs.Body3(pos, v, m))
 
 
-N = len(galaxy_bodies)
 bodylist = cs.BodyList3(np.array(galaxy_bodies))
-
-
 n_steps = 30000  # int(30/1e-4)
-
 begin = time.time()
-result = cs.EulerForwardSaveC(bodylist, 1e-2, n_steps, thetamax, G)
+result = cs.LeapFrogSaveC(bodylist, 1e-2, n_steps, thetamax, G)
 end = time.time()
 print("Simulation finished after", end-begin, "s")
 
