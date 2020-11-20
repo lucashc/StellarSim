@@ -2,6 +2,7 @@
 import numpy as np
 cimport numpy as np
 from libcpp.vector cimport vector
+from libcpp.string cimport string
 cimport cython
 
 cdef extern from "basetypes.hpp":
@@ -17,6 +18,8 @@ cdef extern from "body.hpp":
         Body()
         Body(vec3, vec3, double, vec3)
     ctypedef vector[Body*] bodylist
+    void save_bodylist(const bodylist&, string) except +
+    bodylist read_bodylist(string) except +
 
 cdef extern from "sim.cpp":
     void LeapFrog(bodylist&, double, int, double, double)
@@ -129,6 +132,23 @@ cdef class BodyList3:
     
     def __len__(self):
         return self.bl.size()
+    
+    def save(self, filename):
+        cdef string cpp_filename = filename.encode('UTF-8')
+        save_bodylist(self.bl, cpp_filename)
+    
+    @staticmethod
+    def load(filename):
+        cdef string cpp_filename = filename.encode('UTF-8')
+        cdef bodylist bl
+        bl = read_bodylist(cpp_filename)
+        x = np.empty((bl.size(),), dtype=Body3_t)
+        for i in range(bl.size()):
+            placeholder = Body3()
+            placeholder.body = bl[i]
+            x[i] = placeholder
+        return BodyList3(x)
+        
 
 BodyList3_t = np.dtype(BodyList3)
 
