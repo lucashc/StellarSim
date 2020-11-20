@@ -29,4 +29,7 @@ int main() {
             delete b;
         }
     }
+    for (auto b : newb) {
+        delete b;
+    }
 }

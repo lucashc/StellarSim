@@ -21,7 +21,7 @@ bodies = np.array([cs.Body3(r0[i], v0[i], m[i]) for i in range(N)])
 bodylist = cs.BodyList3(bodies)
 
 result = cs.EulerForwardSaveC(bodylist, 1e-2, until_timestep, 0, 1)
-
+exit()
 s = np.empty((until_timestep, N, 3))
 for i in range(until_timestep):
     for j in range(N):
