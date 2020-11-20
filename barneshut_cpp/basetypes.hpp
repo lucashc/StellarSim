@@ -51,6 +51,9 @@ public:
     inline vec3_<T> abs() {
         return vec3_<T>(std::abs(x), std::abs(y), std::abs(z));
     }
+    inline bool operator==(const vec3_<T> &v){
+        return (x==v.x) && (y==v.y) && (z==v.z); 
+    }
 };
 
 
