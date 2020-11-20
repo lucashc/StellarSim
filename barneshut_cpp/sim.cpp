@@ -19,7 +19,7 @@ void accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
 }
 
 
-void EulerForward(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G){
+void LeapFrog(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G){
     for(int step = 0; step < n_steps; step++){
         //std::cout << std::endl;
         //std::cout << "Euler forward step " << step << std::endl;
@@ -41,7 +41,7 @@ bodylist copy_bodylist(bodylist &bodies){
 }
 
 
-std::vector<bodylist> EulerForwardSave(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G){
+std::vector<bodylist> LeapFrogSave(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G){
     std::vector<bodylist> save_list;
     save_list.push_back(copy_bodylist(bodies));   // save initial state
     //std::cout << *bodies[0] << std::endl;

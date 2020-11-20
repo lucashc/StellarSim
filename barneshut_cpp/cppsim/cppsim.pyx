@@ -19,8 +19,8 @@ cdef extern from "body.hpp":
     ctypedef vector[Body*] bodylist
 
 cdef extern from "sim.cpp":
-    void EulerForward(bodylist&, double, int, double, double)
-    vector[bodylist] EulerForwardSave(bodylist&, double, int, double, double)
+    void LeapFrog(bodylist&, double, int, double, double)
+    vector[bodylist] LeapFrogSave(bodylist&, double, int, double, double)
 
 
 cdef class Body3:
@@ -132,13 +132,13 @@ cdef class BodyList3:
 
 BodyList3_t = np.dtype(BodyList3)
 
-def EulerForwardC(BodyList3 bodies, double dt, int n_steps, double thetamax, double G):
-    EulerForward(bodies.bl, dt, n_steps, thetamax, G)
+def LeapFrogC(BodyList3 bodies, double dt, int n_steps, double thetamax, double G):
+    LeapFrog(bodies.bl, dt, n_steps, thetamax, G)
 
 
-def EulerForwardSaveC(BodyList3 bodies, double dt, int n_steps, double thetamax, double G):
+def LeapFrogSaveC(BodyList3 bodies, double dt, int n_steps, double thetamax, double G):
     cdef vector[bodylist] saves
-    saves = EulerForwardSave(bodies.bl, dt, n_steps, thetamax, G)
+    saves = LeapFrogSave(bodies.bl, dt, n_steps, thetamax, G)
     save_result = np.empty((n_steps+1,len(bodies)), dtype=Body3_t)
     for i in range(saves.size()):
         for j in range(saves[i].size()):

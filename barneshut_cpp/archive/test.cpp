@@ -18,7 +18,7 @@ int main() {
         v_.push_back(&v[i]);
     }
     auto newb = zip_to_bodylist(p_,v_,m);
-    auto s = EulerForwardSave(newb, 1e-4, 2500, 0.5, 1);
+    auto s = LeapFrogSave(newb, 1e-4, 2500, 0.5, 1);
     std::cout << s.size() << std::endl;
     std::cout << *s[2500][0] << std::endl;
     std::cout << *s[2500][1] << std::endl;
