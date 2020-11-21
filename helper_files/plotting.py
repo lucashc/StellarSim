@@ -9,7 +9,7 @@ def data_gen(ax, dataset, index, particle_indices, frame_config, plotting_config
         frame_data = dataset[:index]
         plotting_config = {}
     elif frame_config["mode"] == 'point':
-        frame_data = dataset[index]
+        frame_data = dataset[index:index+1]
         plotting_config = {'linestyle': 'none', 'marker': '.'}
     ax.clear()
     if frame_config["axes"]:
@@ -23,16 +23,15 @@ def data_gen(ax, dataset, index, particle_indices, frame_config, plotting_config
         ax.grid('off')
 
     plotlist = []
-    if frame_config["mode"] == "point":
-        for p_index in particle_indices:
-            plotlist.append(ax.plot3D(frame_data[p_index, 0], frame_data[p_index, 1], frame_data[p_index, 2], **plotting_config))
 
-    elif frame_config["mode"] == "line":
-        for p_index in particle_indices:
-            plotlist.append(ax.plot3D(frame_data[:, p_index, 0], frame_data[:, p_index, 1], frame_data[:, p_index, 2], **plotting_config))
+    for p_index in particle_indices:
+        plotlist.append(ax.plot3D(frame_data[:, p_index, 0], frame_data[:, p_index, 1], frame_data[:, p_index, 2],
+                                  **plotting_config))
+
 
     ax.set(**{lim: bounds for lim, bounds in frame_config.items() if lim in ["xlim", "ylim", "zlim"]})
-    ax.view_init(elev=frame_config["elevation"], azim=index*frame_config["rotation_speed"]/3600 + frame_config["init_azimuth"])
+    ax.view_init(elev=frame_config["elevation"],
+                 azim=index*frame_config["rotation_speed"]/3600/frame_config["skip_steps"] + frame_config["init_azimuth"])
     return plotlist
 
 
@@ -40,6 +39,7 @@ def movie3d(dataset, particle_indices, **CONFIG):
     VIDEO_CONFIG = {
         "filename": 'test.mp4',
         "preview": True,
+        "preview_frame": 0,
         "until_timestep": len(dataset)-1,
         "skip_steps": 1,
         "fps": 30,
@@ -73,15 +73,17 @@ def movie3d(dataset, particle_indices, **CONFIG):
     frame_config = {**FRAME_CONFIG, **frame_config}
     video_config = {**VIDEO_CONFIG, **video_config}
 
+    frame_config["skip_steps"] = video_config["skip_steps"]  # pass along to data gen to normalize rotation speed
     if video_config['preview']:
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1, projection='3d')
-        data_gen(ax, dataset, video_config["until_timestep"], particle_indices, frame_config, plotting_config)
+        data_gen(ax, dataset, video_config["preview_frame"], particle_indices, frame_config, plotting_config)
         plt.show()
 
     fig = plt.figure()
     # ax = plt.axes(projection='3d')
     ax = fig.add_subplot(1, 1, 1, projection='3d')
+
     data_gen_formatted = lambda index: data_gen(ax, dataset, index, particle_indices, frame_config, plotting_config)
 
     grav_ani = animation.FuncAnimation(fig, data_gen_formatted,
