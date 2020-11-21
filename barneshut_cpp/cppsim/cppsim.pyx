@@ -2,6 +2,7 @@
 import numpy as np
 cimport numpy as np
 from libcpp.vector cimport vector
+from libcpp cimport bool
 from libcpp.string cimport string
 cimport cython
 
@@ -10,6 +11,7 @@ cdef extern from "basetypes.hpp":
         double x, y, z
         vec3()
         vec3(double, double, double)
+        bool operator==(const vec3 &v)
 
 cdef extern from "body.hpp":
     cdef cppclass Body:
@@ -148,9 +150,13 @@ cdef class BodyList3:
             placeholder.body = bl[i]
             x[i] = placeholder
         return BodyList3(x)
-
-    def __add__(self, BodyList3 other):
-        self.b
+    
+    def check_integrity(self):
+        for i in self.bl:
+            for j in self.bl:
+                if i !=j and i[0].pos == j[0].pos:
+                    raise ValueError("Some bodies are at the same location")
+        return
         
 
 BodyList3_t = np.dtype(BodyList3)
@@ -161,7 +167,10 @@ def LeapFrogC(BodyList3 bodies, double dt, int n_steps, double thetamax, double 
 
 def LeapFrogSaveC(BodyList3 bodies, double dt, int n_steps, double thetamax, double G):
     cdef vector[bodylist] saves
+    print("Before")
+    print(bodies)
     saves = LeapFrogSave(bodies.bl, dt, n_steps, thetamax, G)
+    print("Here")
     save_result = np.empty((n_steps+1,len(bodies)), dtype=Body3_t)
     for i in range(saves.size()):
         for j in range(saves[i].size()):
