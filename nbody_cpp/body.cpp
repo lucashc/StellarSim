@@ -12,6 +12,12 @@ public:
     BASETYPE mass;
     Body() : pos(), vel(), mass(1) {};
     Body(vec3 pos, vec3 vel, BASETYPE mass) : pos(pos), vel(vel), mass(mass) {};
+
+    vec3 pull(vec3& pos) {
+        vec3 direction = this->pos - pos;
+        BASETYPE norm = direction.norm();
+        return direction * this->mass / (norm * norm * norm);
+    }
 };
 
 
