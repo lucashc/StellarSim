@@ -2,6 +2,8 @@
 #include <iostream>
 #include "basetypes.hpp"
 #include "tree.cpp"
+// #include <execution>
+// #include <algorithm>
 
 
 void accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
@@ -10,6 +12,10 @@ void accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
     BASETYPE max_size = (bounds.first-bounds.second).abs().max();
     //std::cout << max_size << std::endl;
     auto topnode = new OctNode(center, max_size, bodies);
+    // std::for_each(std::execution::par_unseq, bodies.begin(), bodies.end(), [=](Body *b){
+    //     b->g = vec3(0,0,0);
+    //     TreeWalk(topnode, b, thetamax, G);
+    // });
     for (auto  b : bodies) {
         b->g = vec3(0,0,0);
         TreeWalk(topnode, b, thetamax, G);
