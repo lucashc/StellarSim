@@ -130,3 +130,9 @@ dmypy.json
 
 # Exclude g++ binaries
 a.out
+
+# Exclude vscode
+.vscode/
+
+# Exclude Cython file
+barneshut_cpp/cppsim/cppsim.cpp

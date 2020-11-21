@@ -8,7 +8,7 @@
 
 class Body {
 public:
-    vec3 pos, vel;
+    vec3 pos, vel, g;
     BASETYPE mass;
     Body() : pos(), vel(), mass(1) {};
     Body(vec3 pos, vec3 vel, BASETYPE mass) : pos(pos), vel(vel), mass(mass) {};
@@ -18,6 +18,7 @@ public:
         BASETYPE norm = direction.norm();
         return direction * this->mass / (norm * norm * norm);
     }
+
 };
 
 

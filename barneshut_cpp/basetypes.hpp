@@ -20,7 +20,7 @@ public:
         return vec3_<T>(this->x+v.x, this->y+v.y, this->z+v.z);
     }
     inline vec3_<T> operator-(const vec3_<T>& v) {
-        return vec3_<T>(this->x-v.x, this->y-v.x, this->z-v.z);
+        return vec3_<T>(this->x-v.x, this->y-v.y, this->z-v.z);
     }
     inline vec3_<T>operator*(const T x) {
         return vec3_<T>(this->x*x, this->y*x, this->z*x);
@@ -51,6 +51,9 @@ public:
     inline vec3_<T> abs() {
         return vec3_<T>(std::abs(x), std::abs(y), std::abs(z));
     }
+    inline bool operator==(const vec3_<T> &v){
+        return (x==v.x) && (y==v.y) && (z==v.z); 
+    }
 };
 
 
@@ -71,32 +74,6 @@ std::ostream& operator<<(std::ostream& os, const vec3& v) {  // for printing vec
         os << strs[coordnum] << ", ";
     }
     return os << "\b\b)"; // remove last comma
-}
-
-std::pair<vec3, vec3> get_bounding_vectors(veclist &points) {
-    vec3 smallest;
-    vec3 largest;
-    for (auto p : points) {
-        if (p->x < smallest.x) {
-            smallest.x = p->x;
-        }
-        if (p->y < smallest.y) {
-            smallest.y = p->y;
-        }
-        if (p->z < smallest.z) {
-            smallest.z = p->z;
-        }
-        if (p->x > largest.x) {
-            largest.x = p->x;
-        }
-        if (p->y > largest.y) {
-            largest.y = p->y;
-        }
-        if (p->z > largest.z) {
-            largest.z = p->z;
-        }
-    }
-    return std::make_pair(smallest, largest);
 }
 
 #endif
