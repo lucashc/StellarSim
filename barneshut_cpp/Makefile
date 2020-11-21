@@ -7,6 +7,7 @@ clean:
 	rm -f test.elf
 	rm -f *.so
 	rm -f *.pyd
+	rm -f a.out gmon.out analysis.txt
 
 build_cython:
 	python3 setup.py build_ext --inplace
@@ -22,3 +23,8 @@ build: build_cython build_test
 
 test: build
 	python3 tests/pytest.py
+
+profile:
+	g++ -std=c++17 -pthread -ltbb archive/test.cpp
+	./a.out
+	#gprof ./a.out gmon.out > analysis.txt
