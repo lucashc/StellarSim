@@ -8,12 +8,12 @@ import helper_files.plotting as plotting
 
 thetamax = 0.5
 G = 1
-n_steps = 1500
-dt = 1e-1
+n_steps = 15000
+dt = 1e-2
 
-center1 = np.array([500, 0, 0])
-center2 = np.array([-500, 0, 0])
-v1 = np.array([-10, 4, 0])
+center1 = np.array([400, 0, 0])
+center2 = np.array([-400, 0, 0])
+v1 = np.array([-1, 0.2, 0])
 v2 = -v1  # equal masses => total momentum 0
 m_BH = 100000   # mass of black hole
 
@@ -39,12 +39,14 @@ all_m = masses + masses
 # exit()
 # one_body = galaxy1[2]
 
-large_limits = {"xlim": (-1600, 1600), "ylim": (-1600, 1600), "zlim": (-1600, 1600)}
+
 total_bodylist = utils.zip_to_bodylist(all_pos, all_vel, all_m)
 total_bodylist.check_integrity()
 results = cs.LeapFrogSaveC(total_bodylist, dt, n_steps, thetamax, G)
-print("done")
+print("Simulation done")
+
+large_limits = {"xlim": (-1600, 1600), "ylim": (-1600, 1600), "zlim": (-1600, 1600)}
 s = utils.get_positions(results)
 particles = [4*n for n in range(2*N//4)]
-plotting.movie3d(s, particles, **large_limits, mode='point', elevation=20, fps=25, skip_steps=15)
+plotting.movie3d(s, particles, **large_limits, mode='point', elevation=20, fps=25, skip_steps=200)
 #plotting.movie3d(s, [0, 2, 30, 60, -1], until_timestep=1000, skip_steps=10, mode="point", **medium_limits)
