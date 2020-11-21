@@ -167,10 +167,7 @@ def LeapFrogC(BodyList3 bodies, double dt, int n_steps, double thetamax, double 
 
 def LeapFrogSaveC(BodyList3 bodies, double dt, int n_steps, double thetamax, double G):
     cdef vector[bodylist] saves
-    print("Before")
-    print(bodies)
     saves = LeapFrogSave(bodies.bl, dt, n_steps, thetamax, G)
-    print("Here")
     save_result = np.empty((n_steps+1,len(bodies)), dtype=Body3_t)
     for i in range(saves.size()):
         for j in range(saves[i].size()):

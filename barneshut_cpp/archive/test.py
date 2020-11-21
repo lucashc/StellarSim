@@ -40,9 +40,9 @@ bodylist = cs.BodyList3(np.array(galaxy_bodies))
 
 
 
-n_steps = 30000  # int(30/1e-4)
+n_steps = 3000  # int(30/1e-4)
 begin = time.time()
-result = cs.LeapFrogSaveC(bodylist, 1e-2, n_steps, thetamax, G)
+result = cs.LeapFrogSaveC(bodylist, 1e-1, n_steps, thetamax, G)
 end = time.time()
 print("Simulation finished after", end-begin, "s")
 
@@ -50,5 +50,5 @@ s = utils.get_positions(result)
 
 large_limits = {"xlim": (-1000, 1000), "ylim": (-1000, 1000), "zlim": (-1000, 1000)}
 medium_limits = {"xlim": (-300, 300), "ylim": (-300, 300), "zlim": (-300, 300)}
-plotting.movie3d(s, [0, 2, 30, 60, -1], until_timestep=1000, skip_steps=10, mode="point", **medium_limits)
+plotting.movie3d(s, [0, 2, 30, 60, -1], until_timestep=1000, skip_steps=10, mode="line", **medium_limits)
 
