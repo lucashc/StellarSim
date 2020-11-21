@@ -36,9 +36,10 @@ for r in np.arange(1, 10)*25:      # add stars
         v = np.array([np.cos(theta), -np.sin(theta), 0], dtype=np.double)*np.sqrt(G*m_BH/r)
         m = np.double(10)
         galaxy_bodies.append(cs.Body3(pos, v, m))
-
-
 bodylist = cs.BodyList3(np.array(galaxy_bodies))
+
+
+
 n_steps = 30000  # int(30/1e-4)
 begin = time.time()
 result = cs.LeapFrogSaveC(bodylist, 1e-2, n_steps, thetamax, G)

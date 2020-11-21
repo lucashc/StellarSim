@@ -12,7 +12,7 @@ n_steps = 1000
 dt = 1e-3
 
 center1 = np.array([500, 0, 0])
-center2 = np.array([500, 0, 0])
+center2 = np.array([-500, 0, 0])
 v1 = np.array([-50, 5, 0])
 v2 = -v1  # equal masses => total momentum 0
 m_BH = 100000   # mass of black hole
@@ -39,10 +39,10 @@ all_m = masses + masses
 # exit()
 # one_body = galaxy1[2]
 
-
+large_limits = {"xlim": (-1000, 1000), "ylim": (-1000, 1000), "zlim": (-1000, 1000)}
 total_bodylist = utils.zip_to_bodylist(all_pos, all_vel, all_m)
 
 results = cs.LeapFrogSaveC(total_bodylist, dt, n_steps, thetamax, G)
 print("done")
 s = utils.get_positions(results)
-plotting.movie3d(s, [0,1,N//2,N-1,N,N+1,N+N//2, 2*N-1], mode='point')
+plotting.movie3d(s, [0,1,N//2,N-1,N,N+1,N+N//2, 2*N-1], mode='line', **large_limits)
