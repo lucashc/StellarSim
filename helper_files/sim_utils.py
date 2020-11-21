@@ -15,8 +15,8 @@ def zip_to_bodylist(pos_list, vel_list, m_list):
     return cs.BodyList3(np.array(bodies))
 
 
-def get_attribute(result, attr):
-    """Get attribute from bodies from C++ simulation """
+def get_vec_attribute(result, attr):
+    """Get a vector attribute from bodies from C++ simulation """
     n_steps = len(result)
     N = len(result[0])
     s = np.empty((n_steps, N, 3))
@@ -26,11 +26,26 @@ def get_attribute(result, attr):
 
     return s
 
+def get_sca_attribute(result, attr):
+    """Get scalar attribute from bodies from C++ simulation """
+    n_steps = len(result)
+    N = len(result[0])
+    s = np.empty((n_steps, N))
+    for i in range(n_steps):
+        for j in range(N):
+            s[i, j] = getattr(result[i, j], attr)
+
+    return s
+
 def get_positions(result):
     """Get positions from bodies from C++ simulation """
-    return get_attribute(result, 'pos')
+    return get_vec_attribute(result, 'pos')
 
 
 def get_velocities(result):
     """Get velocities from bodies from C++ simulation """
-    return get_attribute(result, 'vel')
+    return get_vec_attribute(result, 'vel')
+
+def get_masses(result):
+    """Get velocities from bodies from C++ simulation """
+    return get_sca_attribute(result, 'mass')
