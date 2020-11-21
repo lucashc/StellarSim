@@ -23,7 +23,7 @@ cdef extern from "body.hpp":
 
 cdef extern from "sim.cpp":
     void LeapFrog(bodylist&, double, int, double, double)
-    vector[bodylist] LeapFrogSave(bodylist&, double, int, double, double)
+    vector[bodylist] LeapFrogSave(bodylist&, double, int, double, double) except +
 
 
 cdef class Body3:
@@ -148,6 +148,9 @@ cdef class BodyList3:
             placeholder.body = bl[i]
             x[i] = placeholder
         return BodyList3(x)
+
+    def __add__(self, BodyList3 other):
+        self.b
         
 
 BodyList3_t = np.dtype(BodyList3)
