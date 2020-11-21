@@ -2,8 +2,8 @@
 #include <iostream>
 #include "basetypes.hpp"
 #include "tree.cpp"
-#include <execution>
-#include <algorithm>
+// #include <execution>
+// #include <algorithm>
 
 
 void accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
