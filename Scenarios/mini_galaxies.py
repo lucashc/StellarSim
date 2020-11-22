@@ -8,12 +8,12 @@ import helper_files.plotting as plotting
 
 thetamax = 0.5
 G = 1
-n_steps = 15000
-dt = 1e-2
+n_steps = 1500
+dt = 1e-1
 
 center1 = np.array([400, 0, 0])
 center2 = np.array([-400, 0, 0])
-v1 = np.array([-1, 0.2, 0])
+v1 = np.array([-3, 0.6, 0])
 v2 = -v1  # equal masses => total momentum 0
 m_BH = 100000   # mass of black hole
 
@@ -47,6 +47,9 @@ print("Simulation done")
 
 large_limits = {"xlim": (-1600, 1600), "ylim": (-1600, 1600), "zlim": (-1600, 1600)}
 s = utils.get_positions(results)
-particles = [4*n for n in range(2*N//4)]
-plotting.movie3d(s, particles, **large_limits, mode='point', elevation=20, fps=25, skip_steps=200)
+particles = [4*n for n in range(2*N//4)] + [N]  # 1 in 4 particles + second black hole
+particle_config = [{"color": "k", "markersize": "10"}] + (N-1)*[{"color": "b"}] + [{"color": "k", "markersize": "10"}] \
+                  + (N-1)*[{"color": "r"}]
+plotting.movie3d(s, particles, **large_limits, mode='point', elevation=20, fps=25, skip_steps=20,
+                 particle_config=particle_config)
 #plotting.movie3d(s, [0, 2, 30, 60, -1], until_timestep=1000, skip_steps=10, mode="point", **medium_limits)
