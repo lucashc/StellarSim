@@ -7,7 +7,6 @@
 const unsigned int THREAD_COUNT = std::thread::hardware_concurrency();
 
 void apply_acceleration(int id, bodylist * bodies, BASETYPE thetamax, BASETYPE G, OctNode * topnode) {
-    std::cout << "Hello: " << id << std::endl;
     for (long unsigned int i = id; i < bodies->size(); i += THREAD_COUNT) {
         TreeWalk(topnode, bodies->at(i), thetamax, G);
     }
