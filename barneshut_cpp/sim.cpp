@@ -3,9 +3,8 @@
 #include "basetypes.hpp"
 #include "tree.cpp"
 #include <thread>
-// #include <execution>
-// #include <algorithm>
-#define THREAD_COUNT 4
+
+const unsigned int THREAD_COUNT = std::thread::hardware_concurrency();
 
 void apply_acceleration(int id, bodylist * bodies, BASETYPE thetamax, BASETYPE G, OctNode * topnode) {
     std::cout << "Hello: " << id << std::endl;
@@ -21,11 +20,11 @@ void accelerated_accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) 
     auto topnode = new OctNode(center, max_size, bodies);
 
     std::thread threads[THREAD_COUNT];
-    for (int i = 0; i < THREAD_COUNT; i++){
+    for (unsigned int i = 0; i < THREAD_COUNT; i++){
         threads[i] = std::thread(apply_acceleration, i, &bodies, thetamax, G, topnode);
     }
 
-    for (int i = 0; i < THREAD_COUNT; i++) {
+    for (unsigned int i = 0; i < THREAD_COUNT; i++) {
         threads[i].join();
     }
     delete topnode;
