@@ -9,7 +9,7 @@ scale = 20
 class RenderApp(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
-        bl = cs.BodyList3.load('galaxies.bin')
+        bl = cs.BodyList3.load('galaxies  0.bin')
         vdata = GeomVertexData('galaxies', GeomVertexFormat.get_v3c4(), Geom.UHStatic)
         vdata.setNumRows(len(bl))
         self.vertex = GeomVertexWriter(vdata, 'vertex')
