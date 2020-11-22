@@ -12,7 +12,7 @@ public:
     vec3 pos, vel, g;
     BASETYPE mass;
     Body() : pos(), vel(), mass(1) {};
-    Body(vec3 pos, vec3 vel, BASETYPE mass) : pos(pos), vel(vel), g(), mass(mass) {};
+    Body(vec3 pos, vec3 vel, BASETYPE mass) : pos(pos), vel(vel), g(vec3(0, 0, 0)), mass(mass) {};
     Body(vec3 pos, vec3 vel, BASETYPE mass, vec3 g) : pos(pos), vel(vel), g(g), mass(mass) {};
     Body(Body* b) : pos(b->pos), vel(b->vel), g(b->g), mass(b->mass) {};
 };

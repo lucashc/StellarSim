@@ -2,9 +2,34 @@
 #include <iostream>
 #include "basetypes.hpp"
 #include "tree.cpp"
+#include <thread>
 // #include <execution>
 // #include <algorithm>
+#define THREAD_COUNT 4
 
+void apply_acceleration(int id, bodylist * bodies, BASETYPE thetamax, BASETYPE G, OctNode * topnode) {
+    std::cout << "Hello: " << id << std::endl;
+    for (long unsigned int i = id; i < bodies->size(); i += THREAD_COUNT) {
+        TreeWalk(topnode, bodies->at(i), thetamax, G);
+    }
+}
+
+void accelerated_accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
+    auto bounds = get_bounding_vectors(bodies);
+    auto center = (bounds.first + bounds.second)/2;
+    BASETYPE max_size = (bounds.first - bounds.second).abs().max();
+    auto topnode = new OctNode(center, max_size, bodies);
+
+    std::thread threads[THREAD_COUNT];
+    for (int i = 0; i < THREAD_COUNT; i++){
+        threads[i] = std::thread(apply_acceleration, i, &bodies, thetamax, G, topnode);
+    }
+
+    for (int i = 0; i < THREAD_COUNT; i++) {
+        threads[i].join();
+    }
+    delete topnode;
+}
 
 void accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
     auto bounds = get_bounding_vectors(bodies);
@@ -17,7 +42,6 @@ void accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
     //     TreeWalk(topnode, b, thetamax, G);
     // });
     for (auto  b : bodies) {
-        b->g = vec3(0,0,0);
         TreeWalk(topnode, b, thetamax, G);
         //std::cout << topnode->children.size() << std::endl;
     }
