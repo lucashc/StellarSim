@@ -136,3 +136,10 @@ a.out
 
 # Exclude Cython file
 barneshut_cpp/cppsim/cppsim.cpp
+
+# Exclude bodylist objs
+*.bin
+
+# Exclude plots and videos
+*.mp4
+*.png
