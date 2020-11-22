@@ -8,8 +8,8 @@ import helper_files.render as render
 
 thetamax = 0.5
 G = 1
-n_steps = 100
-dt = 1e-2
+n_steps = 1500
+dt = 1e-1
 
 center1 = np.array([400, 0, 0])
 center2 = np.array([-400, 0, 0])

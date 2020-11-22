@@ -8,6 +8,7 @@ const unsigned int THREAD_COUNT = std::thread::hardware_concurrency();
 
 void apply_acceleration(int id, bodylist * bodies, BASETYPE thetamax, BASETYPE G, OctNode * topnode) {
     for (long unsigned int i = id; i < bodies->size(); i += THREAD_COUNT) {
+        bodies->at(i)->g = vec3(0, 0, 0);
         TreeWalk(topnode, bodies->at(i), thetamax, G);
     }
 }
@@ -40,6 +41,7 @@ void accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
     //     TreeWalk(topnode, b, thetamax, G);
     // });
     for (auto  b : bodies) {
+        b->g = vec3(0, 0, 0);
         TreeWalk(topnode, b, thetamax, G);
         //std::cout << topnode->children.size() << std::endl;
     }
@@ -75,7 +77,7 @@ std::vector<bodylist> LeapFrogSave(bodylist &bodies, BASETYPE dt, int n_steps, B
     //std::cout << *bodies[0] << std::endl;
     //std::cout << *bodies[1] << std::endl;
     for(int step = 0; step < n_steps; step++){
-        accelerations(bodies, thetamax, G);
+        accelerated_accelerations(bodies, thetamax, G);
         for(auto body: bodies){
             //std::cout << *body << std::endl;
             body->vel = body->vel + body->g * dt;
