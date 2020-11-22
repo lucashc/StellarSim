@@ -89,7 +89,7 @@ def movie3d(dataset, particle_indices, **CONFIG):
         "elevation": 10,
         "axes": True,
         "grid": False,
-        "particle_config": []
+        "particle_config": None
     }
 
     plotting_config = {}

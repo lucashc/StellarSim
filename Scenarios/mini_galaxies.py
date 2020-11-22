@@ -47,8 +47,9 @@ print("Simulation done")
 
 large_limits = {"xlim": (-1600, 1600), "ylim": (-1600, 1600), "zlim": (-1600, 1600)}
 s = utils.get_positions(results)
-particles = [4*n for n in range(2*N//4)]
-particle_config = N*[{"color": "b"}] + N*[{"color": "r"}]
+particles = [4*n for n in range(2*N//4)] + [N]  # 1 in 4 particles + second black hole
+particle_config = [{"color": "k", "markersize": "10"}] + (N-1)*[{"color": "b"}] + [{"color": "k", "markersize": "10"}] \
+                  + (N-1)*[{"color": "r"}]
 plotting.movie3d(s, particles, **large_limits, mode='point', elevation=20, fps=25, skip_steps=20,
                  particle_config=particle_config)
 #plotting.movie3d(s, [0, 2, 30, 60, -1], until_timestep=1000, skip_steps=10, mode="point", **medium_limits)
