@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -Wall -g
+CFLAGS = -Wall -g -pthread
 
 clean: 
 	rm -Rf ./build
@@ -25,7 +25,7 @@ test: build
 	python3 tests/pytest.py
 
 profile:
-	g++ -std=c++17 -pthread -ltbb archive/test.cpp
+	$(CC) $(CFLAGS) -pg archive/test.cpp
 	./a.out
-	#gprof ./a.out gmon.out > analysis.txt
+	gprof ./a.out gmon.out > analysis.txt
 
