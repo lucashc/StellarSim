@@ -48,7 +48,6 @@ def animate(point_series, masses, plane, size_x, size_y):
     plt.tight_layout()
 
     def func(n):
-        print(n)
         points = point_series[n]
         # com = (points*masses)/np.sum(masses)
         raster = Raster(size_x, size_y)
