@@ -8,7 +8,7 @@ import helper_files.render as render
 
 thetamax = 0.5
 G = 1
-n_steps = 100
+n_steps = 1500
 dt = 1e-1
 
 center1 = np.array([400, 0, 0])
@@ -22,9 +22,15 @@ velocities = [np.zeros(3)]
 masses = [m_BH]
 for r in np.arange(1, 10)*25:      # add stars in rings around black hole
     for theta in np.linspace(0, 2*np.pi, int(3*r/25))[:-1]:
+<<<<<<< HEAD
         positions.append(np.array([r*np.sin(theta), r*np.cos(theta), 0]))
         velocities.append(np.array([np.cos(theta), -np.sin(theta), 0])*np.sqrt(G*m_BH/r))
         masses.append(10)
+=======
+        ppositions.append(np.array([r*np.sin(theta), r*np.cos(theta), 0]))
+        vvelocities.append(np.array([np.cos(theta), -np.sin(theta), 0])*np.sqrt(G*m_BH/r))
+        mmasses.append(10)
+>>>>>>> threaded
 
 positions = np.array(positions)
 velocities = np.array(velocities)

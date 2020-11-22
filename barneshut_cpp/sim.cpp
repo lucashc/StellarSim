@@ -1,10 +1,37 @@
 #include <vector>
 #include <iostream>
+#include <thread>
 #include "basetypes.hpp"
 #include "tree.cpp"
 // #include <execution>
 // #include <algorithm>
 
+
+const unsigned int THREAD_COUNT = std::thread::hardware_concurrency();
+
+void apply_acceleration(int id, bodylist * bodies, BASETYPE thetamax, BASETYPE G, OctNode * topnode) {
+    for (long unsigned int i = id; i < bodies->size(); i += THREAD_COUNT) {
+        bodies->at(i)->g = vec3(0,0,0);
+        TreeWalk(topnode, bodies->at(i), thetamax, G);
+    }
+}
+
+void accelerated_accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
+    auto bounds = get_bounding_vectors(bodies);
+    auto center = (bounds.first + bounds.second)/2;
+    BASETYPE max_size = (bounds.first - bounds.second).abs().max();
+    auto topnode = new OctNode(center, max_size, bodies);
+
+    std::thread threads[THREAD_COUNT];
+    for (unsigned int i = 0; i < THREAD_COUNT; i++){
+        threads[i] = std::thread(apply_acceleration, i, &bodies, thetamax, G, topnode);
+    }
+
+    for (unsigned int i = 0; i < THREAD_COUNT; i++) {
+        threads[i].join();
+    }
+    delete topnode;
+}
 
 void accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
     auto bounds = get_bounding_vectors(bodies);
@@ -53,7 +80,7 @@ std::vector<bodylist> LeapFrogSave(bodylist &bodies, BASETYPE dt, int n_steps, B
     //std::cout << *bodies[0] << std::endl;
     //std::cout << *bodies[1] << std::endl;
     for(int step = 0; step < n_steps; step++){
-        accelerations(bodies, thetamax, G);
+        accelerated_accelerations(bodies, thetamax, G);
         for(auto body: bodies){
             //std::cout << *body << std::endl;
             body->vel = body->vel + body->g * dt;
