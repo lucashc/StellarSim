@@ -28,6 +28,8 @@ cdef extern from "body.hpp":
     ctypedef vector[Body*] bodylist
     void save_bodylist(const bodylist&, string) except +
     bodylist read_bodylist(string) except +
+    void save_bodylist_vectorized(const vector[bodylist]&, string) except +
+    vector[bodylist] read_bodylist_vectorized(string) except +
 
 cdef extern from "sim.cpp":
     void LeapFrog(bodylist&, double, int, double, double)
@@ -221,6 +223,72 @@ def LeapFrogC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetamax=0
     LeapFrog(bodies.bl, dt, n_steps, thetamax, G)
 
 
+cdef class Result:
+    """
+    This class represents the result of a simulation as done by LeapFrogSaveC. This class is merely
+    a wrapper of the underlying vecto<bodylist> C++-object. To extract the contents, use 
+    the numpy() function. This class is not meant to be initialized from Python, 
+    only Cython code should initialize this class.
+    Important to note: This class wraps a 2D vector of pointers, so deallocating this, will not free the memory.
+    So if this class goes out of scope and Python garbage collects this class, it will not free memory and leak. 
+    To prevent this, extract the contents with the numpy() method. This creates a numpy array of Body3 objects.
+    This will create a reference to the underlying memory, meaning that deleting this array, either by garbage collection
+    or del-operator, the memory will be freed. 
+    If the numpy array is deleted, this class will be an empty hull of pointers. Calling the numpy() method again
+    will result in a segmentation fault. 
+    Only ever use the numpy() method once!
+    """
+    cdef vector[bodylist] saves
+    
+    def numpy(self):
+        """
+        Retrieves the simulation results as a numpy array.
+        IMPORTANT: Only ever call this function ONCE on a Result object. 
+        Args: None
+        Returns:
+            np.ndarray[Body3_t] | This is the saved history, with axes: time, object. So it has shape,
+                                (saved_frames, len(bodies)).
+                                where saved_frames is n_steps//save_every
+                                The zeroth step is always saved
+        """
+        shape = (self.saves.size(), self.saves[0].size())
+        save_result = np.empty((self.saves.size(), self.saves[0].size()), dtype=Body3_t)
+        for i in range(self.saves.size()):
+            for j in range(self.saves[i].size()):
+                x = Body3(make_body_obj=False)
+                x.body = self.saves[i][j]
+                save_result[i, j] = x
+        return save_result
+    
+    def save(self, filename):
+        """
+        Saves a Result object to a file. Preferred extension is: .binv
+        This method is incompatible with saving a bodylist.
+        Args:
+            filename  | string type
+        Returns: None
+        """
+        cdef string cpp_filename = filename.encode('UTF-8')
+        save_bodylist_vectorized(self.saves, cpp_filename)
+    
+    @staticmethod
+    def load(filename):
+        """
+        This staticmethod loads a Result object from file. Preferred extension is .binv
+        This mehtod is incompatible with loading a bodylist object.
+        Args:
+            filename  | string type
+        Returns: 
+            Result object
+        """
+        cdef string cpp_filename = filename.encode('UTF-8')
+        cdef vector[bodylist] blv = read_bodylist_vectorized(cpp_filename)
+        empty_result = Result()
+        empty_result.saves = blv
+        return empty_result
+
+
+
 def LeapFrogSaveC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetamax=0.5, double G=1, int save_every=1):
     """
     Executes LeapFrog integration on the accelerations obtained by the Barnes-Hut algorithm.
@@ -234,17 +302,10 @@ def LeapFrogSaveC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetam
         G                   | double type, used Newton's coefficient of Gravity
         save_every          | int type, each save_every steps a frame is saved
     Returns: 
-        np.ndarray[Body3_t] | This is the saved history, with axes: time, object. So it has shape,
-                                (saved_frames, len(bodies)).
-                                where saved_frames is n_steps//save_every
-                                The zeroth step is always saved
+        Result object, see documentation of this object
     """
     cdef vector[bodylist] saves
     saves = LeapFrogSave(bodies.bl, dt, n_steps, thetamax, G, save_every)
-    save_result = np.empty((saves.size(), len(bodies)), dtype=Body3_t)
-    for i in range(saves.size()):
-        for j in range(saves[i].size()):
-            x = Body3(make_body_obj=False)
-            x.body = saves[i][j]
-            save_result[i, j] = x
-    return save_result
+    result = Result()
+    result.saves = saves
+    return result
