@@ -26,28 +26,24 @@ for r in np.arange(1, 10)*25:      # add stars in rings around black hole
         velocities.append(np.array([np.cos(theta), -np.sin(theta), 0])*np.sqrt(G*m_BH/r))
         masses.append(10)
 
-positions = np.array(positions)
-velocities = np.array(velocities)
 N = len(positions)
-all_pos = np.concatenate((positions + center1, positions + center2))
-all_vel = np.concatenate((velocities + v1, velocities + v2))
-all_m = masses + masses
-# galaxy1 = utils.zip_to_bodylist(positions + center1, velocities + v1, masses)
-# galaxy2 = utils.zip_to_bodylist(positions + center2, velocities + v2, masses)
-# all_bodies = galaxy1 + galaxy2
-# N = len(galaxy1)
-# exit()
-# one_body = galaxy1[2]
 
+galaxy_bodies = utils.zip_to_bodylist(positions, velocities, masses)
+galaxy1 = utils.rotate_bodylist(galaxy_bodies, np.pi/4, np.array([-1, 0, 0]), np.array([0, 1, 0]))
+galaxy1 = utils.translate_bodylist(galaxy1, center1)
+galaxy1 = utils.add_velocity_bodylist(galaxy1, v1)
 
-total_bodylist = utils.zip_to_bodylist(all_pos, all_vel, all_m)
+galaxy2 = utils.translate_bodylist(galaxy_bodies, center2)
+galaxy2 = utils.add_velocity_bodylist(galaxy2, v2)
+
+total_bodylist = utils.concatenate_bodylists(galaxy1, galaxy2)
 total_bodylist.check_integrity()
 #total_bodylist.save("galaxies.bin")
 results = cs.LeapFrogSaveC(total_bodylist, dt, n_steps, thetamax, G)
-for i in range(len(results)):
-    bl = cs.BodyList3(results[i, :])
-    bl.save(f"galaxies{i:3d}.bin")
-exit()
+# for i in range(len(results)):
+#     bl = cs.BodyList3(results[i, :])
+#     bl.save(f"galaxies{i:3d}.bin")
+# exit()
 large_limits = {"xlim": (-1600, 1600), "ylim": (-1600, 1600), "zlim": (-1600, 1600)}
 s = utils.get_positions(results)
 particles = [4*n for n in range(2*N//4)] + [N]  # 1 in 4 particles + second black hole
