@@ -4,21 +4,33 @@ import barneshut_cpp.cppsim as cs
 import time
 import helper_files.sim_utils as utils
 import helper_files.plotting as plotting
+import Scenarios.RadDist as rd
+import Scenarios.stellarConstants as sc
+from mpl_toolkits import mplot3d
 
-def genGalaxy(n,M):
+def genGalaxy(n,M,R=1,RD=sc.RDmw/sc.RCmw,spherical=False):
     """Generate a galaxy (Bodylist) of a massive black hole M and n stars, with initial positions, velocities and masses randomly distributed"""
 
     theta = np.random.uniform(0, 2 * np.pi, n)
-    r = np.random.exponential(1, n)
-    x = r * np.cos(theta)
-    y = r * np.sin(theta)
-    z = np.zeros(n)
+    if spherical == True:
+        phi = np.pi/2 - np.random.normal(0,0.1,n)
+    else:
+        phi = np.pi/2
+    r = rd.radSample(R,RD,n)
+    x = r * np.cos(theta) * np.sin(phi)
+    y = r * np.sin(theta) * np.sin(phi)
+    z = r * np.cos(phi)
     posarray = np.column_stack((x, y, z))
+    plt.scatter(x,y)
+    plt.show()
 
-    v_x = -np.sin(theta)
-    v_y = np.cos(theta)
+    v = np.sqrt(sc.G*M*(1/r))
+    v_x = -np.sin(theta) * v
+    v_y = np.cos(theta) * v
     v_z = np.zeros(n)
     velarray = np.column_stack((v_x, v_y, v_z))
+    plt.scatter(v_x, v_y)
+    plt.show()
 
     massarray = np.random.gamma(2, 2, n)
 
@@ -28,23 +40,48 @@ def genGalaxy(n,M):
 
     return cs.BodyList3(np.array(bodies))
 
-print(genGalaxy(20,1e6))
-
 thetamax = 0.5
-G = 1
 
-n_steps = 3000  # int(30/1e-4)
+n_steps = 5000  # int(30/1e-4)
 begin = time.time()
-result = cs.LeapFrogSaveC(genGalaxy(2,1e6), 1e-1, n_steps, thetamax, G)
+result = cs.LeapFrogSaveC(genGalaxy(20,sc.Msgra,spherical=True), 1e12, n_steps, thetamax, sc.G)
 end = time.time()
 print("Simulation finished after", end-begin, "s")
 
 s = utils.get_positions(result)
-print(s[0])
-print(s[0][:,0])
+print(s)
+print(s[100])
 plt.scatter(s[0][:,0],s[0][:,1])
 plt.show()
 
-large_limits = {"xlim": (-1000, 1000), "ylim": (-1000, 1000), "zlim": (-1000, 1000)}
-medium_limits = {"xlim": (-0.01, 0.01), "ylim": (-0.01, 0.01), "zlim": (-0.01, 0.01)}
-plotting.movie3d(s, np.arange(2), until_timestep=1000, skip_steps=10, mode="line", **medium_limits)
+large_xyz = 1e20
+medium_xyz = 1e19
+
+large_limits = {"xlim": (-large_xyz, large_xyz), "ylim": (-large_xyz, large_xyz), "zlim": (-large_xyz, large_xyz)}
+medium_limits = {"xlim": (-medium_xyz, medium_xyz), "ylim": (-medium_xyz, medium_xyz), "zlim": (-medium_xyz, medium_xyz)}
+# plotting.movie3d(s, np.arange(2), until_timestep=1000, skip_steps=10, mode="line", **medium_limits)
+
+until_timestep = int(n_steps)
+starting_angle = 225  # default 270, 0 for sun zoom
+rotation_speed = 0  # default 40
+elevation = 45  # default 0
+def data_gen(index):
+    ax.clear()
+    #ax.axis('off')
+    ax.grid('off')
+    plot = ax.scatter3D(s[index][:,0], s[index][:,1], s[index][:,2])
+    ax.set(**medium_limits)
+    ax.view_init(elev=elevation, azim=index/until_timestep*rotation_speed + starting_angle)
+    return plot
+
+fig = plt.figure()
+ax = fig.add_subplot(1, 1, 1, projection='3d')
+data_gen(1)
+plt.show()
+
+for i in range(n_steps):
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1, projection='3d')
+    data_gen(i)
+    plt.savefig(str(i)+'.png')
+    print(i)
