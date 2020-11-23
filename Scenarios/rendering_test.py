@@ -5,6 +5,7 @@ from matplotlib import animation
 import helper_files.sim_utils as utils
 import time
 import helper_files.render as render
+import Scenarios.genGalaxy
 
 thetamax = 0.5
 G = 1
@@ -35,9 +36,9 @@ velocities = np.concatenate((velocities + v1, velocities + v2))
 masses = np.array(masses + masses)
 
 '''
-N = 50000
+N = 100
 
-r = 50000
+r = 500
 mvar = 10
 
 positions = np.array([np.random.normal(size = N), np.random.normal(size = N), np.zeros(N)]).T * r
@@ -58,5 +59,5 @@ end = time.time()
 print("Simulation finished after", end-begin, "s")
 
 s = utils.get_positions(results)
-plane = render.Plane(np.array([0, 0, 1]), np.array([0, 0, 0]), np.array([1/8, 0, 0]), np.array([0, 1/8, 0]))
+plane = render.Plane(np.array([0, 0, 1]), np.array([0, 0, 0]), np.array([1/32, 0, 0]), np.array([0, 1/32, 0]))
 render.animate(s, masses, plane, 400, 400)
