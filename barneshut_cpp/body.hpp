@@ -60,16 +60,33 @@ std::pair<vec3, vec3> get_bounding_vectors(bodylist &points) {
     return std::make_pair(smallest, largest);
 }
 
+void save_bodylist_to_ofstream(const bodylist &bl, std::ofstream &wf) {
+    int len = bl.size();
+    wf.write((char*) &len, sizeof(int));
+    for (auto b : bl) {
+        wf.write((char*) b, sizeof(Body));
+    }
+}
+
+bodylist read_bodylist_from_ifstream(std::ifstream &rf) {
+    int len;
+    rf.read((char*) &len, sizeof(int));
+    bodylist bl;
+    for (int i = 0; i < len; i++) {
+        Body b;
+        rf.read((char*) &b, sizeof(Body));
+        bl.push_back(new Body(&b));
+    }
+    return bl;
+}
+
+
 void save_bodylist(const bodylist &bl, std::string filename) {
     std::ofstream wf(filename, std::ofstream::out | std::ofstream::binary);
     if (!wf) {
         throw "Cannot open file!";
     }
-    int len = bl.size();
-    wf << len;
-    for (auto b : bl) {
-        wf.write((char*) b, sizeof(Body));
-    }
+    save_bodylist_to_ofstream(bl, wf);
     wf.close();
     if (!wf.good()) {
         throw "Error writing!";
@@ -81,16 +98,41 @@ bodylist read_bodylist(std::string filename) {
     if (!rf) {
         throw "Cannot open file!";
     }
-    int len;
-    rf >> len;
-    bodylist bl;
-    for (int i = 0; i < len; i++) {
-        Body b;
-        rf.read((char*) &b, sizeof(Body));
-        bl.push_back(new Body(&b));
-    }
+    bodylist bl = read_bodylist_from_ifstream(rf);
+    rf.close();
     return bl;
 }
 
+void save_bodylist_vectorized(std::vector<bodylist> &blv, std::string filename) {
+    std::ofstream wf(filename, std::ofstream::out | std::ofstream::binary);
+    if (!wf) {
+        throw "Cannot open file!";
+    }
+    int size = blv.size();
+    wf.write((char*) &size, sizeof(size));
+    for (auto bl : blv) {
+        save_bodylist_to_ofstream(bl, wf);
+    }
+    wf.close();
+    if (!wf.good()) {
+        throw "Error writing!";
+    }
+}
+
+std::vector<bodylist> read_bodylist_vectorized(std::string filename) {
+    std::ifstream rf(filename, std::ofstream::out | std::ofstream::binary);
+    if (!rf) {
+        throw "Cannot open file!";
+    }
+    int size;
+    rf.read((char*) &size, sizeof(size));
+    std::vector<bodylist> blv;
+    for (int i = 0; i < size; i++) {
+        bodylist bl = read_bodylist_from_ifstream(rf);
+        blv.push_back(bl);
+    }
+    rf.close();
+    return blv;
+}
 
 #endif

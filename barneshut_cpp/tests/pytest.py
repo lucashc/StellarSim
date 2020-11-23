@@ -31,6 +31,21 @@ class PyTest(unittest.TestCase):
         result = cs.BodyList3.load("test2.bin")
         self.assertTrue((x[0].pos == result[0].pos).all())
         self.assertTrue((x[1].pos == result[1].pos).all())
+    
+    def test_saving_vectorized(self):
+        import cppsim as cs
+        import numpy as np
+        x = cs.BodyList3(np.array([
+            cs.Body3(),
+            cs.Body3(np.array([1,2,3], dtype=np.double))
+        ]))
+        result = cs.LeapFrogSaveC(x, n_steps=20)
+        result_np = result.numpy()
+        result.save("test123.bin")
+        loaded = cs.Result.load("test123.bin")
+        loaded_np = loaded.numpy()
+        self.assertTrue((result_np[19,1].pos == loaded_np[19,1].pos).all())
+
 
 class CppTest(unittest.TestCase):
 
