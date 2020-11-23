@@ -39,13 +39,13 @@ def get_sca_attribute(result, attr):
 
 def get_positions(result):
     """Get positions from bodies from C++ simulation """
-    return get_vec_attribute(result, 'pos')
+    return get_vec_attribute(result.numpy(), 'pos')
 
 
 def get_velocities(result):
     """Get velocities from bodies from C++ simulation """
-    return get_vec_attribute(result, 'vel')
+    return get_vec_attribute(result.numpy(), 'vel')
 
 def get_masses(result):
     """Get velocities from bodies from C++ simulation """
-    return get_sca_attribute(result, 'mass')
+    return get_sca_attribute(result.numpy(), 'mass')
