@@ -6,6 +6,12 @@ from libcpp cimport bool
 from libcpp.string cimport string
 cimport cython
 
+
+"""
+The following are C++ imports required by this Python extension
+Add new functions as needed
+"""
+
 cdef extern from "basetypes.hpp":
     cdef cppclass vec3:
         double x, y, z
@@ -29,14 +35,29 @@ cdef extern from "sim.cpp":
 
 
 cdef class Body3:
-    # This class is by value, so deallocation of this class, deallocates the underlying object
+    """
+    This class represents the Body class from C++. It contains a pointer to the underlying object and 
+    all properties of the C++-object have been exported. Deallocation of the underlying object is
+    also handled by this class
+    """
     cdef Body *body
 
     def __init__(self, np.ndarray[double] pos=np.array([0,0,0], dtype=np.double), 
             np.ndarray[double] vel=np.array([0,0,0], dtype=np.double), 
             double mass=0, np.ndarray[double] g=np.array([0,0,0], 
-            dtype=np.double)):
-        self.body = new Body(vec3(pos[0], pos[1], pos[2]), vec3(vel[0], vel[1], vel[2]), mass, vec3(g[0], g[1], g[2]))
+            dtype=np.double), make_body_obj=True):
+        """
+        Initialized the Body3 class
+        Args:
+            pos, vel, g     | np.ndarray[double] type, default (0,0,0)
+            mass            | double, default 0
+            make_body_obj   | boolean type, whether to allocate a new Body obj, default is True
+                                This option should NOT be changed in Python, only use this in Cython.
+        Returns:
+            Body3
+        """
+        if make_body_obj:
+            self.body = new Body(vec3(pos[0], pos[1], pos[2]), vec3(vel[0], vel[1], vel[2]), mass, vec3(g[0], g[1], g[2]))
     
     @property
     def mass(self):
@@ -86,14 +107,23 @@ cdef class Body3:
 Body3_t = np.dtype(Body3)
 
 cdef class BodyList3:
-
-    # This class holds a vector of pointers to Body objects
-    # To prevent possible deallocation strict memory management is required
+    """
+    This class represents the underlying bodylist object in C++, which is an alias for
+    std::vector<Body*>. 
+    This class provides strict memory management, by saving a np.ndarray with references of the Body objects,
+    as to ensure proper lifetime and existence, by preventing CPython to deallocate them.
+    """
     cdef bodylist bl
-    # Save references here to prevent deallocation
     cdef object[:] b
 
     def __init__(self, np.ndarray[object] b=np.array([],dtype=Body3_t)):
+        """
+        Initializes the BodyList3 class
+        Args:
+            b | np.ndarray type of Body3 objects
+        Returns:
+            BodyList3
+        """
         if b.dtype != Body3_t:
             raise TypeError("Not a Body3 type")
         self.bl.reserve(b.shape[0])
@@ -141,17 +171,32 @@ cdef class BodyList3:
     
     @staticmethod
     def load(filename):
+        """
+        Loads a .bin file of a saved BodyList3 object.
+        Args:
+            filename | string type
+        Returns:
+            BodyList3
+        """
         cdef string cpp_filename = filename.encode('UTF-8')
         cdef bodylist bl
         bl = read_bodylist(cpp_filename)
         x = np.empty((bl.size(),), dtype=Body3_t)
         for i in range(bl.size()):
-            placeholder = Body3()
+            placeholder = Body3(make_body_obj=False)
             placeholder.body = bl[i]
             x[i] = placeholder
         return BodyList3(x)
     
     def check_integrity(self):
+        """
+        Checks whether the BodyList3 has proper integrity, meaning that no two objects share the same position.
+        If this is the case, the underlying C++ code will cause a segmentation fault, as the recursion limit
+        will be exceeded then by the Barnes-Hut algorithm.
+        Args: None
+        Returns:
+            Possible ValueError if integrity check fails
+        """
         for i in self.bl:
             for j in self.bl:
                 if i !=j and i[0].pos == j[0].pos:
@@ -162,16 +207,41 @@ cdef class BodyList3:
 BodyList3_t = np.dtype(BodyList3)
 
 def LeapFrogC(BodyList3 bodies, double dt, int n_steps, double thetamax, double G):
+    """
+    Executes LeapFrog integration on the accelerations obtained by the Barnes-Hut algorithm.
+    This function modifies the given bodies in place.
+    Args:
+        bodies      | BodyList3 type
+        dt          | double type, timestep used for integration
+        n_steps     | int type, number of integration steps. Time integrated is: dt*n_steps
+        thetamax    | double type, thetamax parameter to Barnes-Hut
+        G           | double type, used Newton's coefficient of Gravity
+    Returns: None
+    """
     LeapFrog(bodies.bl, dt, n_steps, thetamax, G)
 
 
 def LeapFrogSaveC(BodyList3 bodies, double dt, int n_steps, double thetamax, double G):
+    """
+    Executes LeapFrog integration on the accelerations obtained by the Barnes-Hut algorithm.
+    This function modifies the given bodies in place. In addition, at each timestep
+    a copy of the bodylist is made
+    Args:
+        bodies              | BodyList3 type
+        dt                  | double type, timestep used for integration
+        n_steps             | int type, number of integration steps. Time integrated is: dt*n_steps
+        thetamax            | double type, thetamax parameter to Barnes-Hut
+        G                   | double type, used Newton's coefficient of Gravity
+    Returns: 
+        np.ndarray[Body3_t] | This is the saved history, with axes: time, object. So it has shape,
+                                (n_steps, len(bodies)).
+    """
     cdef vector[bodylist] saves
     saves = LeapFrogSave(bodies.bl, dt, n_steps, thetamax, G)
     save_result = np.empty((n_steps+1,len(bodies)), dtype=Body3_t)
     for i in range(saves.size()):
         for j in range(saves[i].size()):
-            x = Body3()
+            x = Body3(make_body_obj=False)
             x.body = saves[i][j]
             save_result[i, j] = x
     return save_result
