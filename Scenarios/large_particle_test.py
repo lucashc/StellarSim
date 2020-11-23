@@ -17,7 +17,8 @@ result = cs.LeapFrogSaveC(gg.genGalaxy(N,sc.Msgra,spherical=True), 1e12, n_steps
 end = time.time()
 print("Simulation finished after", end-begin, "s")
 
-result.save("testsave.bin")
+result.save("testsave.binv")
+print("Saved")
 
 s = utils.get_positions(result)
 masses = utils.get_masses(result)[0]

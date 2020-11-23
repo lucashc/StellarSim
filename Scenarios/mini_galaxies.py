@@ -44,10 +44,7 @@ total_bodylist = utils.zip_to_bodylist(all_pos, all_vel, all_m)
 total_bodylist.check_integrity()
 #total_bodylist.save("galaxies.bin")
 results = cs.LeapFrogSaveC(total_bodylist, dt, n_steps+1, thetamax, G)
-for i in range(len(results)):
-    bl = cs.BodyList3(results[i, :])
-    bl.save(f"galaxies{i:3d}.bin")
-exit()
+results.save("minigalaxy.binv")
 large_limits = {"xlim": (-1600, 1600), "ylim": (-1600, 1600), "zlim": (-1600, 1600)}
 s = utils.get_positions(results)
 particles = [4*n for n in range(2*N//4)] + [N]  # 1 in 4 particles + second black hole
