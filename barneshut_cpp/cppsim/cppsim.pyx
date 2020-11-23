@@ -31,7 +31,7 @@ cdef extern from "body.hpp":
 
 cdef extern from "sim.cpp":
     void LeapFrog(bodylist&, double, int, double, double)
-    vector[bodylist] LeapFrogSave(bodylist&, double, int, double, double) except +
+    vector[bodylist] LeapFrogSave(bodylist&, double, int, double, double, int) except +
 
 
 cdef class Body3:
@@ -206,7 +206,7 @@ cdef class BodyList3:
 
 BodyList3_t = np.dtype(BodyList3)
 
-def LeapFrogC(BodyList3 bodies, double dt, int n_steps, double thetamax, double G):
+def LeapFrogC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetamax=0.5, double G=1):
     """
     Executes LeapFrog integration on the accelerations obtained by the Barnes-Hut algorithm.
     This function modifies the given bodies in place.
@@ -221,24 +221,27 @@ def LeapFrogC(BodyList3 bodies, double dt, int n_steps, double thetamax, double 
     LeapFrog(bodies.bl, dt, n_steps, thetamax, G)
 
 
-def LeapFrogSaveC(BodyList3 bodies, double dt, int n_steps, double thetamax, double G):
+def LeapFrogSaveC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetamax=0.5, double G=1, int save_every=1):
     """
     Executes LeapFrog integration on the accelerations obtained by the Barnes-Hut algorithm.
-    This function modifies the given bodies in place. In addition, at each timestep
-    a copy of the bodylist is made
+    This function modifies the given bodies in place. In addition, at each save_every 
+    a copy of the bodylist is made.
     Args:
         bodies              | BodyList3 type
         dt                  | double type, timestep used for integration
         n_steps             | int type, number of integration steps. Time integrated is: dt*n_steps
         thetamax            | double type, thetamax parameter to Barnes-Hut
         G                   | double type, used Newton's coefficient of Gravity
+        save_every          | int type, each save_every steps a frame is saved
     Returns: 
         np.ndarray[Body3_t] | This is the saved history, with axes: time, object. So it has shape,
-                                (n_steps, len(bodies)).
+                                (saved_frames, len(bodies)).
+                                where saved_frames is n_steps//save_every
+                                The zeroth step is always saved
     """
     cdef vector[bodylist] saves
-    saves = LeapFrogSave(bodies.bl, dt, n_steps, thetamax, G)
-    save_result = np.empty((n_steps+1,len(bodies)), dtype=Body3_t)
+    saves = LeapFrogSave(bodies.bl, dt, n_steps, thetamax, G, save_every)
+    save_result = np.empty((saves.size(), len(bodies)), dtype=Body3_t)
     for i in range(saves.size()):
         for j in range(saves[i].size()):
             x = Body3(make_body_obj=False)
