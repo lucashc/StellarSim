@@ -43,8 +43,12 @@ class PyTest(unittest.TestCase):
         result_np = result.numpy()
         result.save("test123.bin")
         loaded = cs.Result.load("test123.bin")
-        loaded_np = loaded.numpy()
+        loaded_np = loaded.numpy(make_copy=False)
+        loaded_np_copy = loaded.numpy(make_copy=True)
         self.assertTrue((result_np[19,1].pos == loaded_np[19,1].pos).all())
+        self.assertTrue((result_np[19,1].pos == loaded_np_copy[19,1].pos).all())
+        del loaded_np
+        self.assertTrue((result_np[19,1].pos == loaded_np_copy[19,1].pos).all())
 
 
 class CppTest(unittest.TestCase):

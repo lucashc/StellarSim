@@ -25,6 +25,7 @@ cdef extern from "body.hpp":
         double mass
         Body()
         Body(vec3, vec3, double, vec3)
+        Body(Body*)
     ctypedef vector[Body*] bodylist
     void save_bodylist(const bodylist&, string) except +
     bodylist read_bodylist(string) except +
@@ -236,15 +237,19 @@ cdef class Result:
     or del-operator, the memory will be freed. 
     If the numpy array is deleted, this class will be an empty hull of pointers. Calling the numpy() method again
     will result in a segmentation fault. 
-    Only ever use the numpy() method once!
+    Only ever use the numpy() method once or remember that they all reference the same memory. In addition, one might
+    want to use the make_copy parameter.
     """
     cdef vector[bodylist] saves
     
-    def numpy(self):
+    def numpy(self, make_copy=False):
         """
         Retrieves the simulation results as a numpy array.
-        IMPORTANT: Only ever call this function ONCE on a Result object. 
-        Args: None
+        IMPORTANT: Each call to this function will create a reference to the same memory.
+        Deallocating one array while another exists will result in a segmentation fault. To prevent this, 
+        an explicit copy can be made.
+        Args: 
+            make_copy | boolean type, whether to make a copy and circumvent memory issues
         Returns:
             np.ndarray[Body3_t] | This is the saved history, with axes: time, object. So it has shape,
                                 (saved_frames, len(bodies)).
@@ -255,8 +260,13 @@ cdef class Result:
         save_result = np.empty((self.saves.size(), self.saves[0].size()), dtype=Body3_t)
         for i in range(self.saves.size()):
             for j in range(self.saves[i].size()):
-                x = Body3(make_body_obj=False)
-                x.body = self.saves[i][j]
+                if make_copy:
+                    tmp = new Body(self.saves[i][j])
+                    x = Body3(make_body_obj=False)
+                    x.body = tmp
+                else:
+                    x = Body3(make_body_obj=False)
+                    x.body = self.saves[i][j]
                 save_result[i, j] = x
         return save_result
     
