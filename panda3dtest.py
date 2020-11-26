@@ -35,9 +35,10 @@ class RenderApp(ShowBase):
         self.taskMgr.add(self.update_task, "VertexUpdateTask")
     
     def load_data(self):
-        self.data = cs.Result.load("Scenarios/testsave.binv").numpy()
+        self.data = cs.Result.load("Scenarios/stable.binv").numpy()
 
     def update_vertex(self, i):
+        print(i)
         for j in range(self.data.shape[1]):
             pos = self.data[i][j].pos/scale
             self.vertex.setRow(j)
@@ -47,5 +48,7 @@ class RenderApp(ShowBase):
         index = int((task.time * timescale)) % self.data.shape[0]
         self.update_vertex(index)
         return Task.cont
+
+
 app = RenderApp()
 app.run()

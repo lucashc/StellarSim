@@ -4,6 +4,7 @@ import numpy as np
 import helper_files.sim_utils as utils
 import barneshut_cpp.cppsim as cs
 
+
 def genStableGalaxy(n_stars, m_star, m_bh):
     masses = np.array([m_bh] + [m_star]*n_stars)
     r = np.sort(RadDist.radSample(size=n_stars))
@@ -26,3 +27,4 @@ n_steps = 1000
 galaxy = genStableGalaxy(1000, 10, 1000)
 result = cs.LeapFrogSaveC(galaxy, 1e12, n_steps, thetamax, sc.G)
 result.save("stable.binv")
+print(result.numpy().shape)
