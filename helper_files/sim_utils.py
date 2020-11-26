@@ -1,4 +1,4 @@
-import cppsim as cs
+import barneshut_cpp.cppsim as cs
 import numpy as np
 
 
