@@ -44,12 +44,12 @@ def genGalaxy(n,M=sc.Msgra,R=1,RD=sc.RDmw/sc.RCmw,spherical=False):
 
 thetamax = 0.5
 
-n_steps = 500  # int(30/1e-4)
+n_steps = 100  # int(30/1e-4)
 begin = time.time()
-result = cs.LeapFrogSaveC(genGalaxy(20,sc.Msgra,spherical=True), 1e12, n_steps, thetamax, sc.G)
+result = cs.LeapFrogSaveC(genGalaxy(10,sc.Msgra,spherical=True), 1e12, n_steps, thetamax, sc.G)
 end = time.time()
 
-m, p, L = np.zeros(n_steps), np.zeros(n_steps), np.zeros(n_steps)
+m, p, L, Ek, Ep, E = np.zeros(n_steps), np.zeros(n_steps), np.zeros(n_steps), np.zeros(n_steps), np.zeros(n_steps), np.zeros(n_steps)
 for t in range(n_steps):
     m[t] = pq.mass(result,t)[1]
     print(m[t])
@@ -57,15 +57,26 @@ for t in range(n_steps):
     print(p[t])
     L[t] = pq.angMom(result,t)[2]
     print(L[t])
+    Ek[t] = pq.energy(result, t)[1]
+    print(Ek[t])
+    Ep[t] = pq.energy(result, t)[2]
+    print(Ep[t])
+    E[t] = pq.energy(result, t)[0]
+    print(E[t])
 
-t = np.linspace(0,n_steps,500)
+t = np.linspace(0,n_steps,100)
 
-plt.subplot(1,3,1)
+plt.subplot(2,2,1)
 plt.plot(t,m)
-plt.subplot(1,3,2)
+plt.subplot(2,2,2)
 plt.plot(t,p)
-plt.subplot(1,3,3)
+plt.subplot(2,2,3)
 plt.plot(t,L)
+plt.subplot(2,2,4)
+plt.plot(t,Ek)
+plt.plot(t,Ep)
+plt.plot(t,Ep+Ek)
+plt.plot(t,E)
 plt.show()
 
 """
