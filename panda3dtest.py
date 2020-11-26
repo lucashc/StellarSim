@@ -35,7 +35,7 @@ class RenderApp(ShowBase):
         self.taskMgr.add(self.update_task, "VertexUpdateTask")
     
     def load_data(self):
-        self.data = cs.Result.load("testsave.binv").numpy()
+        self.data = cs.Result.load("Scenarios/testsave.binv").numpy()
 
     def update_vertex(self, i):
         for j in range(self.data.shape[1]):

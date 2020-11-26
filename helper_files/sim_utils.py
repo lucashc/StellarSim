@@ -78,8 +78,6 @@ def rotate_bodylist(bodylist, angle, axis_begin, axis_end):
 
     def rotate_vector(vector, angle, center, k):
         v = vector - center
-        #print((v*np.cos(angle)).shape)
-        #print((np.cross(k, v)*np.sin(angle)).shape
         v_rot = v*np.cos(angle) + np.cross(k, v)*np.sin(angle) + k*np.dot(v, k).reshape((len(v), 1))*(1-np.cos(angle))
         return v_rot + center
 
