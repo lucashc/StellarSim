@@ -1,14 +1,19 @@
 from direct.showbase.ShowBase import ShowBase
 import barneshut_cpp.cppsim as cs
 from panda3d.core import GeomVertexData, GeomVertexFormat, Geom, GeomVertexWriter, GeomPoints, Geom, GeomNode
+from panda3d.core import TextNode
+from direct.gui.OnscreenText import OnscreenText
+from direct.gui.DirectGui import *
 from math import pi, cos, sin
 from direct.task import Task
+import argparse
 
-scale = 1e18
-timescale = 100
 
 class RenderApp(ShowBase):
-    def __init__(self):
+    def __init__(self, file, timescale, scale, record):
+        self.scale = scale
+        self.file = file
+        self.timescale = timescale
         ShowBase.__init__(self)
         self.load_data()
         vdata = GeomVertexData('galaxies', GeomVertexFormat.get_v3c4(), Geom.UHStatic)
@@ -16,7 +21,7 @@ class RenderApp(ShowBase):
         self.vertex = GeomVertexWriter(vdata, 'vertex')
         color = GeomVertexWriter(vdata, 'color')
         for i in range(self.data.shape[1]):
-            pos = self.data[0][i].pos / scale
+            pos = self.data[0][i].pos / self.scale
             self.vertex.addData3(*pos)
             color.addData4(1,1,1,1)
         prim = GeomPoints(Geom.UHStatic)
@@ -33,22 +38,33 @@ class RenderApp(ShowBase):
         self.trackball.node().set_hpr(90,0,90)
         self.setBackgroundColor(0,0,0)
         self.taskMgr.add(self.update_task, "VertexUpdateTask")
+        self.record(record)
     
     def load_data(self):
-        self.data = cs.Result.load("Scenarios/stable.binv").numpy()
+        self.data = cs.Result.load(self.file).numpy()
+    
+    def record(self, time):
+        if time > 0:
+            self.movie("screenshot", time, fps=60)
 
     def update_vertex(self, i):
-        print(i)
         for j in range(self.data.shape[1]):
-            pos = self.data[i][j].pos/scale
+            pos = self.data[i][j].pos/self.scale
             self.vertex.setRow(j)
             self.vertex.setData3(*pos)
 
     def update_task(self, task):
-        index = int((task.time * timescale)) % self.data.shape[0]
+        index = int((task.time * self.timescale)) % self.data.shape[0]
         self.update_vertex(index)
         return Task.cont
 
+parser = argparse.ArgumentParser(description="Visualize simulation")
+parser.add_argument('file', help="binv file to play")
+parser.add_argument('-s', '--scale', help="Scale of the simulation", default=1e18, type=float)
+parser.add_argument('-t', '--timescale', help="Timescale of the simulation", default=100, type=float)
+parser.add_argument('-r', '--record', default=0, type=int)
 
-app = RenderApp()
+args = parser.parse_args()
+
+app = RenderApp(args.file, args.timescale, args.scale, args.record)
 app.run()
