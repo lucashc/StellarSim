@@ -20,8 +20,8 @@ def massSample(size=1):
     while len(samples) < size:
         x = np.random.uniform(low=0.5, high=10)
         prop = massPDF(x*sc.Msol) / normalise
-        print(prop)
         #assert prop >= 0 and prop <= 1
         if np.random.uniform(low=0, high=1) <= prop:
             samples += [x]
     return np.array(samples) * sc.Msol
+
