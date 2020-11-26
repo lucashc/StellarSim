@@ -7,10 +7,10 @@ import helper_files.plotting as plotting
 import Scenarios.stellarConstants as sc
 import Scenarios.RadDist as rd
 import Scenarios.MassDist as md
+import Scenarios.PhysQuants as pq
 from mpl_toolkits import mplot3d
 
-
-def genGalaxy(n, M=sc.Msgra, R=1, RD=sc.RDmw/sc.RCmw, spherical=False, fix_mass=None):
+def genGalaxy(n,M=sc.Msgra,R=1,RD=sc.RDmw/sc.RCmw,spherical=False):
     """Generate a galaxy (Bodylist) of a massive black hole M and n stars, with initial positions, velocities and masses randomly distributed"""
 
     theta = np.random.uniform(0, 2 * np.pi, n)
@@ -34,10 +34,7 @@ def genGalaxy(n, M=sc.Msgra, R=1, RD=sc.RDmw/sc.RCmw, spherical=False, fix_mass=
     plt.scatter(v_x, v_y)
     plt.show()
 
-    if fix_mass is not None:
-        massarray = md.massSample(n)
-    else:
-        massarray = np.array([fix_mass]*n)
+    massarray = md.massSample(n)
 
     bodies = [cs.Body3(pos=np.zeros(3), vel=np.zeros(3), mass=M)]
     for i in range(1,n):
@@ -45,52 +42,68 @@ def genGalaxy(n, M=sc.Msgra, R=1, RD=sc.RDmw/sc.RCmw, spherical=False, fix_mass=
 
     return cs.BodyList3(np.array(bodies))
 
+thetamax = 0.5
 
-if __name__ == "__main__":
-    thetamax = 0.5
+n_steps = 500  # int(30/1e-4)
+begin = time.time()
+result = cs.LeapFrogSaveC(genGalaxy(20,sc.Msgra,spherical=True), 1e12, n_steps, thetamax, sc.G)
+end = time.time()
 
-    n_steps = 500  # int(30/1e-4)
-    begin = time.time()
-    result = cs.LeapFrogSaveC(genGalaxy(20,sc.Msgra,spherical=True), 1e12, n_steps, thetamax, sc.G).numpy()
-    end = time.time()
-    print("Simulation finished after", end-begin, "s")
+m, p, L = np.zeros(n_steps), np.zeros(n_steps), np.zeros(n_steps)
+for t in range(n_steps):
+    m[t] = pq.mass(result,t)[1]
+    print(m[t])
+    p[t] = pq.linMom(result,t)[2]
+    print(p[t])
+    L[t] = pq.angMom(result,t)[2]
+    print(L[t])
 
-    s = utils.get_positions(result)
-    print(s)
-    print(s[100])
-    plt.scatter(s[0][:,0],s[0][:,1])
-    plt.show()
+t = np.linspace(0,n_steps,500)
 
-    large_xyz = 1e20
-    medium_xyz = 1e19
+plt.subplot(1,3,1)
+plt.plot(t,m)
+plt.subplot(1,3,2)
+plt.plot(t,p)
+plt.subplot(1,3,3)
+plt.plot(t,L)
+plt.show()
 
-    large_limits = {"xlim": (-large_xyz, large_xyz), "ylim": (-large_xyz, large_xyz), "zlim": (-large_xyz, large_xyz)}
-    medium_limits = {"xlim": (-medium_xyz, medium_xyz), "ylim": (-medium_xyz, medium_xyz), "zlim": (-medium_xyz, medium_xyz)}
-    # plotting.movie3d(s, np.arange(2), until_timestep=1000, skip_steps=10, mode="line", **medium_limits)
+"""
+s = utils.get_positions(result)
+print(s)
+print(s[100])
+plt.scatter(s[0][:,0],s[0][:,1])
+plt.show()
 
+large_xyz = 1e20
+medium_xyz = 1e19
 
-    until_timestep = int(n_steps)
-    starting_angle = 225  # default 270, 0 for sun zoom
-    rotation_speed = 0  # default 40
-    elevation = 45  # default 0
+large_limits = {"xlim": (-large_xyz, large_xyz), "ylim": (-large_xyz, large_xyz), "zlim": (-large_xyz, large_xyz)}
+medium_limits = {"xlim": (-medium_xyz, medium_xyz), "ylim": (-medium_xyz, medium_xyz), "zlim": (-medium_xyz, medium_xyz)}
+# plotting.movie3d(s, np.arange(2), until_timestep=1000, skip_steps=10, mode="line", **medium_limits)
 
-    def data_gen(index):
-        ax.clear()
-        #ax.axis('off')
-        ax.grid('off')
-        plot = ax.scatter3D(s[index][:,0], s[index][:,1], s[index][:,2])
-        ax.set(**medium_limits)
-        ax.view_init(elev=elevation, azim=index/until_timestep*rotation_speed + starting_angle)
-        return plot
+until_timestep = int(n_steps)
+starting_angle = 225  # default 270, 0 for sun zoom
+rotation_speed = 0  # default 40
+elevation = 45  # default 0
+def data_gen(index):
+    ax.clear()
+    #ax.axis('off')
+    ax.grid('off')
+    plot = ax.scatter3D(s[index][:,0], s[index][:,1], s[index][:,2])
+    ax.set(**medium_limits)
+    ax.view_init(elev=elevation, azim=index/until_timestep*rotation_speed + starting_angle)
+    return plot
 
+fig = plt.figure()
+ax = fig.add_subplot(1, 1, 1, projection='3d')
+data_gen(1)
+plt.show()
+
+for i in range(n_steps):
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, projection='3d')
-    data_gen(1)
-    plt.show()
-
-    for i in range(n_steps):
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1, projection='3d')
-        data_gen(i)
-        plt.savefig(str(i)+'.png')
-        print(i)
+    data_gen(i)
+    plt.savefig(str(i)+'.png')
+    print(i)
+"""
