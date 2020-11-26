@@ -11,7 +11,7 @@ import Scenarios.stellarConstants as sc
 thetamax = 0.5
 
 n_steps = 5000  # int(30/1e-4)
-N = 1000
+N = 10000
 begin = time.time()
 result = cs.LeapFrogSaveC(gg.genGalaxy(N,sc.Msgra,spherical=True), 1e12, n_steps, thetamax, sc.G, 10)
 end = time.time()
@@ -19,7 +19,7 @@ print("Simulation finished after", end-begin, "s")
 
 result.save("testsave.binv")
 print("Saved")
-
+result = result.numpy()
 s = utils.get_positions(result)
 masses = utils.get_masses(result)[0]
 
