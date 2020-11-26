@@ -9,7 +9,8 @@ import Scenarios.RadDist as rd
 import Scenarios.MassDist as md
 from mpl_toolkits import mplot3d
 
-def genGalaxy(n,M=sc.Msgra,R=1,RD=sc.RDmw/sc.RCmw,spherical=False):
+
+def genGalaxy(n, M=sc.Msgra, R=1, RD=sc.RDmw/sc.RCmw, spherical=False, fix_mass=None):
     """Generate a galaxy (Bodylist) of a massive black hole M and n stars, with initial positions, velocities and masses randomly distributed"""
 
     theta = np.random.uniform(0, 2 * np.pi, n)
@@ -33,7 +34,10 @@ def genGalaxy(n,M=sc.Msgra,R=1,RD=sc.RDmw/sc.RCmw,spherical=False):
     plt.scatter(v_x, v_y)
     plt.show()
 
-    massarray = md.massSample(n)
+    if fix_mass is not None:
+        massarray = md.massSample(n)
+    else:
+        massarray = np.array([fix_mass]*n)
 
     bodies = [cs.Body3(pos=np.zeros(3), vel=np.zeros(3), mass=M)]
     for i in range(1,n):
@@ -41,48 +45,52 @@ def genGalaxy(n,M=sc.Msgra,R=1,RD=sc.RDmw/sc.RCmw,spherical=False):
 
     return cs.BodyList3(np.array(bodies))
 
-thetamax = 0.5
 
-n_steps = 500  # int(30/1e-4)
-begin = time.time()
-result = cs.LeapFrogSaveC(genGalaxy(20,sc.Msgra,spherical=True), 1e12, n_steps, thetamax, sc.G)
-end = time.time()
-print("Simulation finished after", end-begin, "s")
+if __name__ == "__main__":
+    thetamax = 0.5
 
-s = utils.get_positions(result)
-print(s)
-print(s[100])
-plt.scatter(s[0][:,0],s[0][:,1])
-plt.show()
+    n_steps = 500  # int(30/1e-4)
+    begin = time.time()
+    result = cs.LeapFrogSaveC(genGalaxy(20,sc.Msgra,spherical=True), 1e12, n_steps, thetamax, sc.G).numpy()
+    end = time.time()
+    print("Simulation finished after", end-begin, "s")
 
-large_xyz = 1e20
-medium_xyz = 1e19
+    s = utils.get_positions(result)
+    print(s)
+    print(s[100])
+    plt.scatter(s[0][:,0],s[0][:,1])
+    plt.show()
 
-large_limits = {"xlim": (-large_xyz, large_xyz), "ylim": (-large_xyz, large_xyz), "zlim": (-large_xyz, large_xyz)}
-medium_limits = {"xlim": (-medium_xyz, medium_xyz), "ylim": (-medium_xyz, medium_xyz), "zlim": (-medium_xyz, medium_xyz)}
-# plotting.movie3d(s, np.arange(2), until_timestep=1000, skip_steps=10, mode="line", **medium_limits)
+    large_xyz = 1e20
+    medium_xyz = 1e19
 
-until_timestep = int(n_steps)
-starting_angle = 225  # default 270, 0 for sun zoom
-rotation_speed = 0  # default 40
-elevation = 45  # default 0
-def data_gen(index):
-    ax.clear()
-    #ax.axis('off')
-    ax.grid('off')
-    plot = ax.scatter3D(s[index][:,0], s[index][:,1], s[index][:,2])
-    ax.set(**medium_limits)
-    ax.view_init(elev=elevation, azim=index/until_timestep*rotation_speed + starting_angle)
-    return plot
+    large_limits = {"xlim": (-large_xyz, large_xyz), "ylim": (-large_xyz, large_xyz), "zlim": (-large_xyz, large_xyz)}
+    medium_limits = {"xlim": (-medium_xyz, medium_xyz), "ylim": (-medium_xyz, medium_xyz), "zlim": (-medium_xyz, medium_xyz)}
+    # plotting.movie3d(s, np.arange(2), until_timestep=1000, skip_steps=10, mode="line", **medium_limits)
 
-fig = plt.figure()
-ax = fig.add_subplot(1, 1, 1, projection='3d')
-data_gen(1)
-plt.show()
 
-for i in range(n_steps):
+    until_timestep = int(n_steps)
+    starting_angle = 225  # default 270, 0 for sun zoom
+    rotation_speed = 0  # default 40
+    elevation = 45  # default 0
+
+    def data_gen(index):
+        ax.clear()
+        #ax.axis('off')
+        ax.grid('off')
+        plot = ax.scatter3D(s[index][:,0], s[index][:,1], s[index][:,2])
+        ax.set(**medium_limits)
+        ax.view_init(elev=elevation, azim=index/until_timestep*rotation_speed + starting_angle)
+        return plot
+
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, projection='3d')
-    data_gen(i)
-    plt.savefig(str(i)+'.png')
-    print(i)
+    data_gen(1)
+    plt.show()
+
+    for i in range(n_steps):
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1, projection='3d')
+        data_gen(i)
+        plt.savefig(str(i)+'.png')
+        print(i)
