@@ -26,8 +26,8 @@ thetamax = 0.7
 n_steps = 1000
 m_star = sc.Msol  # 3.181651515706176e+30
 galaxy = genStableGalaxy(10000, m_star, sc.Msgra)
-# result = cs.LeapFrogSaveC(galaxy, 1e12, n_steps, thetamax, sc.G)
-# result.save("stable_test.binv")
+result = cs.LeapFrogSaveC(galaxy, 1e12, n_steps, thetamax, sc.G)
+result.save("stable_test.binv")
 
 # result = cs.Result.load("stable2.binv").numpy()
 # print(result.shape)
