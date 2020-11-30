@@ -49,6 +49,22 @@ class PyTest(unittest.TestCase):
         self.assertTrue((result_np[19,1].pos == loaded_np_copy[19,1].pos).all())
         del loaded_np
         self.assertTrue((result_np[19,1].pos == loaded_np_copy[19,1].pos).all())
+    
+    def test_accelerated_accelerations(self):
+        import cppsim as cs
+        import numpy as np
+        x = cs.BodyList3(np.array([
+            cs.Body3(),
+            cs.Body3(np.array([1,2,3], dtype=np.double))
+        ]))
+        y = cs.BodyList3(np.array([
+            cs.Body3(),
+            cs.Body3(np.array([1,2,3], dtype=np.double))
+        ]))
+        result = cs.LeapFrogSaveC(x, n_steps=20).numpy()
+        cs.acceleratedAccelerationsC(y)
+        self.assertTrue((result[1, 0].g == y[0].g).all())
+
 
 
 class CppTest(unittest.TestCase):

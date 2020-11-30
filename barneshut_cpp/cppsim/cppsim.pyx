@@ -36,6 +36,7 @@ cdef extern from "sim.cpp":
     # Can declared nogil, as they 
     void LeapFrog(bodylist&, double, int, double, double) nogil
     vector[bodylist] LeapFrogSave(bodylist&, double, int, double, double, int) nogil
+    void accelerated_accelerations(bodylist&, double, double) nogil
 
 
 cdef class Body3:
@@ -324,3 +325,9 @@ def LeapFrogSaveC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetam
     result = Result()
     result.saves = saves
     return result
+
+
+def acceleratedAccelerationsC(BodyList3 bodies, double thetamax = 0.5, double G = 1):
+    cdef bodylist *bl = &bodies.bl
+    with nogil:
+        accelerated_accelerations(bl[0], thetamax, G)
