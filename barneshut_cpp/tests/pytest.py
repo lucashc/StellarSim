@@ -77,6 +77,23 @@ class PyTest(unittest.TestCase):
         result = result.numpy()
         bl = cs.BodyList3.load("test.bin")
         self.assertTrue((bl[0].pos == result[-1,0].pos).all())
+    def test_copy(self):
+        import cppsim as cs
+        import numpy as np
+        from copy import copy
+        x = cs.BodyList3(np.array([
+            cs.Body3(),
+            cs.Body3(np.array([1,2,3], dtype=np.double))
+        ]))
+        b1 = cs.Body3(np.array([1,2,3], dtype=np.double))
+        b2 = copy(b1)
+        b1.pos = np.array([1,35,3], dtype=np.double)
+        del b1
+        self.assertTrue((b2.pos == np.array([1,2,3], dtype=np.double)).all())
+        y  = copy(x)
+        x[0].pos = np.array([1,2,3], dtype=np.double)
+        del x
+        self.assertTrue((y[0].pos == [0,0,0]).all())
 
 
 

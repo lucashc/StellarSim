@@ -114,6 +114,15 @@ cdef class Body3:
     
     def __deallocate__(self):
         del self.body
+    
+    def __copy__(self):
+        """
+        Implements a copy method. Use with copy from the copy module.
+        """
+        cdef Body *body = new Body(self.body)
+        result = Body3(make_body_obj=False)
+        result.body = body
+        return result
 
 
 Body3_t = np.dtype(Body3)
@@ -217,7 +226,16 @@ cdef class BodyList3:
                 if i !=j and i[0].pos == j[0].pos:
                     raise ValueError("Some bodies are at the same location")
         return
-        
+    
+    def __copy__(self):
+        """
+        Implements a copy method. Use with copy from the copy module.
+        """
+        result = np.empty((self.__len__(),), dtype=Body3_t)
+        cdef int i
+        for i in range(self.__len__()):
+            result[i] = self.b[i].__copy__()
+        return BodyList3(result)
 
 BodyList3_t = np.dtype(BodyList3)
 
