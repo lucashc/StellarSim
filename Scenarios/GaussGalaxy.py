@@ -3,12 +3,12 @@ import Scenarios.stellarConstants as sc
 import numpy as np
 import helper_files.sim_utils as utils
 import barneshut_cpp.cppsim as cs
-
+import helper_files.plotting as plotting
 
 
 def genStableGalaxy(n_stars, m_star, m_bh):
     masses = np.array([m_bh] + [m_star]*n_stars)
-    r = np.sort(RadDist.radSample(size=n_stars))
+    r = np.sort(RadDist.radSampleFast(size=n_stars))
     theta = np.random.uniform(0, 2*np.pi, n_stars)
     x = r*np.cos(theta)
     y = r*np.sin(theta)
@@ -16,7 +16,7 @@ def genStableGalaxy(n_stars, m_star, m_bh):
     positions = np.column_stack((x, y, z))
     v_norm = np.sqrt(sc.G*np.cumsum(masses)[:-1]/np.linalg.norm(positions, axis=1))  # skip first cumsum value, since masses includes black hole
     v_unit_vec = np.column_stack((-np.sin(theta), np.cos(theta), np.zeros(n_stars)))
-    velocities = np.zeros((n_stars, 3))  # v_norm.reshape((n_stars, 1)) * v_unit_vec
+    velocities = v_norm.reshape((n_stars, 1)) * v_unit_vec
     positions = np.insert(positions, 0, np.zeros(3), 0)     # add black hole (already present in masses)
     velocities = np.insert(velocities, 0, np.zeros(3), 0)
     return utils.zip_to_bodylist(positions, velocities, masses)
@@ -24,8 +24,11 @@ def genStableGalaxy(n_stars, m_star, m_bh):
 
 thetamax = 0.7
 n_steps = 1000
-m_star = 3.181651515706176e+30
-galaxy = genStableGalaxy(10000, 100*m_star, sc.Msgra)
-result = cs.LeapFrogSaveC(galaxy, 1e12, n_steps, thetamax, sc.G)
-result.save("stable2.binv")
-#print(result.numpy())
+m_star = sc.Msol  # 3.181651515706176e+30
+galaxy = genStableGalaxy(10000, m_star, sc.Msgra)
+# result = cs.LeapFrogSaveC(galaxy, 1e12, n_steps, thetamax, sc.G)
+# result.save("stable_test.binv")
+
+# result = cs.Result.load("stable2.binv").numpy()
+# print(result.shape)
+# plotting.movie3d(result, [0], skip_steps=10)

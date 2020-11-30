@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from matplotlib import animation
 import numpy as np
+import helper_files.sim_utils as utils
 
 
 def data_gen(ax, dataset, index, particle_indices, frame_config, plotting_config):
@@ -91,7 +92,7 @@ def movie3d(dataset, particle_indices, **CONFIG):
         "grid": False,
         "particle_config": None
     }
-
+    dataset = utils.get_positions(dataset)
     plotting_config = {}
     frame_config = {}
     video_config = {}
