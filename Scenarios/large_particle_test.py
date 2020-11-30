@@ -6,7 +6,7 @@ import helper_files.sim_utils as utils
 import time
 import helper_files.render as render
 import Scenarios.genGalaxy as gg
-import Scenarios.stellarConstants as sc
+import helper_files.stellarConstants as sc
 
 thetamax = 0.5
 

@@ -1,5 +1,5 @@
-import Scenarios.RadDist as RadDist
-import Scenarios.stellarConstants as sc
+import helper_files.RadDist as RadDist
+import helper_files.stellarConstants as sc
 import numpy as np
 import helper_files.sim_utils as utils
 import barneshut_cpp.cppsim as cs

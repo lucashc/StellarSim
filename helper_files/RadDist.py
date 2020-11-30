@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import Scenarios.stellarConstants as sc
+import helper_files.stellarConstants as sc
 import time
 
 
