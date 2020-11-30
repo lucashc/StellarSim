@@ -139,6 +139,7 @@ barneshut_cpp/cppsim/cppsim.cpp
 
 # Exclude bodylist objs
 *.bin
+*.binv
 
 # Exclude plots and videos
 *.mp4
