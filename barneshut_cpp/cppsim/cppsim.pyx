@@ -289,6 +289,15 @@ cdef class Result:
         save_bodylist_vectorized(self.saves, cpp_filename)
     
     def save_last_step(self, filename):
+        """
+        Saves the last step of a Result object to a file. This is a bodylist object. 
+        The preferred extension is: .bin
+        This method is compatible with loading by a bodylist.
+        Args:
+            filename | string type
+        Returns:
+            None
+        """
         cdef BodyList3 bl = BodyList3(make_bodylist_obj=False)
         bl.bl = self.saves[self.saves.size()-1]
         bl.save(filename)
