@@ -133,6 +133,7 @@ a.out
 
 # Exclude vscode
 .vscode/
+*.json
 
 # Exclude Cython file
 barneshut_cpp/cppsim/cppsim.cpp
