@@ -4,10 +4,10 @@ import barneshut_cpp.cppsim as cs
 import time
 import helper_files.sim_utils as utils
 import helper_files.plotting as plotting
-import Scenarios.stellarConstants as sc
-import Scenarios.RadDist as rd
-import Scenarios.MassDist as md
-import Scenarios.PhysQuants as pq
+import helper_files.stellarConstants as sc
+import helper_files.RadDist as rd
+import helper_files.MassDist as md
+import helper_files.PhysQuants as pq
 from mpl_toolkits import mplot3d
 
 def genGalaxy(n,M=sc.Msgra,R=1,RD=sc.RDmw/sc.RCmw,spherical=False):
