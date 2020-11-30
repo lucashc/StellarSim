@@ -328,6 +328,16 @@ def LeapFrogSaveC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetam
 
 
 def acceleratedAccelerationsC(BodyList3 bodies, double thetamax = 0.5, double G = 1):
+    """
+    Calculates the accelerations of each body in the bodylist using the Barnes-Hut algorithm. 
+    Important: the bodylist is modified in place, its g-attributes are modified
+    Args:
+        bodies      | BodyList3 type
+        thetamax    | double type, thetamax parameter to Barnes-Hut
+        G           | double type, used Newton's coefficient of Gravity
+    Returns:
+        None
+    """
     cdef bodylist *bl = &bodies.bl
     with nogil:
         accelerated_accelerations(bl[0], thetamax, G)
