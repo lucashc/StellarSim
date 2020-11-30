@@ -64,6 +64,20 @@ class PyTest(unittest.TestCase):
         result = cs.LeapFrogSaveC(x, n_steps=20).numpy()
         cs.acceleratedAccelerationsC(y)
         self.assertTrue((result[1, 0].g == y[0].g).all())
+    
+    def test_save_last(self):
+        import cppsim as cs
+        import numpy as np
+        x = cs.BodyList3(np.array([
+            cs.Body3(),
+            cs.Body3(np.array([1,2,3], dtype=np.double))
+        ]))
+        result = cs.LeapFrogSaveC(x, n_steps=20)
+        result.save_last_step("test.bin")
+        result = result.numpy()
+        bl = cs.BodyList3.load("test.bin")
+        self.assertTrue((bl[0].pos == result[-1,0].pos).all())
+
 
 
 

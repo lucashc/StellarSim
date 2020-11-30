@@ -121,14 +121,17 @@ cdef class BodyList3:
     cdef bodylist bl
     cdef object[:] b
 
-    def __init__(self, np.ndarray[object] b=np.array([],dtype=Body3_t)):
+    def __init__(self, np.ndarray[object] b=np.array([],dtype=Body3_t), make_bodylist_obj=True):
         """
         Initializes the BodyList3 class
         Args:
-            b | np.ndarray type of Body3 objects
+            b                   | np.ndarray type of Body3 objects
+            make_bodylist_obj   | boolean type, whether to make underlying objects
         Returns:
             BodyList3
         """
+        if not make_bodylist_obj:
+            return
         if b.dtype != Body3_t:
             raise TypeError("Not a Body3 type")
         self.bl.reserve(b.shape[0])
@@ -284,6 +287,11 @@ cdef class Result:
         """
         cdef string cpp_filename = filename.encode('UTF-8')
         save_bodylist_vectorized(self.saves, cpp_filename)
+    
+    def save_last_step(self, filename):
+        cdef BodyList3 bl = BodyList3(make_bodylist_obj=False)
+        bl.bl = self.saves[self.saves.size()-1]
+        bl.save(filename)
     
     @staticmethod
     def load(filename):
