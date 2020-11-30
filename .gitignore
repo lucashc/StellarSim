@@ -145,3 +145,6 @@ barneshut_cpp/cppsim_source/cppsim.cpp
 # Exclude plots and videos
 *.mp4
 *.png
+
+# Exclude docs
+*.html

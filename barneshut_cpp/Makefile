@@ -29,3 +29,5 @@ profile:
 	./a.out
 	gprof ./a.out gmon.out > analysis.txt
 
+docs: build_cython
+	pydoc -w cppsim

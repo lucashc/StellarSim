@@ -1,4 +1,13 @@
 # distutils: language=c++
+# cython: embedsignature=True
+"""This module interface with C++ code for LeapFrog and Barnes-Hut
+
+This interface exposes C++ classes and functions from:
+* ``basetypes.hpp``
+* ``body.hpp``
+* ``sim.cpp``
+Each object is neatly packed in a Python object or function.
+"""
 import numpy as np
 cimport numpy as np
 from libcpp.vector cimport vector
@@ -7,10 +16,8 @@ from libcpp.string cimport string
 cimport cython
 
 
-"""
-The following are C++ imports required by this Python extension
-Add new functions as needed
-"""
+# The following are C++ imports required by this Python extension
+# Add new functions as needed
 
 cdef extern from "basetypes.hpp":
     cdef cppclass vec3 nogil:
