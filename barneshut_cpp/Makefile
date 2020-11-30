@@ -3,7 +3,7 @@ CFLAGS = -Wall -g -pthread
 
 clean: 
 	rm -Rf ./build
-	rm -f cppsim/cppsim.cpp
+	rm -f cppsim_source/cppsim.cpp
 	rm -f test.elf
 	rm -f *.so
 	rm -f *.pyd

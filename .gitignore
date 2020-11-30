@@ -136,7 +136,7 @@ a.out
 *.json
 
 # Exclude Cython file
-barneshut_cpp/cppsim/cppsim.cpp
+barneshut_cpp/cppsim_source/cppsim.cpp
 
 # Exclude bodylist objs
 *.bin
