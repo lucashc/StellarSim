@@ -13,14 +13,14 @@ Add new functions as needed
 """
 
 cdef extern from "basetypes.hpp":
-    cdef cppclass vec3:
+    cdef cppclass vec3 nogil:
         double x, y, z
         vec3()
         vec3(double, double, double)
         bool operator==(const vec3 &v)
 
 cdef extern from "body.hpp":
-    cdef cppclass Body:
+    cdef cppclass Body nogil:
         vec3 pos, vel, g
         double mass
         Body()
@@ -28,13 +28,14 @@ cdef extern from "body.hpp":
         Body(Body*)
     ctypedef vector[Body*] bodylist
     void save_bodylist(const bodylist&, string) except +
-    bodylist read_bodylist(string) except +
+    bodylist read_bodylist(string) nogil except +
     void save_bodylist_vectorized(const vector[bodylist]&, string) except +
-    vector[bodylist] read_bodylist_vectorized(string) except +
+    vector[bodylist] read_bodylist_vectorized(string) nogil except +
 
 cdef extern from "sim.cpp":
-    void LeapFrog(bodylist&, double, int, double, double)
-    vector[bodylist] LeapFrogSave(bodylist&, double, int, double, double, int) except +
+    # Can declared nogil, as they 
+    void LeapFrog(bodylist&, double, int, double, double) nogil
+    vector[bodylist] LeapFrogSave(bodylist&, double, int, double, double, int) nogil
 
 
 cdef class Body3:
@@ -221,7 +222,9 @@ def LeapFrogC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetamax=0
         G           | double type, used Newton's coefficient of Gravity
     Returns: None
     """
-    LeapFrog(bodies.bl, dt, n_steps, thetamax, G)
+    cdef bodylist *bl = &bodies.bl
+    with nogil:
+        LeapFrog(bl[0], dt, n_steps, thetamax, G)
 
 
 cdef class Result:
@@ -315,7 +318,9 @@ def LeapFrogSaveC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetam
         Result object, see documentation of this object
     """
     cdef vector[bodylist] saves
-    saves = LeapFrogSave(bodies.bl, dt, n_steps, thetamax, G, save_every)
+    cdef bodylist *bl = &bodies.bl
+    with nogil:
+        saves = LeapFrogSave(bodies.bl, dt, n_steps, thetamax, G, save_every)
     result = Result()
     result.saves = saves
     return result

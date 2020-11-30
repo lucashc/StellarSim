@@ -36,7 +36,7 @@ def energy(result,t=0):
     for i in range(len(masses)):
         for j in range(i+1,len(masses)):
             dist = np.linalg.norm(r[i]-r[j])
-            Epot += sc.G*masses[i]*masses[j]/dist
+            Epot -= sc.G*masses[i]*masses[j]/dist
 
     return Ekin+Epot, Ekin, Epot
 
