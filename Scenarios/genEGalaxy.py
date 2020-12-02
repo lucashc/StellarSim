@@ -10,15 +10,26 @@ import helper_files.MassDist as md
 import helper_files.PhysQuants as pq
 from mpl_toolkits import mplot3d
 
-def genGalaxy(n,M=sc.Msgra,R=1,RD=sc.RDmw/sc.RCmw,spherical=False):
+def genEGalaxy(n,M=sc.Msgra,R=1,RD=sc.RDmw/sc.RCmw,space=False,elliptical=False,spiralarms=1):
     """Generate a galaxy (Bodylist) of a massive black hole M and n stars, with initial positions, velocities and masses randomly distributed"""
 
-    theta = np.random.uniform(0, 2 * np.pi, n)
-    if spherical == True:
+    massarray = md.massSample(n)
+
+    if space == True:
         phi = np.pi/2 - np.random.normal(0,0.1,n)
     else:
         phi = np.pi/2
+
+    if elliptical == True:
+        spiral  = 1
+        e = 0.01*np.ones(n)+np.random.normal(0,0.005,n)
+    else:
+        spiral = 0
+        e = np.zeros(n)
+
     r = rd.radSample(R,RD,n)
+    theta = (1-spiral) * np.random.uniform(0, 2 * np.pi, n) + spiral * (-2*np.pi*r/np.amax(r)+np.pi/10*np.random.normal(0,1,n)+np.pi*np.random.randint(0,2,n))
+    a = r/(1+e)
     x = r * np.cos(theta) * np.sin(phi)
     y = r * np.sin(theta) * np.sin(phi)
     z = r * np.cos(phi)
@@ -26,7 +37,7 @@ def genGalaxy(n,M=sc.Msgra,R=1,RD=sc.RDmw/sc.RCmw,spherical=False):
     plt.scatter(x,y)
     plt.show()
 
-    v = np.sqrt(sc.G*M*(1/r))
+    v = np.sqrt(sc.G*(M+massarray)*(2/r-1/a))
     v_x = -np.sin(theta) * v
     v_y = np.cos(theta) * v
     v_z = np.zeros(n)
@@ -34,7 +45,7 @@ def genGalaxy(n,M=sc.Msgra,R=1,RD=sc.RDmw/sc.RCmw,spherical=False):
     plt.scatter(v_x, v_y)
     plt.show()
 
-    massarray = md.massSample(n)
+
 
     bodies = [cs.Body3(pos=np.zeros(3), vel=np.zeros(3), mass=M)]
     for i in range(1,n):
@@ -44,42 +55,11 @@ def genGalaxy(n,M=sc.Msgra,R=1,RD=sc.RDmw/sc.RCmw,spherical=False):
 
 thetamax = 0.5
 
-n_steps = 100  # int(30/1e-4)
+n_steps = 2000  # int(30/1e-4)
 begin = time.time()
-result = cs.LeapFrogSaveC(genGalaxy(1000,sc.Msgra,spherical=True), 1e12, n_steps, thetamax, sc.G)
+result = cs.LeapFrogSaveC(genEGalaxy(100,sc.Msgra,space=True,elliptical=True,spiralarms=2), 1e12, n_steps, thetamax, sc.G)
 end = time.time()
 
-m, p, L, Ek, Ep, E = np.zeros(n_steps), np.zeros(n_steps), np.zeros(n_steps), np.zeros(n_steps), np.zeros(n_steps), np.zeros(n_steps)
-for t in range(n_steps):
-    m[t] = pq.mass(result,t)[1]
-    print(m[t])
-    p[t] = pq.linMom(result,t)[2]
-    print(p[t])
-    L[t] = pq.angMom(result,t)[2]
-    print(L[t])
-    Ek[t] = pq.energy(result, t)[1]
-    print(Ek[t])
-    Ep[t] = pq.energy(result, t)[2]
-    print(Ep[t])
-    E[t] = pq.energy(result, t)[0]
-    print(E[t])
-
-t = np.linspace(0,n_steps,100)
-
-plt.subplot(2,2,1)
-plt.plot(t,m)
-plt.subplot(2,2,2)
-plt.plot(t,p)
-plt.subplot(2,2,3)
-plt.plot(t,L)
-plt.subplot(2,2,4)
-plt.plot(t,Ek)
-plt.plot(t,Ep)
-plt.plot(t,Ep+Ek)
-plt.plot(t,E)
-plt.show()
-
-"""
 s = utils.get_positions(result)
 print(s)
 print(s[100])
@@ -115,6 +95,5 @@ for i in range(n_steps):
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, projection='3d')
     data_gen(i)
-    plt.savefig(str(i)+'.png')
+    plt.savefig(str(i+1)+'.png')
     print(i)
-"""
