@@ -345,7 +345,7 @@ cdef class Result:
 
 
 
-def LeapFrogSaveC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetamax=0.5, double G=1, int save_every=1, double epsilon=0.0):
+def LeapFrogSaveC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetamax=0.5, double G=1, int save_every=1, double epsilon=0):
     """
     Executes LeapFrog integration on the accelerations obtained by the Barnes-Hut algorithm.
     This function modifies the given bodies in place. In addition, at each save_every 
