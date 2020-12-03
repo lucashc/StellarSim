@@ -1,6 +1,7 @@
 #include <vector>
 #include <iostream>
 #include <thread>
+#include <math>
 #include "basetypes.hpp"
 #include "tree.cpp"
 // #include <execution>
@@ -8,6 +9,12 @@
 
 
 static const unsigned int THREAD_COUNT = 8;
+
+float a_0 {1.2e-4};
+vec3 dark_matter_gravity(Body body, BASETYPE DM_mass, vec3 center, G) {
+    vec3 r = center - body.pos;
+    return r*sqrt(G*DM_mass*a_0)/r.norm2();
+}
 
 
 void progress(int step, int total) {
@@ -26,14 +33,14 @@ void progress(int step, int total) {
     // std::cout << std::flush;
 }
 
-void apply_acceleration(int id, bodylist * bodies, BASETYPE thetamax, BASETYPE G, BASETYPE epsilon, OctNode * topnode) {
+void apply_acceleration(int id, bodylist * bodies, OctNode * topnode, BASETYPE thetamax, BASETYPE G, BASETYPE epsilon, BASETYPE DM_mass) {
     for (long unsigned int i = id; i < bodies->size(); i += THREAD_COUNT) {
-        bodies->at(i)->g = vec3(0,0,0);
+        bodies->at(i)->g = dark_matter_gravity(bodies->at(i), DM_mass, vec3(0,0,0), G);
         TreeWalk(topnode, bodies->at(i), thetamax, G, epsilon);
     }
 }
 
-void accelerated_accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G, BASETYPE epsilon) {
+void accelerated_accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G, BASETYPE epsilon, BASETYPE DM_mass) {
     auto bounds = get_bounding_vectors(bodies);
     auto center = (bounds.first + bounds.second)/2;
     BASETYPE max_size = (bounds.first - bounds.second).abs().max();
@@ -41,7 +48,7 @@ void accelerated_accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G, 
 
     std::thread threads[THREAD_COUNT];
     for (unsigned int i = 0; i < THREAD_COUNT; i++){
-        threads[i] = std::thread(apply_acceleration, i, &bodies, thetamax, G, epsilon, topnode);
+        threads[i] = std::thread(apply_acceleration, i, &bodies, topnode, thetamax, G, epsilon, DM_mass);
     }
 
     for (unsigned int i = 0; i < THREAD_COUNT; i++) {
@@ -69,12 +76,12 @@ void accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G, BASETYPE eps
 }
 
 
-void LeapFrog(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G, BASETYPE epsilon){
+void LeapFrog(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G, BASETYPE epsilon, BASETYPE DM_mass){
     for(int step = 0; step < n_steps; step++){
         progress(step, n_steps);
         //std::cout << std::endl;
         //std::cout << "Euler forward step " << step << std::endl;
-        accelerated_accelerations(bodies, thetamax, G, epsilon);
+        accelerated_accelerations(bodies, thetamax, G, epsilon, DM_mass);
         for(auto body : bodies){
             body->vel = body->vel + body->g * dt;
             body->pos = body->pos + body->vel * dt;
@@ -93,7 +100,7 @@ bodylist copy_bodylist(bodylist &bodies){
 }
 
 
-std::vector<bodylist> LeapFrogSave(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G, int savestep, BASETYPE epsilon) {
+std::vector<bodylist> LeapFrogSave(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G, int savestep, BASETYPE epsilon, BASETYPE DM_mass) {
     std::vector<bodylist> save_list;   // save initial state
     //std::cout << *bodies[0] << std::endl;
     //std::cout << *bodies[1] << std::endl;
@@ -102,7 +109,7 @@ std::vector<bodylist> LeapFrogSave(bodylist &bodies, BASETYPE dt, int n_steps, B
         if (step % savestep == 0) {
             save_list.push_back(copy_bodylist(bodies));   // save bodies after a step
         }
-        accelerated_accelerations(bodies, thetamax, G, epsilon);
+        accelerated_accelerations(bodies, thetamax, G, epsilon, DM_mass);
         for(auto body: bodies){
             //std::cout << *body << std::endl;
             body->vel = body->vel + body->g * dt;

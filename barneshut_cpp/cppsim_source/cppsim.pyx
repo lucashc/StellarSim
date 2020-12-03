@@ -239,7 +239,7 @@ cdef class BodyList3:
 
 BodyList3_t = np.dtype(BodyList3)
 
-def LeapFrogC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetamax=0.5, double G=1, double epsilon =0):
+def LeapFrogC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetamax=0.5, double G=1, double epsilon =0, double DM_mass = 0):
     """
     Executes LeapFrog integration on the accelerations obtained by the Barnes-Hut algorithm.
     This function modifies the given bodies in place.
@@ -253,34 +253,34 @@ def LeapFrogC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetamax=0
     """
     cdef bodylist *bl = &bodies.bl
     with nogil:
-        LeapFrog(bl[0], dt, n_steps, thetamax, G, epsilon)
+        LeapFrog(bl[0], dt, n_steps, thetamax, G, epsilon, DM_mass)
 
 
 cdef class Result:
     """
     This class represents the result of a simulation as done by LeapFrogSaveC. This class is merely
-    a wrapper of the underlying vecto<bodylist> C++-object. To extract the contents, use 
-    the numpy() function. This class is not meant to be initialized from Python, 
+    a wrapper of the underlying vecto<bodylist> C++-object. To extract the contents, use
+    the numpy() function. This class is not meant to be initialized from Python,
     only Cython code should initialize this class.
     Important to note: This class wraps a 2D vector of pointers, so deallocating this, will not free the memory.
-    So if this class goes out of scope and Python garbage collects this class, it will not free memory and leak. 
+    So if this class goes out of scope and Python garbage collects this class, it will not free memory and leak.
     To prevent this, extract the contents with the numpy() method. This creates a numpy array of Body3 objects.
     This will create a reference to the underlying memory, meaning that deleting this array, either by garbage collection
-    or del-operator, the memory will be freed. 
+    or del-operator, the memory will be freed.
     If the numpy array is deleted, this class will be an empty hull of pointers. Calling the numpy() method again
-    will result in a segmentation fault. 
+    will result in a segmentation fault.
     Only ever use the numpy() method once or remember that they all reference the same memory. In addition, one might
     want to use the make_copy parameter.
     """
     cdef vector[bodylist] saves
-    
+
     def numpy(self, make_copy=False):
         """
         Retrieves the simulation results as a numpy array.
         IMPORTANT: Each call to this function will create a reference to the same memory.
-        Deallocating one array while another exists will result in a segmentation fault. To prevent this, 
+        Deallocating one array while another exists will result in a segmentation fault. To prevent this,
         an explicit copy can be made.
-        Args: 
+        Args:
             make_copy | boolean type, whether to make a copy and circumvent memory issues
         Returns:
             np.ndarray[Body3_t] | This is the saved history, with axes: time, object. So it has shape,
@@ -301,7 +301,7 @@ cdef class Result:
                     x.body = self.saves[i][j]
                 save_result[i, j] = x
         return save_result
-    
+
     def save(self, filename):
         """
         Saves a Result object to a file. Preferred extension is: .binv
@@ -312,10 +312,10 @@ cdef class Result:
         """
         cdef string cpp_filename = filename.encode('UTF-8')
         save_bodylist_vectorized(self.saves, cpp_filename)
-    
+
     def save_last_step(self, filename):
         """
-        Saves the last step of a Result object to a file. This is a bodylist object. 
+        Saves the last step of a Result object to a file. This is a bodylist object.
         The preferred extension is: .bin
         This method is compatible with loading by a bodylist.
         Args:
@@ -326,7 +326,7 @@ cdef class Result:
         cdef BodyList3 bl = BodyList3(make_bodylist_obj=False)
         bl.bl = self.saves[self.saves.size()-1]
         bl.save(filename)
-    
+
     @staticmethod
     def load(filename):
         """
@@ -334,7 +334,7 @@ cdef class Result:
         This mehtod is incompatible with loading a bodylist object.
         Args:
             filename  | string type
-        Returns: 
+        Returns:
             Result object
         """
         cdef string cpp_filename = filename.encode('UTF-8')
@@ -345,10 +345,10 @@ cdef class Result:
 
 
 
-def LeapFrogSaveC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetamax=0.5, double G=1, int save_every=1, double epsilon=0):
+def LeapFrogSaveC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetamax=0.5, double G=1, int save_every=1, double epsilon=0, double DM_mass = 0):
     """
     Executes LeapFrog integration on the accelerations obtained by the Barnes-Hut algorithm.
-    This function modifies the given bodies in place. In addition, at each save_every 
+    This function modifies the given bodies in place. In addition, at each save_every
     a copy of the bodylist is made.
     Args:
         bodies              | BodyList3 type
@@ -357,21 +357,21 @@ def LeapFrogSaveC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetam
         thetamax            | double type, thetamax parameter to Barnes-Hut
         G                   | double type, used Newton's coefficient of Gravity
         save_every          | int type, each save_every steps a frame is saved
-    Returns: 
+    Returns:
         Result object, see documentation of this object
     """
     cdef vector[bodylist] saves
     cdef bodylist *bl = &bodies.bl
     with nogil:
-        saves = LeapFrogSave(bodies.bl, dt, n_steps, thetamax, G, save_every, epsilon)
+        saves = LeapFrogSave(bodies.bl, dt, n_steps, thetamax, G, save_every, epsilon, DM_mass)
     result = Result()
     result.saves = saves
     return result
 
 
-def acceleratedAccelerationsC(BodyList3 bodies, double thetamax = 0.5, double G = 1, double epsilon=0):
+def acceleratedAccelerationsC(BodyList3 bodies, double thetamax = 0.5, double G = 1, double epsilon=0, double DM_mass):
     """
-    Calculates the accelerations of each body in the bodylist using the Barnes-Hut algorithm. 
+    Calculates the accelerations of each body in the bodylist using the Barnes-Hut algorithm.
     Important: the bodylist is modified in place, its g-attributes are modified
     Args:
         bodies      | BodyList3 type
@@ -382,4 +382,4 @@ def acceleratedAccelerationsC(BodyList3 bodies, double thetamax = 0.5, double G 
     """
     cdef bodylist *bl = &bodies.bl
     with nogil:
-        accelerated_accelerations(bl[0], thetamax, G, epsilon)
+        accelerated_accelerations(bl[0], thetamax, G, epsilon, DM_mass)
