@@ -39,11 +39,13 @@ galaxy2 = utils.add_velocity_bodylist(galaxy2, v2)
 total_bodylist = utils.concatenate_bodylists(galaxy1, galaxy2)
 total_bodylist.check_integrity()
 #total_bodylist.save("galaxies.bin")
-results = cs.LeapFrogSaveC(total_bodylist, dt, n_steps, thetamax, G)
+results = cs.LeapFrogSaveC(total_bodylist, dt, n_steps, thetamax, G, 1, 0)
 # for i in range(len(results)):
 #     bl = cs.BodyList3(results[i, :])
 #     bl.save(f"galaxies{i:3d}.bin")
 # exit()
+results.save("min.binv")
+exit()
 large_limits = {"xlim": (-1600, 1600), "ylim": (-1600, 1600), "zlim": (-1600, 1600)}
 s = utils.get_positions(results)
 particles = [4*n for n in range(2*N//4)] + [N]  # 1 in 4 particles + second black hole
