@@ -16,6 +16,26 @@ vec3 dark_matter_gravity(Body body, BASETYPE DM_mass, vec3 center, double G) {
     return r*sqrt(G*DM_mass*a_0)/r.norm2();
 }
 
+void color_progress(int step, int total) {
+    std::cout << "\033[32m" << '\r';
+    std::cout << '<';
+    double stepsize = ((double) total)/100.0;
+    for (int i = 0; i < 100; i++) {
+        if (i * stepsize < step-1 && ((i+1) * stepsize < step-1 || (i+1) * stepsize >= total)) {
+            std::cout << "=";
+        }
+        else if (i * stepsize < step-1){
+            std::cout << "\033[1m\033[34m#\033[0m\033[31m";
+        }
+        else {
+            std::cout << "-";
+        }
+    }
+    std::cout << "> " << "\033[1m\033[31m" << step << "\033[1m\033[32m/" << total << "\033[0m";
+    if (step == total) std::cout << '\n';
+    // std::cout << std::flush;
+}
+
 
 void progress(int step, int total) {
     std::cout << '\r';
