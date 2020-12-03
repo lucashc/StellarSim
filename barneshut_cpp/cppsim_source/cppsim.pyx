@@ -41,9 +41,9 @@ cdef extern from "body.hpp":
 
 cdef extern from "sim.cpp":
     # Can declared nogil, as they 
-    void LeapFrog(bodylist&, double, int, double, double) nogil
-    vector[bodylist] LeapFrogSave(bodylist&, double, int, double, double, int) nogil
-    void accelerated_accelerations(bodylist&, double, double) nogil
+    void LeapFrog(bodylist&, double, int, double, double, double) nogil
+    vector[bodylist] LeapFrogSave(bodylist&, double, int, double, double, int, double) nogil
+    void accelerated_accelerations(bodylist&, double, double, double) nogil
 
 
 cdef class Body3:
@@ -239,7 +239,7 @@ cdef class BodyList3:
 
 BodyList3_t = np.dtype(BodyList3)
 
-def LeapFrogC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetamax=0.5, double G=1):
+def LeapFrogC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetamax=0.5, double G=1, double epsilon =0):
     """
     Executes LeapFrog integration on the accelerations obtained by the Barnes-Hut algorithm.
     This function modifies the given bodies in place.
@@ -253,7 +253,7 @@ def LeapFrogC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetamax=0
     """
     cdef bodylist *bl = &bodies.bl
     with nogil:
-        LeapFrog(bl[0], dt, n_steps, thetamax, G)
+        LeapFrog(bl[0], dt, n_steps, thetamax, G, epsilon)
 
 
 cdef class Result:
@@ -345,7 +345,7 @@ cdef class Result:
 
 
 
-def LeapFrogSaveC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetamax=0.5, double G=1, int save_every=1):
+def LeapFrogSaveC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetamax=0.5, double G=1, int save_every=1, double epsilon=0.0):
     """
     Executes LeapFrog integration on the accelerations obtained by the Barnes-Hut algorithm.
     This function modifies the given bodies in place. In addition, at each save_every 
@@ -363,13 +363,13 @@ def LeapFrogSaveC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetam
     cdef vector[bodylist] saves
     cdef bodylist *bl = &bodies.bl
     with nogil:
-        saves = LeapFrogSave(bodies.bl, dt, n_steps, thetamax, G, save_every)
+        saves = LeapFrogSave(bodies.bl, dt, n_steps, thetamax, G, save_every, epsilon)
     result = Result()
     result.saves = saves
     return result
 
 
-def acceleratedAccelerationsC(BodyList3 bodies, double thetamax = 0.5, double G = 1):
+def acceleratedAccelerationsC(BodyList3 bodies, double thetamax = 0.5, double G = 1, double epsilon=0):
     """
     Calculates the accelerations of each body in the bodylist using the Barnes-Hut algorithm. 
     Important: the bodylist is modified in place, its g-attributes are modified
@@ -382,4 +382,4 @@ def acceleratedAccelerationsC(BodyList3 bodies, double thetamax = 0.5, double G 
     """
     cdef bodylist *bl = &bodies.bl
     with nogil:
-        accelerated_accelerations(bl[0], thetamax, G)
+        accelerated_accelerations(bl[0], thetamax, G, epsilon)

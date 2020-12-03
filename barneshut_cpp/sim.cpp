@@ -9,14 +9,14 @@
 
 const unsigned int THREAD_COUNT = std::thread::hardware_concurrency();
 
-void apply_acceleration(int id, bodylist * bodies, BASETYPE thetamax, BASETYPE G, OctNode * topnode) {
+void apply_acceleration(int id, bodylist * bodies, BASETYPE thetamax, BASETYPE G, BASETYPE epsilon, OctNode * topnode) {
     for (long unsigned int i = id; i < bodies->size(); i += THREAD_COUNT) {
         bodies->at(i)->g = vec3(0,0,0);
-        TreeWalk(topnode, bodies->at(i), thetamax, G);
+        TreeWalk(topnode, bodies->at(i), thetamax, G, epsilon);
     }
 }
 
-void accelerated_accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
+void accelerated_accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G, BASETYPE epsilon) {
     auto bounds = get_bounding_vectors(bodies);
     auto center = (bounds.first + bounds.second)/2;
     BASETYPE max_size = (bounds.first - bounds.second).abs().max();
@@ -24,7 +24,7 @@ void accelerated_accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) 
 
     std::thread threads[THREAD_COUNT];
     for (unsigned int i = 0; i < THREAD_COUNT; i++){
-        threads[i] = std::thread(apply_acceleration, i, &bodies, thetamax, G, topnode);
+        threads[i] = std::thread(apply_acceleration, i, &bodies, thetamax, G, epsilon, topnode);
     }
 
     for (unsigned int i = 0; i < THREAD_COUNT; i++) {
@@ -33,7 +33,7 @@ void accelerated_accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) 
     delete topnode;
 }
 
-void accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
+void accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G, BASETYPE epsilon) {
     auto bounds = get_bounding_vectors(bodies);
     auto center = (bounds.first + bounds.second)/2;
     BASETYPE max_size = (bounds.first-bounds.second).abs().max();
@@ -45,18 +45,18 @@ void accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
     // });
     for (auto  b : bodies) {
         b->g = vec3(0,0,0);
-        TreeWalk(topnode, b, thetamax, G);
+        TreeWalk(topnode, b, thetamax, G, epsilon);
         //std::cout << topnode->children.size() << std::endl;
     }
     delete topnode;
 }
 
 
-void LeapFrog(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G){
+void LeapFrog(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G, BASETYPE epsilon){
     for(int step = 0; step < n_steps; step++){
         //std::cout << std::endl;
         //std::cout << "Euler forward step " << step << std::endl;
-        accelerated_accelerations(bodies, thetamax, G);
+        accelerated_accelerations(bodies, thetamax, G, epsilon);
         for(auto body : bodies){
             body->vel = body->vel + body->g * dt;
             body->pos = body->pos + body->vel * dt;
@@ -74,7 +74,7 @@ bodylist copy_bodylist(bodylist &bodies){
 }
 
 
-std::vector<bodylist> LeapFrogSave(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G, int savestep) {
+std::vector<bodylist> LeapFrogSave(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G, int savestep, BASETYPE epsilon) {
     std::vector<bodylist> save_list;   // save initial state
     //std::cout << *bodies[0] << std::endl;
     //std::cout << *bodies[1] << std::endl;
@@ -82,7 +82,7 @@ std::vector<bodylist> LeapFrogSave(bodylist &bodies, BASETYPE dt, int n_steps, B
         if (step % savestep == 0) {
             save_list.push_back(copy_bodylist(bodies));   // save bodies after a step
         }
-        accelerated_accelerations(bodies, thetamax, G);
+        accelerated_accelerations(bodies, thetamax, G, epsilon);
         for(auto body: bodies){
             //std::cout << *body << std::endl;
             body->vel = body->vel + body->g * dt;
