@@ -8,7 +8,7 @@ import helper_files.plotting as plotting
 
 def genStableGalaxy(n_stars, m_star, m_bh):
     masses = np.array([m_bh] + [m_star]*n_stars)
-    r = np.sort(RadDist.radSampleFast(size=n_stars))
+    r = np.sort(RadDist.radSample(size=n_stars))
     theta = np.random.uniform(0, 2*np.pi, n_stars)
     x = r*np.cos(theta)
     y = r*np.sin(theta)
@@ -29,7 +29,7 @@ thetamax = 0.7
 n_steps = 5000
 m_star = sc.Msol  # 3.181651515706176e+30
 galaxy = genStableGalaxy(10000, m_star, sc.Msgra)
-cs.LeapFrogC(galaxy, 1e12, 5000, thetamax, sc.G)
+# cs.LeapFrogC(galaxy, 1e12, 5000, thetamax, sc.G)
 print("Done with step 1")
 result = cs.LeapFrogSaveC(galaxy, 1e12, n_steps, thetamax, sc.G, 10)
 result.save("stable_test.binv")

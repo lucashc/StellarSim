@@ -18,7 +18,7 @@ def genGalaxy(n,M=sc.Msgra,R=1,RD=sc.RDmw/sc.RCmw,spherical=False):
         phi = np.pi/2 - np.random.normal(0,0.1,n)
     else:
         phi = np.pi/2
-    r = rd.radSample(R,RD,n)
+    r = rd.radSample(n,R,RD)
     x = r * np.cos(theta) * np.sin(phi)
     y = r * np.sin(theta) * np.sin(phi)
     z = r * np.cos(phi)
