@@ -41,9 +41,9 @@ cdef extern from "body.hpp":
 
 cdef extern from "sim.cpp":
     # Can declared nogil, as they 
-    void LeapFrog(bodylist&, double, int, double, double, double) nogil
-    vector[bodylist] LeapFrogSave(bodylist&, double, int, double, double, int, double) nogil
-    void accelerated_accelerations(bodylist&, double, double, double) nogil
+    void LeapFrog(bodylist&, double, int, double, double, double, double) nogil
+    vector[bodylist] LeapFrogSave(bodylist&, double, int, double, double, int, double, double) nogil
+    void accelerated_accelerations(bodylist&, double, double, double, double) nogil
 
 
 cdef class Body3:
@@ -369,7 +369,7 @@ def LeapFrogSaveC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetam
     return result
 
 
-def acceleratedAccelerationsC(BodyList3 bodies, double thetamax = 0.5, double G = 1, double epsilon=0, double DM_mass):
+def acceleratedAccelerationsC(BodyList3 bodies, double thetamax = 0.5, double G = 1, double epsilon=0, double DM_mass = 0):
     """
     Calculates the accelerations of each body in the bodylist using the Barnes-Hut algorithm.
     Important: the bodylist is modified in place, its g-attributes are modified

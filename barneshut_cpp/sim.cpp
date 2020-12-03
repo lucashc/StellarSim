@@ -1,7 +1,7 @@
 #include <vector>
 #include <iostream>
 #include <thread>
-#include <math>
+#include <cmath>
 #include "basetypes.hpp"
 #include "tree.cpp"
 // #include <execution>
@@ -10,8 +10,8 @@
 
 static const unsigned int THREAD_COUNT = 8;
 
-float a_0 {1.2e-4};
-vec3 dark_matter_gravity(Body body, BASETYPE DM_mass, vec3 center, G) {
+double a_0 {1.2e-4};
+vec3 dark_matter_gravity(Body body, BASETYPE DM_mass, vec3 center, double G) {
     vec3 r = center - body.pos;
     return r*sqrt(G*DM_mass*a_0)/r.norm2();
 }
