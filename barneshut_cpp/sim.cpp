@@ -9,6 +9,22 @@
 
 const unsigned int THREAD_COUNT = std::thread::hardware_concurrency();
 
+void progress(int step, int total) {
+    std::cout << '\r';
+    std::cout << '<';
+    double stepsize = ((double) total)/100.0;
+    for (int i = 0; i < 100; i++) {
+        if (i * stepsize < step) {
+            std::cout << "=";
+        } else {
+            std::cout << "-";
+        }
+    }
+    std::cout << "> " << step << "/" << total;
+    if (step == total) std::cout << '\n';
+    // std::cout << std::flush;
+}
+
 void apply_acceleration(int id, bodylist * bodies, BASETYPE thetamax, BASETYPE G, OctNode * topnode) {
     for (long unsigned int i = id; i < bodies->size(); i += THREAD_COUNT) {
         bodies->at(i)->g = vec3(0,0,0);
@@ -54,6 +70,7 @@ void accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
 
 void LeapFrog(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G){
     for(int step = 0; step < n_steps; step++){
+        progress(step, n_steps);
         //std::cout << std::endl;
         //std::cout << "Euler forward step " << step << std::endl;
         accelerated_accelerations(bodies, thetamax, G);
@@ -62,6 +79,7 @@ void LeapFrog(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BAS
             body->pos = body->pos + body->vel * dt;
         }
     }
+    progress(n_steps, n_steps);
 }
 
 bodylist copy_bodylist(bodylist &bodies){
@@ -79,6 +97,7 @@ std::vector<bodylist> LeapFrogSave(bodylist &bodies, BASETYPE dt, int n_steps, B
     //std::cout << *bodies[0] << std::endl;
     //std::cout << *bodies[1] << std::endl;
     for(int step = 0; step < n_steps; step++){
+        progress(step, n_steps);
         if (step % savestep == 0) {
             save_list.push_back(copy_bodylist(bodies));   // save bodies after a step
         }
@@ -89,5 +108,6 @@ std::vector<bodylist> LeapFrogSave(bodylist &bodies, BASETYPE dt, int n_steps, B
             body->pos = body->pos + body->vel * dt;
         }
     }
+    progress(n_steps, n_steps);
     return save_list;
 }
