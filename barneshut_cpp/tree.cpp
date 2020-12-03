@@ -72,18 +72,19 @@ public:
 };
 
 
-void TreeWalk(OctNode* node, Body* b, BASETYPE thetamax, BASETYPE G) {
+void TreeWalk(OctNode* node, Body* b, BASETYPE thetamax, BASETYPE G, BASETYPE epsilon) {
     vec3 dr = node->COM - b->pos;
     BASETYPE r = dr.norm();
-    if (r > 0.01) {
+    BASETYPE rs = r*r + epsilon*epsilon;
+    if (rs > 0) {
         if ((node->children.empty() || node->size / r < thetamax) && node->id != b) {
             //std::cout << "Contribution of node with COM = " << node->COM << " and mass = " << node->mass << " on body " << *b << " is " << dr * G * node->mass / pow(r, 3) << "(dr = " << dr << ")" << std::endl;
-            b->g = b->g + dr * G * node->mass / pow(r, 3);
+            b->g = b->g + (dr / r) * G * node->mass / rs;
             //std::cout << b->g << ", r = " << r << std::endl;
         }
         else {
             for (auto child : node->children) {
-                TreeWalk(child, b, thetamax, G);
+                TreeWalk(child, b, thetamax, G, epsilon);
             }
         }
     }
