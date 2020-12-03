@@ -27,7 +27,7 @@ def genEGalaxy(n,M=sc.Msgra,R=1,RD=sc.RDmw/sc.RCmw,space=False,elliptical=False,
         spiral = 0
         e = np.zeros(n)
 
-    r = rd.radSample(R,RD,n)
+    r = rd.radSample(n,R,RD)
     theta = (1-spiral) * np.random.uniform(0, 2 * np.pi, n) + spiral * (-2*np.pi*r/np.amax(r)+np.pi/10*np.random.normal(0,1,n)+np.pi*np.random.randint(0,2,n))
     a = r/(1+e)
     x = r * np.cos(theta) * np.sin(phi)
