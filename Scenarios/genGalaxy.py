@@ -11,14 +11,20 @@ import helper_files.PhysQuants as pq
 from mpl_toolkits import mplot3d
 
 def genGalaxy(n,M=sc.Msgra,R=1,RD=sc.RDmw/sc.RCmw,spherical=False):
-    """Generate a galaxy (Bodylist) of a massive black hole M and n stars, with initial positions, velocities and masses randomly distributed"""
+    """Generate a galaxy (Bodylist) of a massive black hole M and n stars, with initial positions, velocities and masses randomly distributed. Notice that R and RD are in units of Milky Way galactic bulge radii."""
 
     theta = np.random.uniform(0, 2 * np.pi, n)
+    r = rd.radSample(R,RD,n)
     if spherical == True:
-        phi = np.pi/2 - np.random.normal(0,0.1,n)
+        phi = np.zeros(n)
+        for i in range(n):
+            if r[i]/sc.RCmw <= R:
+                phi[i] = np.random.uniform(0,np.pi)
+            else:
+                phi[i] = np.pi/2 - np.random.normal(0,0.1)
     else:
         phi = np.pi/2
-    r = rd.radSample(n,R,RD)
+
     x = r * np.cos(theta) * np.sin(phi)
     y = r * np.sin(theta) * np.sin(phi)
     z = r * np.cos(phi)
@@ -46,40 +52,10 @@ thetamax = 0.5
 
 n_steps = 100  # int(30/1e-4)
 begin = time.time()
-result = cs.LeapFrogSaveC(genGalaxy(1000,sc.Msgra,spherical=True), 1e12, n_steps, thetamax, sc.G)
+result = cs.LeapFrogSaveC(genGalaxy(1000,sc.Msgra,R=1,spherical=True), 1e12, n_steps, thetamax, sc.G)
 end = time.time()
 
-m, p, L, Ek, Ep, E = np.zeros(n_steps), np.zeros(n_steps), np.zeros(n_steps), np.zeros(n_steps), np.zeros(n_steps), np.zeros(n_steps)
-for t in range(n_steps):
-    m[t] = pq.mass(result,t)[1]
-    print(m[t])
-    p[t] = pq.linMom(result,t)[2]
-    print(p[t])
-    L[t] = pq.angMom(result,t)[2]
-    print(L[t])
-    Ek[t] = pq.energy(result, t)[1]
-    print(Ek[t])
-    Ep[t] = pq.energy(result, t)[2]
-    print(Ep[t])
-    E[t] = pq.energy(result, t)[0]
-    print(E[t])
 
-t = np.linspace(0,n_steps,100)
-
-plt.subplot(2,2,1)
-plt.plot(t,m)
-plt.subplot(2,2,2)
-plt.plot(t,p)
-plt.subplot(2,2,3)
-plt.plot(t,L)
-plt.subplot(2,2,4)
-plt.plot(t,Ek)
-plt.plot(t,Ep)
-plt.plot(t,Ep+Ek)
-plt.plot(t,E)
-plt.show()
-
-"""
 s = utils.get_positions(result)
 print(s)
 print(s[100])
@@ -117,4 +93,3 @@ for i in range(n_steps):
     data_gen(i)
     plt.savefig(str(i)+'.png')
     print(i)
-"""
