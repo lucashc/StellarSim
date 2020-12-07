@@ -3,6 +3,7 @@
 #include <thread>
 #include <cmath>
 #include "basetypes.hpp"
+#include "progress_bar.hpp"
 #include "tree.cpp"
 // #include <execution>
 // #include <algorithm>
@@ -16,25 +17,25 @@ vec3 dark_matter_gravity(Body body, BASETYPE DM_mass, vec3 center, double G) {
     return r*sqrt(G*DM_mass*a_0)/r.norm2();
 }
 
-void color_progress(int step, int total) {
-    std::cout << "\033[32m" << '\r';
-    std::cout << '<';
-    double stepsize = ((double) total)/100.0;
-    for (int i = 0; i < 100; i++) {
-        if (i * stepsize < step-1 && ((i+1) * stepsize < step-1 || (i+1) * stepsize >= total)) {
-            std::cout << "=";
-        }
-        else if (i * stepsize < step-1){
-            std::cout << "\033[1m\033[34m#\033[0m\033[31m";
-        }
-        else {
-            std::cout << "-";
-        }
-    }
-    std::cout << "> " << "\033[1m\033[31m" << step << "\033[1m\033[32m/" << total << "\033[0m";
-    if (step == total) std::cout << '\n';
-    // std::cout << std::flush;
-}
+//void progress(int step, int total) {
+//    std::cout << "\033[32m" << '\r';
+//    std::cout << '[';
+//    double stepsize = ((double) total)/100.0;
+//    for (int i = 0; i < 100; i++) {
+//        if (i * stepsize < step-1 && ((i+1) * stepsize < step-1 || (i+1) * stepsize >= total)) {
+//            std::cout << "=";
+//        }
+//        else if (i * stepsize < step-1){
+//            std::cout << "\033[1m\033[34m>\033[0m\033[31m";
+//        }
+//        else {
+//            std::cout << "-";
+//        }
+//    }
+//    std::cout << "] " << "\033[1m\033[31m" << step << "\033[1m\033[32m/" << total << "\033[0m";
+//    if (step == total) std::cout << '\n';
+//    // std::cout << std::flush;
+//}
 
 
 void progress(int step, int total) {
@@ -122,10 +123,12 @@ bodylist copy_bodylist(bodylist &bodies){
 
 std::vector<bodylist> LeapFrogSave(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G, int savestep, BASETYPE epsilon, BASETYPE DM_mass) {
     std::vector<bodylist> save_list;   // save initial state
+    ProgressBar progress_bar = ProgressBar(n_steps, 100);
     //std::cout << *bodies[0] << std::endl;
     //std::cout << *bodies[1] << std::endl;
     for(int step = 0; step < n_steps; step++){
-        progress(step, n_steps);
+        progress_bar.tick();
+        //progress(step, n_steps);
         if (step % savestep == 0) {
             save_list.push_back(copy_bodylist(bodies));   // save bodies after a step
         }
@@ -136,6 +139,7 @@ std::vector<bodylist> LeapFrogSave(bodylist &bodies, BASETYPE dt, int n_steps, B
             body->pos = body->pos + body->vel * dt;
         }
     }
-    progress(n_steps, n_steps);
+    //progress(n_steps, n_steps);
+    progress_bar.tick();
     return save_list;
 }
