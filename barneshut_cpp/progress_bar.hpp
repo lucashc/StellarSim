@@ -12,7 +12,7 @@ public:
         start_time = time(0);
     }
 
-    void show_bar(double time_remaining){
+    void show_bar(){
         std::cout << '\r';
         std::cout << '[';
         double stepsize = ((double) total)/((double) length);
@@ -28,13 +28,14 @@ public:
             }
         }
         char time[20];
-        sprintf(time, "%.1f", time_remaining);
-        std::cout << "] " << step << '/' << total <<  " (" << time << " s left)";
+        std::cout << "] " << step << '/' << total;
         if (step == total) std::cout << '\n';
     }
 
-    void show_bar_fancy(double time_remaining){
-            std::cout << "\033[32m" << '\r';
+    void show_bar_fancy(){
+        double time_elapsed = difftime(time(0), start_time);
+        double time_remaining = time_elapsed / step * (total-step);
+        std::cout << "\033[32m" << '\r';
         std::cout << '[';
         double stepsize = ((double) total)/100.0;
         for (int i = 0; i < 100; i++) {
@@ -52,17 +53,23 @@ public:
         if (step == total){
             std::cout << "] " << "\033[1m\033[32m" << step << "/" << total << "\033[0m" <<  " done!"<< std::endl;
         } else{
-            char time[8];
-            sprintf(time, "%.1f", time_remaining);
-            std::cout << "] " << "\033[1m\033[31m" << step << "\033[1m\033[32m/" << total << "\033[0m" <<  " (" << time << " s left)";
+            char formatted_seconds[8];
+            int minutes = ((int) time_remaining)/60;
+            float seconds = time_remaining - minutes * 60;
+            int hours = minutes/60;
+            minutes = minutes % 60;
+            std::string time;
+            if (hours != 0) time.append(std::to_string(hours)).append("h ");
+            if (minutes != 0) time.append(std::to_string(minutes)).append("m ");
+            sprintf(formatted_seconds, "%.1f", seconds);
+            time.append(formatted_seconds).append("s ");
+            std::cout << "] " << "\033[1m\033[31m" << step << "\033[1m\033[32m/" << total << "\033[0m" <<  " (" << time << "left)";
         }
         // std::cout << std::flush;
     }
 
     void tick(){
-        double time_elapsed = difftime(time(0), start_time);
-        double exp_time_remaining = time_elapsed / step * (total-step);
-        show_bar_fancy(exp_time_remaining);
+        show_bar_fancy();
         step += 1;
     }
 };
