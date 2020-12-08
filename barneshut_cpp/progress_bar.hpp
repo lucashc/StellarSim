@@ -27,7 +27,6 @@ public:
                 std::cout << "-";
             }
         }
-        char time[20];
         std::cout << "] " << step << '/' << total;
         if (step == total) std::cout << '\n';
     }
