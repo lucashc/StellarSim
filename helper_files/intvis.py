@@ -7,15 +7,15 @@ from direct.gui.DirectGui import *
 from math import pi, cos, sin
 from direct.task import Task
 import argparse
+import numpy as np
 
 
 class RenderApp(ShowBase):
-    def __init__(self, file, timescale, scale, record):
+    def __init__(self, data, timescale, scale, record):
+        self.data = data
         self.scale = scale
-        self.file = file
         self.timescale = timescale
         ShowBase.__init__(self)
-        self.load_data()
         vdata = GeomVertexData('galaxies', GeomVertexFormat.get_v3c4(), Geom.UHStatic)
         vdata.setNumRows(self.data.shape[1])
         self.vertex = GeomVertexWriter(vdata, 'vertex')
@@ -58,13 +58,28 @@ class RenderApp(ShowBase):
         self.update_vertex(index)
         return Task.cont
 
-parser = argparse.ArgumentParser(description="Visualize simulation")
-parser.add_argument('file', help="binv file to play")
-parser.add_argument('-s', '--scale', help="Scale of the simulation", default=1e18, type=float)
-parser.add_argument('-t', '--timescale', help="Timescale of the simulation", default=100, type=float)
-parser.add_argument('-r', '--record', default=0, type=int)
+def visualize_result(result, timescale=100, scale=1e18, record=False):
+    data = result.numpy()
+    app = RenderApp(data, timescale, scale, record)
+    app.run()
 
-args = parser.parse_args()
+def visualize_bodylist(bl, scale=1e18, record=False):
+    data = np.expand_dims(np.array([bl[i] for i in range(len(bl))]), axis=0)
+    app = RenderApp(data, 0, scale, record)
+    app.run()
 
-app = RenderApp(args.file, args.timescale, args.scale, args.record)
-app.run()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Visualize simulation")
+    parser.add_argument('file', help="binv file to play")
+    parser.add_argument('-s', '--scale', help="Scale of the simulation", default=1e18, type=float)
+    parser.add_argument('-t', '--timescale', help="Timescale of the simulation", default=100, type=float)
+    parser.add_argument('-r', '--record', default=0, type=int)
+
+    args = parser.parse_args()
+    if args.file.endswith("binv"):
+        data = cs.Result.load(args.file)
+        visualize_result(data, args.timescale, args.scale, args.record)
+    else:
+        data = cs.BodyList3.load(args.file)
+        visualize_bodylist(data, args.scale, args.record)
