@@ -11,10 +11,16 @@
 
 static const unsigned int THREAD_COUNT = 8;
 
-double a_0 {1.2e-4};
+static const double a_0 = 1.2e-10;
+
 vec3 dark_matter_gravity(Body body, BASETYPE DM_mass, vec3 center, double G) {
     vec3 r = center - body.pos;
-    return r*sqrt(G*DM_mass*a_0)/r.norm2();
+    BASETYPE norm = r.norm2();
+    if (norm > 100) {
+        return r*sqrt(G*DM_mass*a_0)/norm;
+    }else {
+        return vec3();
+    }
 }
 
 //void progress(int step, int total) {
