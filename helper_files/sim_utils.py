@@ -113,3 +113,8 @@ def concatenate_bodylists(*bodylists):
         masses = np.concatenate((masses, m))
 
     return zip_to_bodylist(positions, velocities, masses)
+
+def extract_last_bodylist_from_result(result):
+    last = result[-1, :]
+    bl = cs.BodyList3(last)
+    return bl
