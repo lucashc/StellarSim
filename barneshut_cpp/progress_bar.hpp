@@ -34,7 +34,7 @@ public:
     void show_bar_fancy(){
         double time_elapsed = difftime(time(0), start_time);
         double time_remaining = time_elapsed / step * (total-step);
-        std::cout << "\033[32m" << '\r';
+        std::cout << "\033[32m" << "\033[2K\r";
         std::cout << '[';
         double stepsize = ((double) total)/100.0;
         for (int i = 0; i < 100; i++) {
@@ -64,7 +64,7 @@ public:
             time.append(formatted_seconds).append("s ");
             std::cout << "] " << "\033[1m\033[31m" << step << "\033[1m\033[32m/" << total << "\033[0m" <<  " (" << time << "left)";
         }
-        // std::cout << std::flush;
+        std::cout << std::flush;
     }
 
     void tick(){
