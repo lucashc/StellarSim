@@ -16,7 +16,7 @@ static const double a_0 = 1.2e-10;
 vec3 dark_matter_gravity(Body body, BASETYPE DM_mass, vec3 center, double G) {
     vec3 r = center - body.pos;
     BASETYPE norm = r.norm2();
-    if (norm > 100) {
+    if (norm > 1e10) {
         return r*sqrt(G*DM_mass*a_0)/norm;
     }else {
         return vec3();
@@ -62,7 +62,11 @@ void progress(int step, int total) {
 
 void apply_acceleration(int id, bodylist * bodies, OctNode * topnode, BASETYPE thetamax, BASETYPE G, BASETYPE epsilon, BASETYPE DM_mass) {
     for (long unsigned int i = id; i < bodies->size(); i += THREAD_COUNT) {
-        bodies->at(i)->g = dark_matter_gravity(bodies->at(i), DM_mass, vec3(0,0,0), G);
+        if (i == 0){
+            bodies->at(i)->g = vec3();
+        }else{
+            bodies->at(i)->g = dark_matter_gravity(bodies->at(i), DM_mass, bodies->at(0)->pos, G);
+        }
         TreeWalk(topnode, bodies->at(i), thetamax, G, epsilon);
     }
 }
