@@ -31,12 +31,6 @@ thetamax = 0.7
 n_steps = 2000
 m_star = sc.Msol  # 3.181651515706176e+30
 galaxy = genStableGalaxy(1000, m_star*10, sc.Msgra)
-t0galaxy = copy.copy(galaxy)
-cs.LeapFrogC(galaxy, 1e12, 1, thetamax, sc.G)
-_, v0, _ = utils.unzip_bodylist(t0galaxy)
-pos, v1, m = utils.unzip_bodylist(galaxy)
-v = (v0 + v1)/2
-galaxy = utils.zip_to_bodylist(pos, v, m)
 M = 5000*m_star*10 + sc.Msgra
 pos_p, vel_p = RE.richardson_error(galaxy, 1e12, sc.G, n_steps=1)
 print(np.nanmean(pos_p), np.nanmean(vel_p))

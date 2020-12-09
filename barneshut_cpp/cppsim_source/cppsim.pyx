@@ -42,7 +42,9 @@ cdef extern from "body.hpp":
 cdef extern from "sim.cpp":
     # Can declared nogil, as they 
     void LeapFrog(bodylist&, double, int, double, double, double, double) nogil
+    void ModifiedEuler(bodylist&, double, int, double, double, double, double) nogil
     vector[bodylist] LeapFrogSave(bodylist&, double, int, double, double, int, double, double) nogil
+    vector[bodylist] ModifiedEulerSave(bodylist&, double, int, double, double, int, double, double) nogil
     void accelerated_accelerations(bodylist&, double, double, double, double) nogil
 
 
@@ -255,6 +257,21 @@ def LeapFrogC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetamax=0
     with nogil:
         LeapFrog(bl[0], dt, n_steps, thetamax, G, epsilon, DM_mass)
 
+def ModifiedEulerC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetamax=0.5, double G=1, double epsilon =0, double DM_mass = 0):
+    """
+    Executes Modified Euler integration on the accelerations obtained by the Barnes-Hut algorithm.
+    This function modifies the given bodies in place.
+    Args:
+        bodies      | BodyList3 type
+        dt          | double type, timestep used for integration
+        n_steps     | int type, number of integration steps. Time integrated is: dt*n_steps
+        thetamax    | double type, thetamax parameter to Barnes-Hut
+        G           | double type, used Newton's coefficient of Gravity
+    Returns: None
+    """
+    cdef bodylist *bl = &bodies.bl
+    with nogil:
+        ModifiedEuler(bl[0], dt, n_steps, thetamax, G, epsilon, DM_mass)
 
 cdef class Result:
     """
@@ -364,6 +381,29 @@ def LeapFrogSaveC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetam
     cdef bodylist *bl = &bodies.bl
     with nogil:
         saves = LeapFrogSave(bodies.bl, dt, n_steps, thetamax, G, save_every, epsilon, DM_mass)
+    result = Result()
+    result.saves = saves
+    return result
+
+def ModifiedEulerSaveC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetamax=0.5, double G=1, int save_every=1, double epsilon=0, double DM_mass = 0):
+    """
+    Executes LeapFrog integration on the accelerations obtained by the Barnes-Hut algorithm.
+    This function modifies the given bodies in place. In addition, at each save_every
+    a copy of the bodylist is made.
+    Args:
+        bodies              | BodyList3 type
+        dt                  | double type, timestep used for integration
+        n_steps             | int type, number of integration steps. Time integrated is: dt*n_steps
+        thetamax            | double type, thetamax parameter to Barnes-Hut
+        G                   | double type, used Newton's coefficient of Gravity
+        save_every          | int type, each save_every steps a frame is saved
+    Returns:
+        Result object, see documentation of this object
+    """
+    cdef vector[bodylist] saves
+    cdef bodylist *bl = &bodies.bl
+    with nogil:
+        saves = ModifiedEulerSave(bodies.bl, dt, n_steps, thetamax, G, save_every, epsilon, DM_mass)
     result = Result()
     result.saves = saves
     return result

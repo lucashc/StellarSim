@@ -153,3 +153,50 @@ std::vector<bodylist> LeapFrogSave(bodylist &bodies, BASETYPE dt, int n_steps, B
     progress_bar.tick();
     return save_list;
 }
+
+void ModifiedEuler(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G, BASETYPE epsilon, BASETYPE DM_mass) {
+    ProgressBar progress_bar = ProgressBar(n_steps, 100);
+    for(int step = 0; step < n_steps; step++){
+        progress_bar.tick();
+        bodylist forward = copy_bodylist(bodies);
+        accelerated_accelerations(bodies, thetamax, G, epsilon, DM_mass);
+        for(unsigned int i = 0; i < forward.size(); i++) {
+            forward[i]->vel = forward[i]->vel + bodies[i]->g * dt;
+            forward[i]->pos = forward[i]->pos + bodies[i]->vel * dt;
+        }
+        accelerated_accelerations(forward, thetamax, G, epsilon, DM_mass);
+        for(unsigned int i = 0; i < forward.size(); i++) {
+            //std::cout << *body << std::endl;
+            bodies[i]->pos = bodies[i]->pos + (bodies[i]->vel + forward[i]->vel)* dt/2;
+            bodies[i]->vel = bodies[i]->vel + (bodies[i]->g + forward[i]->g)* dt/2;
+        }
+    }
+    //progress(n_steps, n_steps);
+    progress_bar.tick();
+}
+
+std::vector<bodylist> ModifiedEulerSave(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G, int savestep, BASETYPE epsilon, BASETYPE DM_mass) {
+    std::vector<bodylist> save_list;   // save initial state
+    ProgressBar progress_bar = ProgressBar(n_steps, 100);
+    for(int step = 0; step < n_steps; step++){
+        progress_bar.tick();
+        if (step % savestep == 0) {
+            save_list.push_back(copy_bodylist(bodies));   // save bodies after a step
+        }
+        bodylist forward = copy_bodylist(bodies);
+        accelerated_accelerations(bodies, thetamax, G, epsilon, DM_mass);
+        for(unsigned int i = 0; i < forward.size(); i++) {
+            forward[i]->vel = forward[i]->vel + bodies[i]->g * dt;
+            forward[i]->pos = forward[i]->pos + bodies[i]->vel * dt;
+        }
+        accelerated_accelerations(forward, thetamax, G, epsilon, DM_mass);
+        for(unsigned int i = 0; i < forward.size(); i++) {
+            //std::cout << *body << std::endl;
+            bodies[i]->pos = bodies[i]->pos + (bodies[i]->vel + forward[i]->vel)* dt/2;
+            bodies[i]->vel = bodies[i]->vel + (bodies[i]->g + forward[i]->g)* dt/2;
+        }
+    }
+    //progress(n_steps, n_steps);
+    progress_bar.tick();
+    return save_list;
+}

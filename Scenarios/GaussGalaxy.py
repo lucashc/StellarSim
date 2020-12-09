@@ -32,7 +32,7 @@ galaxy = genStableGalaxy(5000, m_star*10, sc.Msgra)
 M = 5000*m_star*10 + sc.Msgra
 # cs.LeapFrogC(galaxy, 1e12, 5000, thetamax, sc.G)
 print("Done with step 1")
-result = cs.LeapFrogSaveC(galaxy, dt=1e12, n_steps=n_steps, thetamax=thetamax, G=sc.G, save_every=10, epsilon=0, DM_mass=0)
+result = cs.ModifiedEulerSaveC(galaxy, dt=1e12, n_steps=n_steps, thetamax=thetamax, G=sc.G, save_every=10, epsilon=15e13, DM_mass=0)
 result.save("stable_test.binv")
 
 # result = cs.Result.load("stable2.binv").numpy()
