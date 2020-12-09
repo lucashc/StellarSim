@@ -52,7 +52,7 @@ thetamax = 0.5
 
 n_steps = 100  # int(30/1e-4)
 begin = time.time()
-result = cs.LeapFrogSaveC(genGalaxy(1000,sc.Msgra,R=1,spherical=True), 1e12, n_steps, thetamax, sc.G)
+result = cs.LeapFrogSaveC(genGalaxy(1000,sc.Msgra,R=1,spherical=True), 1e14, n_steps, thetamax, sc.G)
 end = time.time()
 
 
