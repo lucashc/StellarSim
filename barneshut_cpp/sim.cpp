@@ -108,6 +108,7 @@ void accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G, BASETYPE eps
 
 
 void LeapFrog(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G, BASETYPE epsilon, BASETYPE DM_mass){
+    ProgressBar progress_bar = ProgressBar(n_steps, 100);
     // v0 -> v_{-1/2}
     accelerated_accelerations(bodies, thetamax, G, epsilon, DM_mass);
     for (auto body : bodies) {
@@ -124,7 +125,8 @@ void LeapFrog(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BAS
             body->pos = body->pos + body->vel * dt;
         }
     }
-    progress(n_steps, n_steps);
+    progress_bar.tick();
+    //progress(n_steps, n_steps);
 }
 
 bodylist copy_bodylist(bodylist &bodies){
