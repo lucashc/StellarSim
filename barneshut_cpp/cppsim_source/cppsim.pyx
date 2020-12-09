@@ -256,9 +256,8 @@ def LeapFrogC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetamax=0
         G           | double type, used Newton's coefficient of Gravity
     Returns: None
     """
-    cdef bodylist *bl = &bodies.bl
     with nogil:
-        LeapFrog(bl[0], dt, n_steps, thetamax, G, epsilon, DM_mass)
+        LeapFrog(bodies.bl, dt, n_steps, thetamax, G, epsilon, DM_mass)
 
 def ModifiedEulerC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetamax=0.5, double G=1, double epsilon =0, double DM_mass = 0):
     """
@@ -272,9 +271,8 @@ def ModifiedEulerC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double theta
         G           | double type, used Newton's coefficient of Gravity
     Returns: None
     """
-    cdef bodylist *bl = &bodies.bl
     with nogil:
-        ModifiedEuler(bl[0], dt, n_steps, thetamax, G, epsilon, DM_mass)
+        ModifiedEuler(bodies.bl, dt, n_steps, thetamax, G, epsilon, DM_mass)
 
 cdef class Result:
     """
@@ -381,7 +379,6 @@ def LeapFrogSaveC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double thetam
         Result object, see documentation of this object
     """
     cdef vector[bodylist] saves
-    cdef bodylist *bl = &bodies.bl
     with nogil:
         saves = LeapFrogSave(bodies.bl, dt, n_steps, thetamax, G, save_every, epsilon, DM_mass)
     result = Result()
@@ -404,7 +401,6 @@ def ModifiedEulerSaveC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double t
         Result object, see documentation of this object
     """
     cdef vector[bodylist] saves
-    cdef bodylist *bl = &bodies.bl
     with nogil:
         saves = ModifiedEulerSave(bodies.bl, dt, n_steps, thetamax, G, save_every, epsilon, DM_mass)
     result = Result()
@@ -423,6 +419,5 @@ def acceleratedAccelerationsC(BodyList3 bodies, double thetamax = 0.5, double G 
     Returns:
         None
     """
-    cdef bodylist *bl = &bodies.bl
     with nogil:
-        accelerated_accelerations(bl[0], thetamax, G, epsilon, DM_mass)
+        accelerated_accelerations(bodies.bl, thetamax, G, epsilon, DM_mass)
