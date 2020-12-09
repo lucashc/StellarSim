@@ -108,13 +108,19 @@ void accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G, BASETYPE eps
 
 
 void LeapFrog(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G, BASETYPE epsilon, BASETYPE DM_mass){
+    // v0 -> v_{-1/2}
+    accelerated_accelerations(bodies, thetamax, G, epsilon, DM_mass);
+    for (auto body : bodies) {
+        // v_{-1/2} = v_0 - g_0 * 1/2 * dt
+        body->vel = body->vel - body->g * 1/2 * dt;
+    }
     for(int step = 0; step < n_steps; step++){
         progress(step, n_steps);
-        //std::cout << std::endl;
-        //std::cout << "Euler forward step " << step << std::endl;
         accelerated_accelerations(bodies, thetamax, G, epsilon, DM_mass);
         for(auto body : bodies){
+            // v_{i+1/2} = v_{i-1/2} + g_i * dt
             body->vel = body->vel + body->g * dt;
+            // r_{i+1} = r_i + v_{i+1/2} * dt
             body->pos = body->pos + body->vel * dt;
         }
     }
@@ -134,8 +140,12 @@ bodylist copy_bodylist(bodylist &bodies){
 std::vector<bodylist> LeapFrogSave(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BASETYPE G, int savestep, BASETYPE epsilon, BASETYPE DM_mass) {
     std::vector<bodylist> save_list;   // save initial state
     ProgressBar progress_bar = ProgressBar(n_steps, 100);
-    //std::cout << *bodies[0] << std::endl;
-    //std::cout << *bodies[1] << std::endl;
+    // v0 -> v_{-1/2}
+    accelerated_accelerations(bodies, thetamax, G, epsilon, DM_mass);
+    for (auto body : bodies) {
+        // v_{-1/2} = v_0 - g_0 * 1/2 * dt
+        body->vel = body->vel - body->g * 1/2 * dt;
+    }
     for(int step = 0; step < n_steps; step++){
         progress_bar.tick();
         //progress(step, n_steps);
@@ -144,8 +154,9 @@ std::vector<bodylist> LeapFrogSave(bodylist &bodies, BASETYPE dt, int n_steps, B
         }
         accelerated_accelerations(bodies, thetamax, G, epsilon, DM_mass);
         for(auto body: bodies){
-            //std::cout << *body << std::endl;
+            // v_{i+1/2} = v_{i-1/2} + g_i * dt
             body->vel = body->vel + body->g * dt;
+            // r_{i+1} = r_i + v_{i+1/2} * dt
             body->pos = body->pos + body->vel * dt;
         }
     }
