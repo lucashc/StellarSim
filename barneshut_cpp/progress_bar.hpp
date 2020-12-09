@@ -12,25 +12,6 @@ public:
         start_time = time(0);
     }
 
-    void show_bar(){
-        std::cout << '\r';
-        std::cout << '[';
-        double stepsize = ((double) total)/((double) length);
-        for (int i = 0; i < length; i++) {
-            if (i * stepsize < step-1 && ((i+1) * stepsize < step-1 || (i+1) * stepsize >= total)) {
-                std::cout << "=";
-            }
-            else if (i * stepsize < step-1){
-                std::cout << ">";
-            }
-            else {
-                std::cout << "-";
-            }
-        }
-        std::cout << "] " << step << '/' << total;
-        if (step == total) std::cout << '\n';
-    }
-
     void show_bar_fancy(){
         double time_elapsed = difftime(time(0), start_time);
         double time_remaining = time_elapsed / step * (total-step);
