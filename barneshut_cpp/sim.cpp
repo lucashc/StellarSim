@@ -94,6 +94,12 @@ void LeapFrog(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BAS
             body->pos = body->pos + body->vel * dt;
         }
     }
+    // v_{n-1/2} -> v_n
+    accelerated_accelerations(bodies, thetamax, G, epsilon, DM_mass);
+    for (auto body : bodies) {
+        // v_n = v_{n-1/2} - g_n * 1/2 * dt
+        body->vel = body->vel + body->g * 1/2 * dt;
+    }
     progress_bar.tick();
 }
 
@@ -128,6 +134,12 @@ std::vector<bodylist> LeapFrogSave(bodylist &bodies, BASETYPE dt, int n_steps, B
             // r_{i+1} = r_i + v_{i+1/2} * dt
             body->pos = body->pos + body->vel * dt;
         }
+    }
+    // v_{n-1/2} -> v_n
+    accelerated_accelerations(bodies, thetamax, G, epsilon, DM_mass);
+    for (auto body : bodies) {
+        // v_n = v_{n-1/2} - g_n * 1/2 * dt
+        body->vel = body->vel + body->g * 1/2 * dt;
     }
     progress_bar.tick();
     return save_list;
