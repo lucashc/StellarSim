@@ -7,7 +7,7 @@
 #include "tree.cpp"
 
 
-static const unsigned int THREAD_COUNT = 8;
+static unsigned int THREAD_COUNT = 4;
 
 static double a_0 = 1.2e-10;
 static double r_max = 2.4e+19;
