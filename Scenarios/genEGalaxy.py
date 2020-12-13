@@ -22,13 +22,17 @@ def genEGalaxy(n,M=sc.Msgra,R=1,RD=sc.RDmw/sc.RCmw,space=False,elliptical=False,
 
     if elliptical == True:
         spiral  = 1
-        e = 0.01*np.ones(n)+np.random.normal(0,0.005,n)
+        e = 0.5*np.ones(n)+np.random.normal(0,0.005,n)
     else:
         spiral = 0
         e = np.zeros(n)
 
     r = rd.radSample(n,R,RD)
-    theta = (1-spiral) * np.random.uniform(0, 2 * np.pi, n) + spiral * (-2*np.pi*r/np.amax(r)+np.pi/10*np.random.normal(0,1,n)+np.pi*np.random.randint(0,2,n))
+    for i in range(len(r)):
+        if r[i] <= sc.RCmw:
+            theta = np.random.uniform(0,2*np.pi,n)
+        else:
+            theta = (1-spiral) * np.random.uniform(0, 2 * np.pi, n) + spiral * (-2*np.pi*r/np.amax(r)+np.pi/10*np.random.normal(0,1,n)+np.pi*np.random.randint(0,2,n))
     a = r/(1+e)
     x = r * np.cos(theta) * np.sin(phi)
     y = r * np.sin(theta) * np.sin(phi)
@@ -55,9 +59,9 @@ def genEGalaxy(n,M=sc.Msgra,R=1,RD=sc.RDmw/sc.RCmw,space=False,elliptical=False,
 
 thetamax = 0.5
 
-n_steps = 2000  # int(30/1e-4)
+n_steps = 500  # int(30/1e-4)
 begin = time.time()
-result = cs.LeapFrogSaveC(genEGalaxy(100,sc.Msgra,space=True,elliptical=True,spiralarms=2), 1e12, n_steps, thetamax, sc.G)
+result = cs.LeapFrogSaveC(genEGalaxy(2,sc.Msgra,space=True,elliptical=True,spiralarms=2), 1e12, n_steps, thetamax, sc.G)
 end = time.time()
 
 s = utils.get_positions(result)
