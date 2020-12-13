@@ -95,7 +95,15 @@ class PyTest(unittest.TestCase):
         del x
         self.assertTrue((y[0].pos == [0,0,0]).all())
 
-
+    def test_constants(self):
+        import cppsim as cs
+        cs.set_r_max(10)
+        self.assertEqual(cs.get_r_max(), 10)
+        cs.set_rcmw(20)
+        self.assertEqual(cs.get_rcmw(), 20)
+        self.assertEqual(cs.get_thread_count(), 4)
+        cs.set_thread_count(12)
+        self.assertEqual(cs.get_thread_count(), 12)
 
 
 class CppTest(unittest.TestCase):

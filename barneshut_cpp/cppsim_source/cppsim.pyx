@@ -48,6 +48,10 @@ cdef extern from "sim.cpp":
     vector[bodylist] LeapFrogSave(bodylist&, double, int, double, double, int, double, double) nogil
     vector[bodylist] ModifiedEulerSave(bodylist&, double, int, double, double, int, double, double) nogil
     void accelerated_accelerations(bodylist&, double, double, double, double) nogil
+    # Static constants
+    cdef double r_max
+    cdef double rcmw
+    cdef unsigned int THREAD_COUNT
 
 
 cdef class Body3:
@@ -420,3 +424,32 @@ def acceleratedAccelerationsC(BodyList3 bodies, double thetamax = 0.5, double G 
     """
     with nogil:
         accelerated_accelerations(bodies.bl, thetamax, G, epsilon, DM_mass)
+
+
+# Update static constants
+
+def set_r_max(double value):
+    global r_max
+    r_max = value
+
+def get_r_max():
+    global r_max
+    return r_max
+
+def set_rcmw(double value):
+    global rcmw
+    rcmw = value
+
+def get_rcmw():
+    global rcmw
+    return rcmw
+
+def set_thread_count(unsigned int count):
+    global THREAD_COUNT
+    if count == 0:
+        raise ValueError("Number of threads must greater or equal to 1")
+    THREAD_COUNT = count
+
+def get_thread_count():
+    global THREAD_COUNT
+    return THREAD_COUNT
