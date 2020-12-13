@@ -1,6 +1,5 @@
 # distutils: language=c++
 # Disables numpy warnings (other warnings are ot supressed):
-# distutils: extra_compile_args=-Wno-cpp
 # This switch adds the calling signature to the docstring:
 # cython: embedsignature=True
 """This module interface with C++ code for LeapFrog and Barnes-Hut

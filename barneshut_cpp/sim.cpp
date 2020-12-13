@@ -9,7 +9,9 @@
 
 static const unsigned int THREAD_COUNT = 8;
 
-static const double a_0 = 1.2e-10;
+static double a_0 = 1.2e-10;
+static double r_max = 2.4e+19;
+static double rcmw = 9.46073e16;
 
 vec3 dark_matter_gravity(Body body, BASETYPE DM_mass, vec3 center, double G) {
     vec3 r = center - body.pos;
@@ -21,14 +23,25 @@ vec3 dark_matter_gravity(Body body, BASETYPE DM_mass, vec3 center, double G) {
     }
 }
 
+vec3 pseudo_isothermal_gravity(Body body, BASETYPE DM_mass, vec3 center, double G){
+    vec3 dr = center - body.pos;
+    if (dr == vec3()) {
+        return vec3();
+    }
+    BASETYPE r = dr.norm();
+    BASETYPE norm_const = r_max/rcmw - atan(r_max/rcmw);
+    return dr * G*DM_mass/(r*r*r) * (r/rcmw - atan(r/rcmw))/norm_const;
+}
+
 
 void apply_acceleration(int id, bodylist * bodies, OctNode * topnode, BASETYPE thetamax, BASETYPE G, BASETYPE epsilon, BASETYPE DM_mass) {
     for (long unsigned int i = id; i < bodies->size(); i += THREAD_COUNT) {
-        if (i == 0){
-            bodies->at(i)->g = vec3();
-        }else{
-            bodies->at(i)->g = dark_matter_gravity(bodies->at(i), DM_mass, bodies->at(0)->pos, G);
-        }
+//        if (i == 0){
+//            bodies->at(i)->g = vec3();
+//        }else{
+//            bodies->at(i)->g = dark_matter_gravity(bodies->at(i), DM_mass, bodies->at(0)->pos, G);
+//        }
+        bodies->at(i)->g = pseudo_isothermal_gravity(bodies->at(i), DM_mass, bodies->at(0)->pos, G);
         TreeWalk(topnode, bodies->at(i), thetamax, G, epsilon);
     }
 }
