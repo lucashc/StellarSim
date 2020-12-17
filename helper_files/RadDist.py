@@ -27,11 +27,20 @@ def radPDF(x, R=1, RD=sc.RDmw/sc.RCmw):
 #      return np.array(samples)*sc.RCmw
 
 
-def radSample(size=1, R=1, RD=sc.RDmw/sc.RCmw, length_guess=250, rad_min=0):
+def radSample(size=1, r_char=sc.RDmw, r_bulge=sc.RCmw, length_guess=250, rad_min=0, galaxy=None):
     """Returns n samples from radial distribution described by radPDF. Length guess is your best guess for the
         reciprocal of the probability that a uniform sample is kept, for standard params this is about 250"""
     radPDF_v = np.vectorize(radPDF)
+    if galaxy is not None:
+        if galaxy in ['mw', 'MW', 'MilkyWay', 'milky_way']:
+            r_char = sc.RDmw
+            r_bulge = sc.RCmw
+        elif galaxy in ['andr', 'andromeda', 'Andromeda']:
+            r_char = sc.RDandr
+            r_bulge = sc.RCandr
     samples = np.empty(0)
+    R = 1
+    RD = r_char/r_bulge
     normalise = -4 * (((R ** 0.75 / RD) ** 3 * R ** 0.75 + 3 * (R ** 0.75 / RD) ** 2 * R ** 0.5 + 6 * (
                 R ** 0.75 / RD) * R ** 0.25 + 6) * np.exp(-(R ** 0.75 / RD) * R ** 0.25) - 6) / (
                             R ** 0.75 / RD) ** 4 + RD * np.exp(-R / RD)
@@ -43,4 +52,4 @@ def radSample(size=1, R=1, RD=sc.RDmw/sc.RCmw, length_guess=250, rad_min=0):
         keep_sample = np.random.uniform(low=0, high=1, size=append_length) <= prop
         samples = np.concatenate((samples, unif_samples[keep_sample]))
 
-    return samples[:size]*sc.RCmw
+    return samples[:size]*r_bulge

@@ -23,8 +23,10 @@ def genDMGalaxy(n_stars, m_star, m_bh, DM_mass):
     positions = np.column_stack((x, y, z))
     r_max = r[-1]
     norm_const = r_max/sc.RCmw - np.arctan(r_max/sc.RCmw)
+    plt.plot(np.cumsum(masses)[:-1])
+    plt.show()
     v_norm = np.sqrt(sc.G*np.cumsum(masses)[:-1]/r + sc.G*DM_mass/r * (r/sc.RCmw - np.arctan(r/sc.RCmw))/norm_const)
-    plt.plot([sc.RCmw, sc.RCmw], [0, 3e4])
+    plt.plot([sc.RCmw, sc.RCmw], [0, 1e2])
     plt.plot(r, v_norm)
     plt.xlim(0, 2.4e19)
     plt.ylim(0, 3e4)
@@ -36,11 +38,10 @@ def genDMGalaxy(n_stars, m_star, m_bh, DM_mass):
     return utils.zip_to_bodylist(positions, velocities, masses)
 
 
-
 thetamax = 0.7
 n_steps = 5000
 m_star = sc.Msol  # 3.181651515706176e+30
-M = 10000*m_star*100 + sc.Msgra
+M = (10000*m_star*2 + sc.Msgra/1e4)*20
 galaxy = genDMGalaxy(10000, -10000, sc.Msgra/1e4, M)
 
 # cs.LeapFrogC(galaxy, 1e12, 5000, thetamax, sc.G)
