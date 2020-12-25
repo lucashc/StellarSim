@@ -1,3 +1,6 @@
 numpy
 cython
 panda3d
+imageio
+tqdm
+vispy
