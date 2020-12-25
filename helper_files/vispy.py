@@ -20,9 +20,10 @@ Keybinding:
 * `[` Half speed of replay
 * `r` Start recording, only if `-r` passed
 * `s` Stop recording, quits the visualization
-* `q` Quit the visualization, does not work when recording
+* `Esc` Quit the visualization
 * `f` Set full HD size, 1920x1080
 * `h` Set HD size, 1280x720  
+* F11 Set fullscreen
 * `=` Increase pointsize by 1
 * `-` Decrease pointsize by 1
 """
@@ -160,12 +161,6 @@ def handle_key(ev):
             canvas.close()
             print("Saving...")
             write_recording()
-    elif ev.text == 'q':
-        if record:
-            print("Cannot quit, still recording")
-        else:
-            app.quit()
-            canvas.close()
     elif ev.text == 'f':
         canvas.size = (1920, 1080)
     elif ev.text == 'h':
