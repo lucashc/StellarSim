@@ -11,10 +11,26 @@ import imageio
 from tqdm import tqdm
 
 
+"""
+This module visualizes a BINV-file using VisPy and OpenGL. 
+It supports recording, speed adjustment, camera adjustment and standard sizes.
+Use the `-r <filename>` option to record to a file. This file can have any format.
+Keybinding:
+* `]` Double speed of replay
+* `[` Half speed of replay
+* `r` Start recording, only if `-r` passed
+* `s` Stop recording, quits the visualization
+* `q` Quit the visualization, does not work when recording
+* `f` Set full HD size, 1920x1080
+* `h` Set HD size, 1280x720  
+"""
+
+
+
 vertex_shader = """
 void main() {
     gl_Position = $transform(vec4($position, 1));
-    gl_PointSize = 4;
+    gl_PointSize = 5;
 }
 """
 
@@ -146,5 +162,9 @@ def handle_key(ev):
         else:
             app.quit()
             canvas.close()
+    elif ev.text == 'f':
+        canvas.size = (1920, 1080)
+    elif ev.text == 'h':
+        canvas.size = (1280, 720)
 
 app.run()
