@@ -83,6 +83,12 @@ record = False
 can_record = args.record != '-'
 filename = args.record
 frames = []
+fps = 1
+
+# fps setter
+def set_fps(result):
+    global fps
+    fps = result
 
 
 # Handle update
@@ -99,8 +105,8 @@ timer.connect(update_vertices)
 timer.start(0)
 
 def write_recording():
-    global frames, filename
-    writer = imageio.get_writer(filename)
+    global frames, filename, fps
+    writer = imageio.get_writer(filename, fps=fps)
     for i in tqdm(frames):
         writer.append_data(i)
     writer.close()
@@ -122,6 +128,8 @@ def handle_key(ev):
         if can_record:
             record = True
             print("Started recording")
+            # Measure fps
+            canvas.measure_fps(callback=set_fps)
         else:
             print("Record is disabled")
     elif ev.text == 's':
