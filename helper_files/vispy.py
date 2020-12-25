@@ -23,6 +23,8 @@ Keybinding:
 * `q` Quit the visualization, does not work when recording
 * `f` Set full HD size, 1920x1080
 * `h` Set HD size, 1280x720  
+* `=` Increase pointsize by 1
+* `-` Decrease pointsize by 1
 """
 
 
@@ -30,7 +32,7 @@ Keybinding:
 vertex_shader = """
 void main() {
     gl_Position = $transform(vec4($position, 1));
-    gl_PointSize = 5;
+    gl_PointSize = $pointsize;
 }
 """
 
@@ -58,6 +60,7 @@ class GalaxyVisual(Visual):
         self._draw_mode = 'points'
         self.texture = gloo.Texture2D(load_star_image(), interpolation='linear')
         self.shared_program['u_texture'] = self.texture
+        self.pointsize = 5
         self.set_gl_state(clear_color=(0.0, 0.0, 0.03, 1.0), 
                             depth_test=False, blend=True,
                             blend_func=('src_alpha', 'one'))
@@ -78,6 +81,7 @@ class GalaxyVisual(Visual):
 
     def _prepare_draw(self, view):
         self.shared_program.vert['position'] = self._vertices
+        self.shared_program.vert['pointsize'] = self.pointsize
 
 Galaxy = scene.visuals.create_visual_node(GalaxyVisual)
 
@@ -166,5 +170,9 @@ def handle_key(ev):
         canvas.size = (1920, 1080)
     elif ev.text == 'h':
         canvas.size = (1280, 720)
+    elif ev.text == '=':
+        vis.pointsize += 1
+    elif ev.text == '-':
+        vis.pointsize -= 1
 
 app.run()
