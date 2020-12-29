@@ -42,21 +42,3 @@ binwidth=10000000000000000
 plt.hist(sample,bins=np.arange(min(sample), max(sample) + binwidth, binwidth))
 plt.show()
 """
-
-# def radSample(size=1, R=1, RD=sc.RDmw/sc.RCmw, length_guess=250, rad_min=0):
-#     """Returns n samples from radial distribution described by radPDF. Length guess is your best guess for the
-#         reciprocal of the probability that a uniform sample is kept, for standard params this is about 250"""
-#     radPDF_v = np.vectorize(radPDF)
-#     samples = np.empty(0)
-#     normalise = -4 * (((R ** 0.75 / RD) ** 3 * R ** 0.75 + 3 * (R ** 0.75 / RD) ** 2 * R ** 0.5 + 6 * (
-#                 R ** 0.75 / RD) * R ** 0.25 + 6) * np.exp(-(R ** 0.75 / RD) * R ** 0.25) - 6) / (
-#                             R ** 0.75 / RD) ** 4 + RD * np.exp(-R / RD)
-#
-#     while len(samples) < size:
-#         append_length = length_guess*(size - len(samples))
-#         unif_samples = np.random.uniform(low=rad_min, high=5 * RD, size=append_length)
-#         prop = radPDF_v(unif_samples, R, RD)/normalise
-#         keep_sample = np.random.uniform(low=0, high=1, size=append_length) <= prop
-#         samples = np.concatenate((samples, unif_samples[keep_sample]))
-#
-#     return samples[:size]*sc.RCmw
