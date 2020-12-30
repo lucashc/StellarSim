@@ -45,8 +45,8 @@ def speedcurve(result, t=0):
     velocities = utils.get_velocities(result)[t]
     positions = utils.get_positions(result)[t]
     plt.plot(np.linalg.norm(positions, axis=1)[1:], np.linalg.norm(velocities, axis=1)[1:], '.')
-    plt.xlim(0, 0.25e20)
-    plt.ylim(0, 0.1e6)
+    plt.xlim(0, sc.Rmw*1.2)
+    # plt.ylim(0, 0.1e6)
     plt.xlabel("r (m)")
     plt.ylabel("v (m/s)")
     plt.show()
