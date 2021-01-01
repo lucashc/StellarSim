@@ -30,6 +30,10 @@ def unzip_bodylist(bodylist):
 
     return positions, velocities, masses
 
+def unzip_result(result):
+    data = result.numpy()
+    positions, velocities, masses =  list(map(np.array, zip(*[unzip_bodylist(item) for item in data]))) # (positions, velocities, masses) timestep  particle 
+    return positions, velocities, np.expand_dims(masses, axis = 2)
 
 def get_vec_attribute(result, attr):
     """Get a vector attribute from bodies from C++ simulation """
