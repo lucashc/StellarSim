@@ -1,5 +1,6 @@
 import barneshut_cpp.cppsim as cs
 from helper_files.sim_utils import get_positions
+from helper_files.mass_to_color import bodies_to_color
 import argparse
 import numpy as np
 from vispy import app, gloo, scene
@@ -32,17 +33,20 @@ Keybinding:
 
 
 vertex_shader = """
+varying vec3 v_color;
 void main() {
     gl_Position = $transform(vec4($position, 1));
     gl_PointSize = $pointsize;
+    v_color = $color;
 }
 """
 
 fragment_shader = """
 uniform sampler2D u_texture;
+varying vec3 v_color;
 void main() {
     float star_tex_intensity = texture2D(u_texture, gl_PointCoord).r;
-    gl_FragColor = vec4(star_tex_intensity * vec3(1,1,1), 0.8);
+    gl_FragColor = vec4(star_tex_intensity * v_color, 0.8);
 }
 """
 
@@ -62,6 +66,7 @@ class GalaxyVisual(Visual):
         self._draw_mode = 'points'
         self.texture = gloo.Texture2D(load_star_image(), interpolation='linear')
         self.shared_program['u_texture'] = self.texture
+        self.shared_program.vert['color'] = self.colors
         self.pointsize = 5
         self.set_gl_state(clear_color=(0.0, 0.0, 0.03, 1.0), 
                             depth_test=False, blend=True,
@@ -70,6 +75,7 @@ class GalaxyVisual(Visual):
     def _load_data(self, filename):
         preloaded = cs.Result.load(filename).numpy()
         self.positions = get_positions(preloaded).astype(np.float32)
+        self.colors = gloo.VertexBuffer(bodies_to_color(preloaded[0]))
         del preloaded
         self.frames = self.positions.shape[0]
         self.n_objs = self.positions.shape[1]
