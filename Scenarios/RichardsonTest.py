@@ -8,6 +8,9 @@ import helper_files.plotting as plotting
 import matplotlib.pyplot as plt
 import copy
 
+cs.set_thread_count(8)
+np.random.seed(2147483648)
+
 def genStableGalaxy(n_stars, m_star, m_bh):
     masses = np.array([m_bh] + [m_star]*n_stars)
     r = np.sort(RadDist.radSample(size=n_stars))
@@ -27,15 +30,24 @@ def genStableGalaxy(n_stars, m_star, m_bh):
     return utils.zip_to_bodylist(positions, velocities, masses)
 
 
-thetamax = 0.7
-n_steps = 2000
+thetamax = 0.0
+n_steps = 1
 m_star = sc.Msol  # 3.181651515706176e+30
-galaxy = genStableGalaxy(1000, m_star*10, sc.Msgra)
-M = 5000*m_star*10 + sc.Msgra
-pos_p, vel_p = RE.richardson_error(galaxy, 1e12, sc.G, n_steps=1)
+galaxy = genStableGalaxy(10000, m_star*10, sc.Msgra)
+galaxy.check_integrity()
+pos_p, vel_p = RE.richardson_error(galaxy, 1e11, sc.G, n_steps=n_steps)
 print(np.nanmean(pos_p), np.nanmean(vel_p))
-plt.subplot(211)
-plt.hist(pos_p)
-plt.subplot(212)
-plt.hist(vel_p)
+ax1 = plt.subplot(211)
+bins = np.arange(-3, 5, 0.25)
+plt.hist(pos_p, histtype='bar', ec='black', bins=bins)
+plt.ylabel("Frequency")
+plt.xlabel("Order $p$")
+plt.title("Orders of $\mathbf{x}_i$")
+ax2 = plt.subplot(212, sharex=ax1)
+plt.hist(vel_p, histtype='bar', ec='black', bins=bins)
+plt.xlabel("Order $p$")
+plt.ylabel("Frequency")
+plt.title("Orders of $\mathbf{v}_i$")
+plt.xlim(-2, 5)
+plt.tight_layout()
 plt.show()
