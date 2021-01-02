@@ -10,8 +10,8 @@
 static unsigned int THREAD_COUNT = 4;
 
 static double a_0 = 1.2e-10;
-static double r_max = 2.4e+19;
-static double rcmw = 9.46073e16;
+static double r_max = 5e20; //2.4e+19;
+static double rcmw = 6.1495e+19 ; //9.46073e16;
 
 vec3 dark_matter_gravity(Body body, BASETYPE DM_mass, vec3 center, double G) {
     vec3 r = center - body.pos;
