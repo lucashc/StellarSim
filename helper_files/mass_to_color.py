@@ -3,8 +3,8 @@ from helper_files.sim_utils import get_masses
 from helper_files.stellarConstants import Tsol, Msol
 import numpy as np
 
-def bodies_to_color(bodies):
-    masses = [b.mass for b in bodies]
+def bodies_to_color(bodies, mass_scale):
+    masses = [b.mass/mass_scale for b in bodies]
     colors = np.empty(len(bodies), dtype=(np.float32, 3))
     for i in range(len(masses)):
         temp = Tsol*(masses[i]/Msol)**(2.5/4)
