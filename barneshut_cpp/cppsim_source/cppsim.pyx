@@ -318,6 +318,33 @@ cdef class Result:
                     x.body = self.saves[i][j]
                 save_result[i, j] = x
         return save_result
+    
+    def extract_pos(self):
+        positions = np.empty((self.saves.size(), self.saves[0].size(), 3), dtype=np.double)
+        for i in range(self.saves.size()):
+            for j in range(self.saves[i].size()):
+                positions[i,j,0] = self.saves[i][j][0].pos.x
+                positions[i,j,1] = self.saves[i][j][0].pos.y
+                positions[i,j,2] = self.saves[i][j][0].pos.z
+        return positions
+
+    
+    def extract_vel(self):
+        velocities = np.empty((self.saves.size(), self.saves[0].size(), 3), dtype=np.double)
+        for i in range(self.saves.size()):
+            for j in range(self.saves[i].size()):
+                velocities[i,j,0] = self.saves[i][j][0].vel.x
+                velocities[i,j,1] = self.saves[i][j][0].vel.y
+                velocities[i,j,2] = self.saves[i][j][0].vel.z
+        return velocities
+
+    def extract_mass(self):
+        masses = np.empty((self.saves.size(), self.saves[0].size(), 1), dtype=np.double)
+        for i in range(self.saves.size()):
+            for j in range(self.saves[i].size()):
+                masses[i,j] = self.saves[i][j][0].mass
+        return masses
+
 
     def save(self, filename):
         """
