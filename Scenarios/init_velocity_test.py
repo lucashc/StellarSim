@@ -50,7 +50,8 @@ r = np.sort(RadDist.radSample(size=n_stars))
 m_stars = MassDist.massSample(n_stars)
 m_BH = sc.Msgra
 mass_ratio = (sc.Mlummw - m_BH)/sum(m_stars)
-m_stars = mass_ratio*m_stars
+# m_stars = mass_ratio*m_stars
+m_BH /= mass_ratio
 m_DM = (np.sum(m_stars) + m_BH)*5
 #plt.scatter(r, m_stars)
 #plt.show()
