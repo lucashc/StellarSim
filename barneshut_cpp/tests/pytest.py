@@ -49,6 +49,7 @@ class PyTest(unittest.TestCase):
         self.assertTrue((result_np[19,1].pos == loaded_np_copy[19,1].pos).all())
         del loaded_np
         self.assertTrue((result_np[19,1].pos == loaded_np_copy[19,1].pos).all())
+        self.assertTrue((loaded.extract_pos()[0, 0] == loaded.numpy()[0,0].pos).all())
     
     def test_accelerated_accelerations(self):
         import cppsim as cs
@@ -77,6 +78,7 @@ class PyTest(unittest.TestCase):
         result = result.numpy()
         bl = cs.BodyList3.load("test.bin")
         self.assertTrue((bl[0].pos == result[-1,0].pos).all())
+
     def test_copy(self):
         import cppsim as cs
         import numpy as np
