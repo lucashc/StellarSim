@@ -140,7 +140,7 @@ timer.start(0)
 
 def write_recording():
     global frames, filename, fps
-    writer = imageio.get_writer(filename, fps=fps)
+    writer = imageio.get_writer(filename, fps=fps, codec='libx264', quality=10, pixelformat='yuvj444p')
     for i in tqdm(frames):
         writer.append_data(i)
     writer.close()
@@ -154,9 +154,11 @@ def handle_key(ev):
     if ev.text == ']':
         # Increase speed
         timescale /= 2
+        print("Timescale is now", timescale)
     elif ev.text == '[':
         # Decrease speed
         timescale *= 2
+        print("Timescale is now", timescale)
     elif ev.text == 'r':
         # Start record
         if record:
