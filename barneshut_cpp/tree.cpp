@@ -12,6 +12,7 @@ public:
     std::vector<OctNode*> children;
     vec3 COM, center;
     Body *id;
+    bool leaf;
 
     OctNode(vec3 center, BASETYPE size, bodylist &bodies) :
             mass(), size(size), children(), COM(), center(center)
@@ -21,6 +22,7 @@ public:
             COM = bodies[0]->pos;
             mass = bodies[0]->mass;
             id = bodies[0];
+            leaf = true;
         } else {
             GenerateChildren(bodies);
             for (auto c : children) {
@@ -29,13 +31,13 @@ public:
             }
             COM = COM / mass;
             id = nullptr;
+            leaf = false;
         }
     }
 
     void GenerateChildren(bodylist &bodies){
         int n = bodies.size();
         bodylist octant_bodies[8];  // contains a vector of bodies for each octant
-        vec3 center {this->center};
         for(int index = 0; index < n; ++index){  // assign each point (and corresponding mass) to an octant
             vec3* point = &bodies[index]->pos;
             int i = point->x > center.x;
@@ -50,9 +52,9 @@ public:
             int i = octant_index & 1;  // gets i,j,k from octant index
             int j = (octant_index & 2)/2;  // which we need to calculate the offset dx of the child node
             int k = (octant_index & 4)/4;
-            vec3 dx {(vec3(i, j, k) - vec3(1,1,1)*0.5) * (0.5*this->size)};
-            OctNode *new_octnode = new OctNode(center + dx, this->size/2, octant_bodies[octant_index]);
-            this->children.push_back(new_octnode);
+            vec3 dx {(vec3(i, j, k) - vec3(1,1,1)*0.5) * (0.5*size)};
+            OctNode *new_octnode = new OctNode(center + dx, size/2, octant_bodies[octant_index]);
+            children.push_back(new_octnode);
         }
     }
     ~OctNode() {
@@ -68,7 +70,7 @@ void TreeWalk(OctNode* node, Body* b, BASETYPE thetamax, BASETYPE G, BASETYPE ep
     BASETYPE r = dr.norm();
     BASETYPE rs = r*r + epsilon*epsilon;
     if (rs > 0) {
-        if ((node->children.empty() || node->size / r < thetamax) && node->id != b) {
+        if ((node->leaf || node->size / r < thetamax) && node->id != b) {
             b->g = b->g + (dr / r) * G * node->mass / rs;
         }
         else {
