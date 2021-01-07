@@ -7,11 +7,13 @@ import helper_files.plotting as plotting
 import helper_files.PhysQuants as PQ
 import matplotlib.pyplot as plt
 import helper_files.MassDist as MassDist
+import time
 
 a_0 = 1.2e-10
 
 np.random.seed(1)
 
+cs.set_thread_count(8)
 
 def gen_dummy(r, theta, m, m_bh):
     n_stars = len(r)
@@ -40,8 +42,8 @@ def gen_galaxy(r, theta, v, m, m_bh):
 
 
 thetamax = 0.7
-n_steps = 500
-n_stars = 40000
+n_steps = 2000
+n_stars = int(5e4)
 theta = np.random.uniform(0, 2 * np.pi, n_stars)
 r = np.sort(RadDist.radSample(size=n_stars))
 m_stars = MassDist.massSample(n_stars)
@@ -74,8 +76,11 @@ velocities = v_norm.reshape((n_stars, 1)) * v_unit_vec
 
 galaxy = gen_galaxy(r, theta, velocities, m_stars, m_BH)
 print("Done with step 1")
-result = cs.LeapFrogSaveC(galaxy, dt=1e12, n_steps=n_steps, thetamax=thetamax, G=sc.G, save_every=10, epsilon=4e18,
+begin = time.time()
+cs.LeapFrogC(galaxy, dt=1e12, n_steps=n_steps, thetamax=thetamax, G=sc.G, epsilon=4e18,
                           DM_mass=m_DM)
-result.save("IV_test.binv")
-print("Done saving")
+end = time.time()
+print(end-begin)
+# result.save("IV_test.binv")
+# print("Done saving")
 # PQ.speedcurve(result.numpy(), -1)
