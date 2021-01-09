@@ -11,7 +11,7 @@ import helper_files.DMRadDist as DMrd
 import helper_files.PhysQuants as pq
 from mpl_toolkits import mplot3d
 
-def genDMG(n, M=sc.Msgra, R=1, RD=sc.RDmw/sc.RCmw, spherical=False, nDM=0, rho0=1, Rs=1, c=12):
+def genDMG(n, M=sc.Msgra, R=1, RD=sc.RDmw/sc.RCmw, spherical=False, nDM=0, rho0=1, Rs=10, c=12):
     """Generate a galaxy (Bodylist) of a massive black hole M and n stars, with initial positions, velocities and masses randomly distributed"""
 
     theta = np.random.uniform(0, 2 * np.pi, n)
@@ -37,6 +37,7 @@ def genDMG(n, M=sc.Msgra, R=1, RD=sc.RDmw/sc.RCmw, spherical=False, nDM=0, rho0=
     for i in range(1,n):
         bodies.append(cs.Body3(pos=posarray[i], vel=velarray[i], mass=massarray[i]))
 
+
     thetaDM = np.random.uniform(0,2*np.pi,nDM)
     phiDM = np.random.uniform(0,np.pi,nDM)
     rDM = DMrd.DMradSample(nDM, rho0, Rs, c)
@@ -45,37 +46,46 @@ def genDMG(n, M=sc.Msgra, R=1, RD=sc.RDmw/sc.RCmw, spherical=False, nDM=0, rho0=
     zDM = rDM * np.cos(phiDM)
     posarrayDM = np.column_stack((xDM, yDM, zDM))
 
-    v_xDM = np.zeros(nDM)
-    v_yDM = np.zeros(nDM)
+    vDM = np.sqrt(sc.G*M*(1/rDM))
+    v_xDM = -np.sin(thetaDM) * vDM
+    v_yDM = np.cos(thetaDM) * vDM
     v_zDM = np.zeros(nDM)
     velarrayDM = np.column_stack((v_xDM, v_yDM, v_zDM))
 
-    massarrayDM = md.massSample(nDM)
+    massarrayDM = 100*md.massSample(nDM)
 
     bodiesDM = []
-    for i in range(1, nDM):
+    for i in range(0, nDM):
         bodiesDM.append(cs.Body3(pos=posarrayDM[i], vel=velarrayDM[i], mass=massarrayDM[i]))
+    
 
     allbodies = np.concatenate((bodies,bodiesDM))
+    print(len(allbodies))
 
-    return cs.BodyList3(np.array(allbodies)), cs.BodyList3(np.array(bodies)), cs.BodyList3(np.array(bodiesDM))
+    return cs.BodyList3(np.array(allbodies))
 
 thetamax = 0.5
 
-n_steps = 1000  # int(30/1e-4)
+n_steps = 5000  # int(30/1e-4)
 begin = time.time()
-# print(genDMG(1000,M=sc.Msgra,spherical=True,nDM=100))
-result = cs.LeapFrogSaveC(genDMG(1000,M=sc.Msgra,spherical=True,nDM=10000)[1], 1e12, n_steps, thetamax, sc.G)
+
+result = cs.LeapFrogSaveC(genDMG(100,M=sc.Msgra,spherical=True,nDM=1000), 1e12, n_steps, thetamax, sc.G)
 end = time.time()
+result.save("testDMG.binv")
 
+r = utils.get_positions(result.numpy())
+rnorm = np.sqrt(r[-1][:,0]**2+r[-1][:,1]**2+r[-1][:,2]**2)
+rnormM = rnorm[0:100]
+rnormDM = rnorm[101:1100]
 
-s = utils.get_positions(result)
-print(s)
-print('test')
-print(s[100])
-plt.scatter(s[0][:,0],s[0][:,1])
+v = utils.get_velocities(result.numpy())
+vnorm = np.sqrt(v[-1][:,0]**2+v[-1][:,1]**2+v[-1][:,2]**2)
+vnormM = vnorm[0:100]
+vnormDM = vnorm[101:1100]
+plt.scatter(rnormM,vnormM)
+plt.scatter(rnormDM,vnormDM)
 plt.show()
-
+"""
 large_xyz = 1e20
 medium_xyz = 2*1e19
 
@@ -100,10 +110,4 @@ fig = plt.figure()
 ax = fig.add_subplot(1, 1, 1, projection='3d')
 data_gen(1)
 plt.show()
-
-for i in range(n_steps):
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1, projection='3d')
-    data_gen(i)
-    plt.savefig(str(i)+'.png')
-    print(i)
+"""

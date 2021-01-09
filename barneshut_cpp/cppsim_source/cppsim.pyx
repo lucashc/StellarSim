@@ -32,6 +32,7 @@ cdef extern from "body.hpp":
     cdef cppclass Body nogil:
         vec3 pos, vel, g
         double mass
+        bool dark_matter
         Body()
         Body(vec3, vec3, double, vec3)
         Body(Body*)
@@ -65,7 +66,7 @@ cdef class Body3:
     def __init__(self, np.ndarray[double] pos=np.array([0,0,0], dtype=np.double), 
             np.ndarray[double] vel=np.array([0,0,0], dtype=np.double), 
             double mass=0, np.ndarray[double] g=np.array([0,0,0], 
-            dtype=np.double), make_body_obj=True):
+            dtype=np.double), make_body_obj=True, bool dark_matter = False):
         """
         Initialized the Body3 class
         Args:
@@ -114,6 +115,14 @@ cdef class Body3:
         self.body.g.y = g[1]
         self.body.g.z = g[2]
     
+    @property
+    def dark_matter(self):
+        return self.body.mass
+    @dark_matter.setter
+    def dark_matter(self, bool dark_matter):
+        self.body.dark_matter = dark_matter
+
+
     def __repr__(self):
         return f"Body3(pos=[{self.body.pos.x}, {self.body.pos.y}, {self.body.pos.z}], vel=[{self.body.vel.x}, {self.body.vel.y}, {self.body.vel.z}], mass={self.body.mass}, g=[{self.body.g.x}, {self.body.g.y}, {self.body.g.z}])"
     
