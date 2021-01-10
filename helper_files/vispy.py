@@ -31,6 +31,37 @@ Keybinding:
 """
 
 
+geometry_shader = """
+#version 330 core
+const float pi = 3.14159265359;
+
+in vec3 v_colorv[];
+
+out vec3 v_color;
+
+layout (points) in;
+layout (points, max_vertices=11) out;
+
+void main() {
+    vec4 p = gl_in[0].gl_Position;
+    float size = gl_in[0].gl_PointSize;
+    v_color = v_colorv[0];
+
+    // Main star
+    gl_Position = p;
+    gl_PointSize = size;
+    EmitVertex();
+
+    for (int i = 0; i < 10; i++) {
+        //float phi = 2*pi/10 * i;
+        gl_Position = p;
+        gl_PointSize = size;
+        v_color = v_colorv[0];
+        EmitVertex();
+    }
+}
+"""
+
 
 vertex_shader = """
 varying vec3 v_color;
@@ -59,7 +90,8 @@ def load_star_image():
 
 class GalaxyVisual(Visual):
     def __init__(self, filename, mass_scale):
-        Visual.__init__(self, vertex_shader, fragment_shader)
+        gloo.gl.use_gl('gl+')
+        Visual.__init__(self, vcode=vertex_shader, fcode=fragment_shader)#, gcode=geometry_shader)
         self._load_data(filename, mass_scale)
         self._vertices = gloo.VertexBuffer()
         self.set_vertex_data(0)
