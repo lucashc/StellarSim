@@ -15,6 +15,8 @@ public:
     Body() : pos(), vel(), mass(1) {};
     Body(vec3 pos, vec3 vel, BASETYPE mass) : pos(pos), vel(vel), g(), mass(mass), dark_matter(false) {};
     Body(vec3 pos, vec3 vel, BASETYPE mass, vec3 g) : pos(pos), vel(vel), g(g), mass(mass), dark_matter(false) {};
+    Body(vec3 pos, vec3 vel, BASETYPE mass, bool dark_matter) : pos(pos), vel(vel), g(), mass(mass), dark_matter(dark_matter) {};
+    Body(vec3 pos, vec3 vel, BASETYPE mass, vec3 g, bool dark_matter) : pos(pos), vel(vel), g(g), mass(mass), dark_matter(dark_matter) {};
     Body(Body* b) : pos(b->pos), vel(b->vel), g(b->g), mass(b->mass), dark_matter(b->dark_matter) {};
 };
 

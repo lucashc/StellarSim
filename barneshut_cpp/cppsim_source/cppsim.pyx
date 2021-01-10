@@ -34,7 +34,7 @@ cdef extern from "body.hpp":
         double mass
         bool dark_matter
         Body()
-        Body(vec3, vec3, double, vec3)
+        Body(vec3, vec3, double, vec3, bool)
         Body(Body*)
     ctypedef vector[Body*] bodylist
     void save_bodylist(const bodylist&, string) except +
@@ -78,7 +78,7 @@ cdef class Body3:
             Body3
         """
         if make_body_obj:
-            self.body = new Body(vec3(pos[0], pos[1], pos[2]), vec3(vel[0], vel[1], vel[2]), mass, vec3(g[0], g[1], g[2]))
+            self.body = new Body(vec3(pos[0], pos[1], pos[2]), vec3(vel[0], vel[1], vel[2]), mass, vec3(g[0], g[1], g[2]), dark_matter)
     
     @property
     def mass(self):
@@ -117,14 +117,14 @@ cdef class Body3:
     
     @property
     def dark_matter(self):
-        return self.body.mass
+        return self.body.dark_matter
     @dark_matter.setter
     def dark_matter(self, bool dark_matter):
         self.body.dark_matter = dark_matter
 
 
     def __repr__(self):
-        return f"Body3(pos=[{self.body.pos.x}, {self.body.pos.y}, {self.body.pos.z}], vel=[{self.body.vel.x}, {self.body.vel.y}, {self.body.vel.z}], mass={self.body.mass}, g=[{self.body.g.x}, {self.body.g.y}, {self.body.g.z}])"
+        return f"Body3<pos=[{self.body.pos.x}, {self.body.pos.y}, {self.body.pos.z}], vel=[{self.body.vel.x}, {self.body.vel.y}, {self.body.vel.z}], mass={self.body.mass}, g=[{self.body.g.x}, {self.body.g.y}, {self.body.g.z}], dark_matter = {self.dark_matter}>"
     
     def __str__(self):
         return  self.__repr__()
