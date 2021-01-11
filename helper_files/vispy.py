@@ -57,10 +57,21 @@ def load_star_image():
     return raw_image
 
 
+def load_data(filename, mass_scale, show_dm, no_show_m):
+    preloaded = cs.Result.load(filename).numpy()
+    func = np.vectorize(lambda b: (show_dm and b.dark_matter) or (not no_show_m and not b.dark_matter))
+    preloaded = preloaded[:,func(preloaded[0])]
+    print(preloaded.shape)
+    positions = get_positions(preloaded).astype(np.float32)
+    colors = gloo.VertexBuffer(bodies_to_color(preloaded[0], mass_scale))
+    return positions, colors
+
 class GalaxyVisual(Visual):
-    def __init__(self, filename, mass_scale):
+    def __init__(self, positions, colors):
         Visual.__init__(self, vertex_shader, fragment_shader)
-        self._load_data(filename, mass_scale)
+        self.positions = positions
+        self.colors = colors
+        self.frames = self.positions.shape[0]
         self._vertices = gloo.VertexBuffer()
         self.set_vertex_data(0)
         self._draw_mode = 'points'
@@ -71,15 +82,6 @@ class GalaxyVisual(Visual):
         self.set_gl_state(clear_color=(0.0, 0.0, 0.03, 1.0), 
                             depth_test=False, blend=True,
                             blend_func=('src_alpha', 'one'))
-
-    def _load_data(self, filename, mass_scale):
-        preloaded = cs.Result.load(filename).numpy()
-        self.positions = get_positions(preloaded).astype(np.float32)
-        self.colors = gloo.VertexBuffer(bodies_to_color(preloaded[0], mass_scale))
-        del preloaded
-        self.frames = self.positions.shape[0]
-        self.n_objs = self.positions.shape[1]
-
     def set_vertex_data(self, i):
         self._vertices.set_data(self.positions[i])
         self.update()
@@ -103,10 +105,17 @@ parser = argparse.ArgumentParser(description="Visualize simulation")
 parser.add_argument('file', help="binv file to play")
 parser.add_argument('-r', '--record', default='-', type=str)
 parser.add_argument('-m', '--massscale', default=1, type=float)
+parser.add_argument('-d', '--darkmatter', action='store_true')
+parser.add_argument('-o', '--no_ordinary_matter', action='store_true')
 args = parser.parse_args()
 
+
+# Data loading
+
+pos, col = load_data(args.file, args.massscale, args.darkmatter, args.no_ordinary_matter)
+
 # Create Globals
-vis = Galaxy(args.file, args.massscale, parent=view.scene)
+vis = Galaxy(pos, col, parent=view.scene)
 timescale = 1
 record = False
 can_record = args.record != '-'
