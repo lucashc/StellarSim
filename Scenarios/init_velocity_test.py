@@ -43,8 +43,8 @@ def gen_galaxy(r, theta, v, m, m_bh):
 
 
 thetamax = 0.7
-n_steps = 5000
-n_stars = 10000
+n_steps = 500
+n_stars = 40000
 theta = np.random.uniform(0, 2 * np.pi, n_stars)
 r = np.sort(RadDist.radSample(size=n_stars))
 m_stars = MassDist.massSample(n_stars)
@@ -67,14 +67,14 @@ v_norm = np.sqrt(r*g[1:])
 r_max = sc.Rmw # r[-1]
 norm_const = r_max / sc.RCmw - np.arctan(r_max / sc.RCmw)
 g_DM = sc.G*m_DM/r**2 * (r/sc.RCmw - np.arctan(r/sc.RCmw))/norm_const
-
+""" 
 plt.subplot(2, 1, 1)
 plt.plot(r, v_norm)
 plt.subplot(2, 1, 2)
 plt.plot(r, g[1:], label='model')
 plt.plot(r, g_DM, label='Pseudo-Iso')
 plt.legend()
-plt.show()
+plt.show() """
 v_unit_vec = np.column_stack((-np.sin(theta), np.cos(theta), np.zeros(n_stars)))
 velocities = v_norm.reshape((n_stars, 1)) * v_unit_vec
 
@@ -84,4 +84,4 @@ result = cs.LeapFrogSaveC(galaxy, dt=1e12, n_steps=n_steps, thetamax=thetamax, G
                           DM_mass=m_DM)
 result.save("IV_test.binv")
 print("Done saving")
-PQ.speedcurve(result.numpy(), -1)
+# PQ.speedcurve(result.numpy(), -1)

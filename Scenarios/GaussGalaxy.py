@@ -5,6 +5,7 @@ import helper_files.sim_utils as utils
 import barneshut_cpp.cppsim as cs
 import helper_files.plotting as plotting
 
+cs.set_thread_count(8)
 
 def genStableGalaxy(n_stars, m_star, m_bh):
     masses = np.array([m_bh] + [m_star]*n_stars)
@@ -28,11 +29,11 @@ def genStableGalaxy(n_stars, m_star, m_bh):
 thetamax = 0.7
 n_steps = 2000
 m_star = sc.Msol  # 3.181651515706176e+30
-galaxy = genStableGalaxy(5000, m_star*10, sc.Msgra)
+galaxy = genStableGalaxy(int(1e5), m_star*10, sc.Msgra)
 M = 5000*m_star*10 + sc.Msgra
 # cs.LeapFrogC(galaxy, 1e12, 5000, thetamax, sc.G)
 print("Done with step 1")
-result = cs.ModifiedEulerSaveC(galaxy, dt=1e12, n_steps=n_steps, thetamax=thetamax, G=sc.G, save_every=10, epsilon=15e13, DM_mass=0)
+result = cs.LeapFrogSaveC(galaxy, dt=1e12, n_steps=n_steps, thetamax=thetamax, G=sc.G, save_every=10, epsilon=15e13, DM_mass=0)
 result.save("stable_test.binv")
 
 # result = cs.Result.load("stable2.binv").numpy()
