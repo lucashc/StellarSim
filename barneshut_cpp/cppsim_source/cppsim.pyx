@@ -175,21 +175,17 @@ cdef class BodyList3:
     def __repr__(self):
         return self.__str__()
     
-    @cython.boundscheck(False)
+    @cython.boundscheck(True)
     def __getitem__(self, int i):
         # Pass directly from numpy array, to allow mutation and reference
         # Handles own index errors, so boundscheck is unnecessary
-        if 0 <= i > self.b.shape[0]:
-            raise IndexError("Out of bounds")
         return self.b[i]
     
-    @cython.boundscheck(False)
+    @cython.boundscheck(True)
     def __setitem__(self, int i, Body3 b3):
         # Update numpy array directly, to allow copy, as addresses do not change and array is contiguous
         # Also ensures proper reference count
         # Handles own index errors, so boundscheck is unnecessary
-        if 0 <= i > self.b.shape[0]:
-            raise IndexError("Out of bounds")
         cdef object obj
         obj = <object>b3
         self.b[i] = obj
@@ -322,6 +318,33 @@ cdef class Result:
                     x.body = self.saves[i][j]
                 save_result[i, j] = x
         return save_result
+    
+    def extract_pos(self):
+        positions = np.empty((self.saves.size(), self.saves[0].size(), 3), dtype=np.double)
+        for i in range(self.saves.size()):
+            for j in range(self.saves[i].size()):
+                positions[i,j,0] = self.saves[i][j][0].pos.x
+                positions[i,j,1] = self.saves[i][j][0].pos.y
+                positions[i,j,2] = self.saves[i][j][0].pos.z
+        return positions
+
+    
+    def extract_vel(self):
+        velocities = np.empty((self.saves.size(), self.saves[0].size(), 3), dtype=np.double)
+        for i in range(self.saves.size()):
+            for j in range(self.saves[i].size()):
+                velocities[i,j,0] = self.saves[i][j][0].vel.x
+                velocities[i,j,1] = self.saves[i][j][0].vel.y
+                velocities[i,j,2] = self.saves[i][j][0].vel.z
+        return velocities
+
+    def extract_mass(self):
+        masses = np.empty((self.saves.size(), self.saves[0].size(), 1), dtype=np.double)
+        for i in range(self.saves.size()):
+            for j in range(self.saves[i].size()):
+                masses[i,j] = self.saves[i][j][0].mass
+        return masses
+
 
     def save(self, filename):
         """

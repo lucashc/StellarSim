@@ -7,8 +7,11 @@ import helper_files.plotting as plotting
 import helper_files.PhysQuants as PQ
 import matplotlib.pyplot as plt
 import helper_files.MassDist as MassDist
+import matplotlib as mpl
 
-a_0 = 1.2e-10
+
+
+
 
 np.random.seed(1)
 
@@ -47,18 +50,21 @@ r = np.sort(RadDist.radSample(size=n_stars))
 m_stars = MassDist.massSample(n_stars)
 m_BH = sc.Msgra
 mass_ratio = (sc.Mlummw - m_BH)/sum(m_stars)
-m_stars = mass_ratio*m_stars
+# m_stars = mass_ratio*m_stars
+m_BH /= mass_ratio
 m_DM = (np.sum(m_stars) + m_BH)*5
-# plt.scatter(r, m_stars)
-# plt.show()
+#plt.scatter(r, m_stars)
+#plt.show()
 
 dummy = gen_dummy(r, theta, m_stars, m_BH)
-result = cs.LeapFrogSaveC(dummy, dt=1e12, n_steps=1, thetamax=thetamax, G=sc.G, save_every=1, epsilon=4e18,
+# cs.acceleratedAccelerationsC(dummy)
+# g = np.array([body.g for body in dummy])
+result = cs.LeapFrogSaveC(dummy, dt=0, n_steps=1, thetamax=thetamax, G=sc.G, save_every=1, epsilon=4e18,
                           DM_mass=m_DM).numpy()
 g = np.linalg.norm(utils.get_vec_attribute(result, 'g')[0], axis=1)
 v_norm = np.sqrt(r*g[1:])
 
-r_max = r[-1]
+r_max = sc.Rmw # r[-1]
 norm_const = r_max / sc.RCmw - np.arctan(r_max / sc.RCmw)
 g_DM = sc.G*m_DM/r**2 * (r/sc.RCmw - np.arctan(r/sc.RCmw))/norm_const
 """ 
