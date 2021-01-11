@@ -11,21 +11,25 @@ import numpy as np
 
 
 class RenderApp(ShowBase):
-    def __init__(self, data, timescale, scale, record):
+    def __init__(self, data, timescale, scale, record, n_particles):
         self.data = data
         self.scale = scale
         self.timescale = timescale
+        if n_particles == 0:
+            self.n_particles = self.data.shape[1]
+        else:
+            self.n_particles =  n_particles
         ShowBase.__init__(self)
         vdata = GeomVertexData('galaxies', GeomVertexFormat.get_v3c4(), Geom.UHStatic)
-        vdata.setNumRows(self.data.shape[1])
+        vdata.setNumRows(self.n_particles)
         self.vertex = GeomVertexWriter(vdata, 'vertex')
         color = GeomVertexWriter(vdata, 'color')
-        for i in range(self.data.shape[1]):
+        for i in range(self.n_particles):
             pos = self.data[0][i].pos / self.scale
             self.vertex.addData3(*pos)
             color.addData4(1,1,1,1)
         prim = GeomPoints(Geom.UHStatic)
-        prim.add_consecutive_vertices(0, self.data.shape[1]-1)
+        prim.add_consecutive_vertices(0, self.n_particles-1)
         geom = Geom(vdata)
         geom.addPrimitive(prim)
         node = GeomNode('gnode')
@@ -48,7 +52,9 @@ class RenderApp(ShowBase):
             self.movie("screenshot", time, fps=60)
 
     def update_vertex(self, i):
-        for j in range(self.data.shape[1]):
+        for j in range(self.n_particles):
+            if self.data[i][j].dark_matter:
+                continue
             pos = self.data[i][j].pos/self.scale
             self.vertex.setRow(j)
             self.vertex.setData3(*pos)
@@ -58,9 +64,9 @@ class RenderApp(ShowBase):
         self.update_vertex(index)
         return Task.cont
 
-def visualize_result(result, timescale=100, scale=1e18, record=False):
+def visualize_result(result, timescale=100, scale=1e18, record=False, n_particles=0):
     data = result.numpy()
-    app = RenderApp(data, timescale, scale, record)
+    app = RenderApp(data, timescale, scale, record, n_particles)
     app.run()
 
 def visualize_bodylist(bl, scale=1e18, record=False):
@@ -75,11 +81,12 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--scale', help="Scale of the simulation", default=1e18, type=float)
     parser.add_argument('-t', '--timescale', help="Timescale of the simulation", default=100, type=float)
     parser.add_argument('-r', '--record', default=0, type=int)
+    parser.add_argument('-n', '--particles', default=0, type=int)
 
     args = parser.parse_args()
     if args.file.endswith("binv"):
         data = cs.Result.load(args.file)
-        visualize_result(data, args.timescale, args.scale, args.record)
+        visualize_result(data, args.timescale, args.scale, args.record, args.particles)
     else:
         data = cs.BodyList3.load(args.file)
         visualize_bodylist(data, args.scale, args.record)

@@ -65,7 +65,7 @@ def gen_galaxy(pos, DM_pos, m, mDM, v, vDM):
 
 print('start')
 thetamax = 0.7
-n_steps = 2000
+n_steps = 8000
 n_stars = 5000
 n_DM_particles = 10000
 
@@ -127,7 +127,7 @@ velocities_DM = v_norm_DM.reshape((n_DM_particles, 1)) * v_unit_vec_DM
 
 galaxy = gen_galaxy(posarray, posarrayDM, m_stars, m_DM, velocities, velocities_DM)
 print("Done with step 1")
-result = cs.LeapFrogSaveC(galaxy, dt=1e14, n_steps=n_steps, thetamax=thetamax, G=sc.G, save_every=10, epsilon=4e18)
+result = cs.LeapFrogSaveC(galaxy, dt=4e14, n_steps=n_steps, thetamax=thetamax, G=sc.G, save_every=10, epsilon=4e16)
 result.save("bolletjes_test.binv")
 print("Done saving")
 #PQ.speedcurve(result.numpy(), -1)
