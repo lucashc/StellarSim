@@ -22,6 +22,7 @@ public:
             COM = bodies[0]->pos;
             if (bodies[0]->dark_matter){
                 DM_COM = bodies[0]->pos;
+                dark_matter_mass = bodies[0]->mass;
             }
             else{
                 DM_COM = vec3();

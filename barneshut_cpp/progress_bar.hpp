@@ -19,10 +19,10 @@ public:
         std::cout << '[';
         double stepsize = ((double) total)/100.0;
         for (int i = 0; i < 100; i++) {
-            if (i * stepsize < step-1 && ((i+1) * stepsize < step-1 || (i+1) * stepsize >= total)) {
+            if (i * stepsize < step && ((i+1) * stepsize < step || (i+1) * stepsize >= total)) {
                 std::cout << "=";
             }
-            else if (i * stepsize < step-1){
+            else if (i * stepsize < step){
                 std::cout << "\033[1m\033[34m>\033[0m\033[31m";
             }
             else {
