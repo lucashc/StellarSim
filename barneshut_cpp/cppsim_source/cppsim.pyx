@@ -47,7 +47,7 @@ cdef extern from "sim.cpp":
     void ModifiedEuler(bodylist&, double, int, double, double, double, double) nogil
     vector[bodylist] LeapFrogSave(bodylist&, double, int, double, double, int, double, double) nogil
     vector[bodylist] ModifiedEulerSave(bodylist&, double, int, double, double, int, double, double) nogil
-    # void accelerated_accelerations(bodylist&, double, double, double, double) nogil
+    void get_accelerations(bodylist&, double, double, double, double) nogil
     # Static constants
     cdef double r_max
     cdef double rcmw
@@ -411,19 +411,19 @@ def ModifiedEulerSaveC(BodyList3 bodies, double dt=1e-2, int n_steps=1, double t
     return result
 
 
-# def acceleratedAccelerationsC(BodyList3 bodies, double thetamax = 0.5, double G = 1, double epsilon=0, double DM_mass = 0):
-#    """
-#    Calculates the accelerations of each body in the bodylist using the Barnes-Hut algorithm.
-#    Important: the bodylist is modified in place, its g-attributes are modified
-#    Args:
-#        bodies      | BodyList3 type
-#        thetamax    | double type, thetamax parameter to Barnes-Hut
-#        G           | double type, used Newton's coefficient of Gravity
-#    Returns:
-#        None
-#    """
-#    with nogil:
-#        accelerated_accelerations(bodies.bl, thetamax, G, epsilon, DM_mass)
+def acceleratedAccelerationsC(BodyList3 bodies, double thetamax = 0.5, double G = 1, double epsilon=0, double DM_mass = 0):
+   """
+   Calculates the accelerations of each body in the bodylist using the Barnes-Hut algorithm.
+   Important: the bodylist is modified in place, its g-attributes are modified
+   Args:
+       bodies      | BodyList3 type
+       thetamax    | double type, thetamax parameter to Barnes-Hut
+       G           | double type, used Newton's coefficient of Gravity
+   Returns:
+       None
+   """
+   with nogil:
+       get_accelerations(bodies.bl, thetamax, G, epsilon, DM_mass)
 
 
 # Update static constants

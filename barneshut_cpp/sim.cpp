@@ -43,17 +43,6 @@ vec3 pseudo_isothermal_gravity(Body body, BASETYPE DM_mass, vec3 center, double 
 }
 
 
-void apply_acceleration(int id, bodylist * bodies, OctNode * topnode, BASETYPE thetamax, BASETYPE G, BASETYPE epsilon, BASETYPE DM_mass) {
-    for (long unsigned int i = id; i < bodies->size(); i += THREAD_COUNT) {
-//        if (i == 0){
-//            bodies->at(i)->g = vec3();
-//        }else{
-//            bodies->at(i)->g = dark_matter_gravity(bodies->at(i), DM_mass, bodies->at(0)->pos, G);
-//        }
-        bodies->at(i)->g = pseudo_isothermal_gravity(bodies->at(i), DM_mass, bodies->at(0)->pos, G);
-        TreeWalk(topnode, bodies->at(i), thetamax, G, epsilon);
-    }
-}
 
 void running_thread(int id, bodylist * bodies, OctNode ** topnode, BASETYPE thetamax, BASETYPE G, BASETYPE epsilon, BASETYPE DM_mass) {
     while (running) {
@@ -67,24 +56,30 @@ void running_thread(int id, bodylist * bodies, OctNode ** topnode, BASETYPE thet
         }
 
         for (long unsigned int i = id; i < bodies->size(); i += THREAD_COUNT) {
-            /*if (i == 0){
-                bodies->at(i)->g = vec3();
-            }else{
-                bodies->at(i)->g = dark_matter_gravity(bodies->at(i), DM_mass, bodies->at(0)->pos, G);
-            }*/
             bodies->at(i)->g = pseudo_isothermal_gravity(bodies->at(i), DM_mass, bodies->at(0)->pos, G);
             TreeWalk(*topnode, bodies->at(i), thetamax, G, epsilon);
         }
 
         {
-            //std::cout << "Thread " << id << " finished." << std::endl;
             std::lock_guard<std::mutex> lk(m);
             threads_active--;
         }
 
-        //std::cout << "Active threads: " << threads_active << std::endl;
         cv_main.notify_one();
     }
+}
+
+void get_accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G, BASETYPE epsilon, BASETYPE DM_mass) {
+    auto bounds = get_bounding_vectors(bodies);
+    auto center = (bounds.first + bounds.second)/2;
+    BASETYPE max_size = (bounds.first - bounds.second).abs().max();
+    auto topnode = new OctNode(center, max_size, bodies);
+
+	for (long unsigned int i = 0; i < bodies.size(); i++) {
+        bodies.at(i)->g = pseudo_isothermal_gravity(bodies.at(i), DM_mass, bodies.at(0)->pos, G);
+        TreeWalk(topnode, bodies.at(i), thetamax, G, epsilon);
+    }
+    delete topnode;
 }
 
 void accelerated_accelerations(OctNode ** topnode, bodylist &bodies, BASETYPE thetamax, BASETYPE G, BASETYPE epsilon, BASETYPE DM_mass) {
@@ -96,14 +91,12 @@ void accelerated_accelerations(OctNode ** topnode, bodylist &bodies, BASETYPE th
     {
         std::lock_guard<std::mutex> lk(m);
         start = (1 << THREAD_COUNT) - 1;
-        //std::cout << "Starting run: " << start << std::endl;
     }
     cv_threads.notify_all();
 
     {
         std::unique_lock<std::mutex> lk(m);
         cv_main.wait(lk, [] {return threads_active == 0 && start == 0;});
-        //std::cout << "Finished: " << start << ' ' << threads_active << std::endl;
     }
     delete tmp;
 }
@@ -117,12 +110,10 @@ void LeapFrog(bodylist &bodies, BASETYPE dt, int n_steps, BASETYPE thetamax, BAS
     OctNode * tmp = NULL;
     OctNode ** topnode = &tmp;
 
-    //std::cout << "Finished variable creation" << std::endl;
 
     for (unsigned int i = 0; i < THREAD_COUNT; i++) {
         workers.push_back(std::thread(running_thread, i, &bodies, topnode, thetamax, G, epsilon, DM_mass));
     }
-    //std::cout << "Finished making threads" << std::endl;
     // v0 -> v_{-1/2}
     accelerated_accelerations(topnode, bodies, thetamax, G, epsilon, DM_mass);
     for (auto body : bodies) {
