@@ -58,9 +58,9 @@ def load_star_image():
 
 
 class GalaxyVisual(Visual):
-    def __init__(self, filename):
+    def __init__(self, filename, mass_scale):
         Visual.__init__(self, vertex_shader, fragment_shader)
-        self._load_data(filename)
+        self._load_data(filename, mass_scale)
         self._vertices = gloo.VertexBuffer()
         self.set_vertex_data(0)
         self._draw_mode = 'points'
@@ -72,10 +72,10 @@ class GalaxyVisual(Visual):
                             depth_test=False, blend=True,
                             blend_func=('src_alpha', 'one'))
 
-    def _load_data(self, filename):
+    def _load_data(self, filename, mass_scale):
         preloaded = cs.Result.load(filename).numpy()
         self.positions = get_positions(preloaded).astype(np.float32)
-        self.colors = gloo.VertexBuffer(bodies_to_color(preloaded[0]))
+        self.colors = gloo.VertexBuffer(bodies_to_color(preloaded[0], mass_scale))
         del preloaded
         self.frames = self.positions.shape[0]
         self.n_objs = self.positions.shape[1]
@@ -102,10 +102,11 @@ view.camera = ArcballCamera(fov=45, distance=1e19)
 parser = argparse.ArgumentParser(description="Visualize simulation")
 parser.add_argument('file', help="binv file to play")
 parser.add_argument('-r', '--record', default='-', type=str)
+parser.add_argument('-m', '--massscale', default=1, type=float)
 args = parser.parse_args()
 
 # Create Globals
-vis = Galaxy(args.file, parent=view.scene)
+vis = Galaxy(args.file, args.massscale, parent=view.scene)
 timescale = 1
 record = False
 can_record = args.record != '-'
@@ -139,7 +140,7 @@ timer.start(0)
 
 def write_recording():
     global frames, filename, fps
-    writer = imageio.get_writer(filename, fps=fps)
+    writer = imageio.get_writer(filename, fps=fps, codec='libx264', quality=10, pixelformat='yuvj444p')
     for i in tqdm(frames):
         writer.append_data(i)
     writer.close()
@@ -153,9 +154,11 @@ def handle_key(ev):
     if ev.text == ']':
         # Increase speed
         timescale /= 2
+        print("Timescale is now", timescale)
     elif ev.text == '[':
         # Decrease speed
         timescale *= 2
+        print("Timescale is now", timescale)
     elif ev.text == 'r':
         # Start record
         if record:

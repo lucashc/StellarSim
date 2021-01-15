@@ -28,9 +28,9 @@ def genStableGalaxy(n_stars, m_star, m_bh):
 
 
 thetamax = 0.7
-n_steps = 2000
+n_steps = 200
 m_star = sc.Msol  # 3.181651515706176e+30
-galaxy = genStableGalaxy(100, m_star*10, sc.Msgra)
+galaxy = genStableGalaxy(5000, m_star*10, sc.Msgra)
 M = 5000*m_star*10 + sc.Msgra
 
 result = cs.LeapFrogSaveC(galaxy, dt=1e12, n_steps=n_steps, thetamax=thetamax, G=sc.G, save_every=10, epsilon=13e12, DM_mass=0)
