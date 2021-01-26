@@ -65,9 +65,9 @@ def gen_galaxy(pos, DM_pos, m, mDM, v, vDM):
 
 print('start')
 thetamax = 0.7
-n_steps = 8000
-n_stars = 5000
-n_DM_particles = 10000
+n_steps = 500
+n_stars = 3000
+n_DM_particles = 3000
 
 m_stars = md.massSample(n_stars)
 DM_mass = np.sum(m_stars)*5
@@ -92,7 +92,7 @@ print('1')
 
 
 thetaDM = np.random.uniform(0,2*np.pi,n_DM_particles)
-phiDM = np.arccos(2*np.random.uniform(0,1,n_DM_particles)-1)
+phiDM = np.arccos(np.random.uniform(-1,1,n_DM_particles))
 rDM = DMrd.PIradSample(n_DM_particles, R_halo=18)
 
 xDM = rDM * np.cos(thetaDM) * np.sin(phiDM)
@@ -127,6 +127,7 @@ velocities_DM = v_norm_DM.reshape((n_DM_particles, 1)) * v_unit_vec_DM
 
 galaxy = gen_galaxy(posarray, posarrayDM, m_stars, m_DM, velocities, velocities_DM)
 print("Done with step 1")
+galaxy.check_integrity()
 result = cs.LeapFrogSaveC(galaxy, dt=4e14, n_steps=n_steps, thetamax=thetamax, G=sc.G, save_every=10, epsilon=4e16)
 result.save("bolletjes_test.binv")
 print("Done saving")
