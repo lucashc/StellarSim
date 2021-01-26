@@ -11,6 +11,7 @@ from vispy import io
 import imageio
 from tqdm import tqdm
 
+app.use_app('PyQt5')
 
 """
 This module visualizes a BINV-file using VisPy and OpenGL. 
@@ -59,12 +60,16 @@ def load_star_image():
 
 
 def load_data(filename, mass_scale, show_dm, no_show_m):
+    print("Start loading data...")
     preloaded = cs.Result.load(filename).numpy()
+    print("Selecting data...")
     func = np.vectorize(lambda b: (show_dm and b.dark_matter) or (not no_show_m and not b.dark_matter))
     preloaded = preloaded[:,func(preloaded[0])]
     print(preloaded.shape)
+    print("Extracting positions and adding color...")
     positions = get_positions(preloaded).astype(np.float32)
     colors = gloo.VertexBuffer(bodies_to_color(preloaded[0], mass_scale))
+    print("Data loaded and ready for GPU")
     return positions, colors
 
 class GalaxyVisual(Visual):
@@ -94,12 +99,7 @@ class GalaxyVisual(Visual):
         self.shared_program.vert['position'] = self._vertices
         self.shared_program.vert['pointsize'] = self.pointsize
 
-Galaxy = scene.visuals.create_visual_node(GalaxyVisual)
 
-
-canvas = scene.SceneCanvas(size=(800, 800), keys='interactive', show=True)
-view = canvas.central_widget.add_view()
-view.camera = ArcballCamera(fov=45, distance=1e19)
 
 # Argument parsing
 parser = argparse.ArgumentParser(description="Visualize simulation")
@@ -112,11 +112,18 @@ args = parser.parse_args()
 
 
 # Data loading
-
 pos, col = load_data(args.file, args.massscale, args.darkmatter, args.no_ordinary_matter)
 
+print("Starting GUI")
+Galaxy = scene.visuals.create_visual_node(GalaxyVisual)
+canvas = scene.SceneCanvas(size=(800, 800), keys='interactive', show=True)
+view = canvas.central_widget.add_view()
+view.camera = ArcballCamera(fov=45, distance=5e20)
+
 # Create Globals
+print("Start the galaxy visual")
 vis = Galaxy(pos, col, parent=view.scene)
+print("Created visual")
 timescale = 1
 record = False
 can_record = args.record != '-'
@@ -175,7 +182,7 @@ def write_recording():
     print("Saved to file", filename)
 
 
-# Handle speedup
+# Handle speedupapp.use_app('Pyglet')
 @canvas.events.key_press.connect
 def handle_key(ev):
     global timescale, record, can_record, frames, filename, canvas, paused, start_shot
@@ -222,5 +229,4 @@ def handle_key(ev):
         paused = not paused
     elif ev.text == 'm':
         start_shot = True
-
 app.run()
