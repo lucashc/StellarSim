@@ -98,12 +98,7 @@ class GalaxyVisual(Visual):
         self.shared_program.vert['position'] = self._vertices
         self.shared_program.vert['pointsize'] = self.pointsize
 
-Galaxy = scene.visuals.create_visual_node(GalaxyVisual)
 
-
-canvas = scene.SceneCanvas(size=(800, 800), keys='interactive', show=True)
-view = canvas.central_widget.add_view()
-view.camera = ArcballCamera(fov=45, distance=1e19)
 
 # Argument parsing
 parser = argparse.ArgumentParser(description="Visualize simulation")
@@ -116,11 +111,18 @@ args = parser.parse_args()
 
 
 # Data loading
-
 pos, col = load_data(args.file, args.massscale, args.darkmatter, args.no_ordinary_matter)
 
+print("Starting GUI")
+Galaxy = scene.visuals.create_visual_node(GalaxyVisual)
+canvas = scene.SceneCanvas(size=(800, 800), keys='interactive', show=True)
+view = canvas.central_widget.add_view()
+view.camera = ArcballCamera(fov=45, distance=1e19)
+
 # Create Globals
+print("Start the galaxy visual")
 vis = Galaxy(pos, col, parent=view.scene)
+print("Created visual")
 timescale = 1
 record = False
 can_record = args.record != '-'
