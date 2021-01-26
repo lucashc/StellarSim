@@ -118,7 +118,7 @@ print("Starting GUI")
 Galaxy = scene.visuals.create_visual_node(GalaxyVisual)
 canvas = scene.SceneCanvas(size=(800, 800), keys='interactive', show=True)
 view = canvas.central_widget.add_view()
-view.camera = ArcballCamera(fov=45, distance=1e19)
+view.camera = ArcballCamera(fov=45, distance=5e20)
 
 # Create Globals
 print("Start the galaxy visual")
