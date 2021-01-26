@@ -59,12 +59,16 @@ def load_star_image():
 
 
 def load_data(filename, mass_scale, show_dm, no_show_m):
+    print("Start loading data...")
     preloaded = cs.Result.load(filename).numpy()
+    print("Selecting data...")
     func = np.vectorize(lambda b: (show_dm and b.dark_matter) or (not no_show_m and not b.dark_matter))
     preloaded = preloaded[:,func(preloaded[0])]
     print(preloaded.shape)
+    print("Extracting positions and adding color...")
     positions = get_positions(preloaded).astype(np.float32)
     colors = gloo.VertexBuffer(bodies_to_color(preloaded[0], mass_scale))
+    print("Data loaded and ready for GPU")
     return positions, colors
 
 class GalaxyVisual(Visual):
