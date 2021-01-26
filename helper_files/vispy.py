@@ -30,6 +30,8 @@ Keybinding:
 * `=` Increase pointsize by 1
 * `-` Decrease pointsize by 1
 * `spacebar` Pause and continue
+* `z` zoom in
+* `x` zoom out
 """
 
 
@@ -190,7 +192,7 @@ def write_recording():
 # Handle speedupapp.use_app('Pyglet')
 @canvas.events.key_press.connect
 def handle_key(ev):
-    global timescale, record, can_record, frames, filename, canvas, paused, start_shot
+    global timescale, record, can_record, frames, filename, canvas, paused, start_shot, view
     if ev.text == ']':
         # Increase speed
         timescale /= 2
@@ -234,4 +236,8 @@ def handle_key(ev):
         paused = not paused
     elif ev.text == 'm':
         start_shot = True
+    elif ev.text == 'z':
+        view.camera.distance *= 0.9
+    elif ev.text == 'x':
+        view.camera.distance *= 1.1
 app.run()
