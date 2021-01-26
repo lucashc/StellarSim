@@ -59,7 +59,7 @@ def load_star_image():
     return raw_image
 
 
-def load_data(filename, mass_scale, show_dm, no_show_m):
+def load_data(filename, mass_scale, show_dm, no_show_m, darkmatter_intensity):
     print("Start loading data...")
     preloaded = cs.Result.load(filename).numpy()
     print("Selecting data...")
@@ -68,7 +68,11 @@ def load_data(filename, mass_scale, show_dm, no_show_m):
     print(preloaded.shape)
     print("Extracting positions and adding color...")
     positions = get_positions(preloaded).astype(np.float32)
-    colors = gloo.VertexBuffer(bodies_to_color(preloaded[0], mass_scale))
+    c = bodies_to_color(preloaded[0], mass_scale)
+    if show_dm:
+        dm_index = [i for i, b in enumerate(preloaded[0]) if b.dark_matter]
+        c[dm_index] = [0, darkmatter_intensity, 0]
+    colors = gloo.VertexBuffer(c)
     print("Data loaded and ready for GPU")
     return positions, colors
 
@@ -104,15 +108,16 @@ class GalaxyVisual(Visual):
 # Argument parsing
 parser = argparse.ArgumentParser(description="Visualize simulation")
 parser.add_argument('file', help="binv file to play")
-parser.add_argument('-r', '--record', default='-', type=str)
-parser.add_argument('-m', '--massscale', default=1, type=float)
-parser.add_argument('-d', '--darkmatter', action='store_true')
-parser.add_argument('-o', '--no_ordinary_matter', action='store_true')
+parser.add_argument('-r', '--record', default='-', type=str, help="Record to file")
+parser.add_argument('-m', '--massscale', default=1, type=float, help="Mass scale")
+parser.add_argument('-d', '--darkmatter', action='store_true', help="Whether to show darkmatter")
+parser.add_argument('-i', '--darkmatter_intensity', default=0.5, type=float, help="Darkmatter intensity 0.0 to 1.0")
+parser.add_argument('-o', '--no_ordinary_matter', action='store_true', help='Whether to remove ordinary matter')
 args = parser.parse_args()
 
 
 # Data loading
-pos, col = load_data(args.file, args.massscale, args.darkmatter, args.no_ordinary_matter)
+pos, col = load_data(args.file, args.massscale, args.darkmatter, args.no_ordinary_matter, args.darkmatter_intensity)
 
 print("Starting GUI")
 Galaxy = scene.visuals.create_visual_node(GalaxyVisual)
