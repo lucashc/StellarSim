@@ -65,9 +65,9 @@ def gen_galaxy(pos, DM_pos, m, mDM, v, vDM):
 
 print('start')
 thetamax = 0.7
-n_steps = 500
-n_stars = 3000
-n_DM_particles = 3000
+n_steps = 8000
+n_stars = 5000
+n_DM_particles = 10000
 
 m_stars = md.massSample(n_stars)
 DM_mass = np.sum(m_stars)*5
