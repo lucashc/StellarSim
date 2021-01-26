@@ -8,7 +8,7 @@
 
 class OctNode {
 public:
-    BASETYPE mass, size;
+    BASETYPE mass, dark_matter_mass, size;
     std::vector<OctNode*> children;
     vec3 COM, DM_COM, center;
     Body *id;
@@ -72,7 +72,7 @@ void TreeWalk(OctNode* node, Body* b, BASETYPE thetamax, BASETYPE G, BASETYPE ep
     BASETYPE rs = r*r + epsilon*epsilon;
     if (rs > 0) {
         if ((node->leaf || node->size / r < thetamax) && node->id != b) {
-            b->g += (dr / r) * G * node->mass / rs;
+            b->g = b->g + (dr / r) * G * node->mass / rs;
         }
         else {
             for (auto child : node->children) {
@@ -80,7 +80,6 @@ void TreeWalk(OctNode* node, Body* b, BASETYPE thetamax, BASETYPE G, BASETYPE ep
             }
         }
     }
-
 };
 
 #endif

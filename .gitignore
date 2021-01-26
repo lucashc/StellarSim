@@ -148,3 +148,6 @@ barneshut_cpp/cppsim_source/cppsim.cpp
 
 # Exclude docs
 *.html
+
+# Exclude personal files
+b_test/

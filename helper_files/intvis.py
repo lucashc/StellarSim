@@ -11,12 +11,11 @@ import numpy as np
 
 
 class RenderApp(ShowBase):
-    def __init__(self, data, timescale, scale, record, dark_matter, no_ordinary_matter):
+    def __init__(self, data, timescale, scale, record, dark_matter):
         self.data = data
         self.scale = scale
         self.timescale = timescale
         self.dark_matter = dark_matter
-        self.no_ordinary_matter = no_ordinary_matter
 
         self.n_particles = self.data.shape[1]
         ShowBase.__init__(self)
@@ -25,9 +24,8 @@ class RenderApp(ShowBase):
         self.vertex = GeomVertexWriter(vdata, 'vertex')
         color = GeomVertexWriter(vdata, 'color')
         for i in range(self.n_particles):
-            print(self.data[0][i].dark_matter)
-            if (self.data[0][i].dark_matter and not self.dark_matter) or (not self.data[0][i].dark_matter and self.no_ordinary_matter):
-                continue 
+            if self.data[0][i].dark_matter and not self.dark_matter:
+                continue
             pos = self.data[0][i].pos / self.scale
             self.vertex.addData3(*pos)
             color.addData4(1,1,1,1)
@@ -56,7 +54,7 @@ class RenderApp(ShowBase):
 
     def update_vertex(self, i):
         for j in range(self.n_particles):
-            if (self.data[0][j].dark_matter and not self.dark_matter) or (not self.data[0][j].dark_matter and self.no_ordinary_matter):
+            if self.data[0][j].dark_matter and not self.dark_matter:
                 continue
             pos = self.data[i][j].pos/self.scale
             self.vertex.setRow(j)
@@ -67,9 +65,9 @@ class RenderApp(ShowBase):
         self.update_vertex(index)
         return Task.cont
 
-def visualize_result(result, timescale=100, scale=1e18, record=False, dark_matter=False, no_ordinary_matter=False):
+def visualize_result(result, timescale=100, scale=1e18, record=False, dark_matter=False):
     data = result.numpy()
-    app = RenderApp(data, timescale, scale, record, dark_matter, no_ordinary_matter)
+    app = RenderApp(data, timescale, scale, record, dark_matter)
     app.run()
 
 def visualize_bodylist(bl, scale=1e18, record=False):
@@ -84,14 +82,12 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--scale', help="Scale of the simulation", default=1e18, type=float)
     parser.add_argument('-t', '--timescale', help="Timescale of the simulation", default=100, type=float)
     parser.add_argument('-r', '--record', default=0, type=int)
-    parser.add_argument('-d', '--dark_matter', action='store_true')
-    parser.add_argument('-o', '--no_ordinary_matter', action='store_true')
+    parser.add_argument('-d', '--dark_matter', default=False, type=bool)
 
     args = parser.parse_args()
-    print(args.dark_matter)
     if args.file.endswith("binv"):
         data = cs.Result.load(args.file)
-        visualize_result(data, args.timescale, args.scale, args.record, args.dark_matter, args.no_ordinary_matter)
+        visualize_result(data, args.timescale, args.scale, args.record, args.dark_matter)
     else:
         data = cs.BodyList3.load(args.file)
         visualize_bodylist(data, args.scale, args.record)

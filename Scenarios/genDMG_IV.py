@@ -92,7 +92,7 @@ print('1')
 
 
 thetaDM = np.random.uniform(0,2*np.pi,n_DM_particles)
-phiDM = np.arccos(2*np.random.uniform(0,1,n_DM_particles)-1)
+phiDM = np.arccos(np.random.uniform(-1,1,n_DM_particles))
 rDM = DMrd.PIradSample(n_DM_particles, R_halo=18)
 
 xDM = rDM * np.cos(thetaDM) * np.sin(phiDM)
