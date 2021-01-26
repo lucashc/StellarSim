@@ -5,7 +5,7 @@ RDmw = Rmw/2            # m             6.47992e16  # Characteristic scale lengt
 Msgra = 8.61999e36      # kg            Mass of Sagittarius A
 Msol = 1.98847e30       # kg            One solar mass
 Mlummw = 9e10*Msol      # kg            Mass of luminous matter in Milky Way
-MDMmw = 1e128*Msol      # kg            Mass of dark matter in Milky Way
+MDMmw = 1e12*Msol      # kg            Mass of dark matter in Milky Way
 Tsol = 5772             # Effective surface temperature in Kelvin
 
 Randr = 1.04068e+21     # m             Disk radius of Andromeda

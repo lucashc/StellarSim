@@ -18,7 +18,7 @@ def gen_dummy(pos, DM_pos, m, mDM):
     nDM = len(DM_pos)
     massarray = m
     velarray = np.zeros((n, 3))
-    bodies = [cs.Body3(pos=np.zeros(3), vel=np.zeros(3), mass=sc.Msgra/1e6)]
+    bodies = [cs.Body3(pos=np.zeros(3), vel=np.zeros(3), mass=sc.Msgra)] #/1e6)]
     for i in range(n):
         bodies.append(cs.Body3(pos=posarray[i], vel=velarray[i], mass=massarray[i]))
 
@@ -44,7 +44,7 @@ def gen_galaxy(pos, DM_pos, m, mDM, v, vDM):
     nDM = len(DM_pos)
     massarray = m
     velarray = v
-    bodies = [cs.Body3(pos=np.zeros(3), vel=np.zeros(3), mass=sc.Msgra/1e6)]
+    bodies = [cs.Body3(pos=np.zeros(3), vel=np.zeros(3), mass=sc.Msgra)] #/1e6)]
     for i in range(n):
         bodies.append(cs.Body3(pos=posarray[i], vel=velarray[i], mass=massarray[i]))
 
@@ -70,6 +70,7 @@ n_stars = 3000
 n_DM_particles = 3000
 
 m_stars = md.massSample(n_stars)
+m_stars = m_stars * sc.Mlummw/sum(m_stars)
 DM_mass = np.sum(m_stars)*5
 m_DM = np.ones(n_DM_particles)*DM_mass/n_DM_particles
 spherical = True
@@ -80,7 +81,7 @@ if spherical == True:
 else:
     phi = np.pi/2
 
-r = np.sort(rd.radSample(size=n_stars))
+r = np.sort(rd.radSample(size=n_stars, rad_min = sc.RCmw/20))
 x = r * np.cos(theta) * np.sin(phi)
 y = r * np.sin(theta) * np.sin(phi)
 z = r * np.cos(phi)
@@ -91,7 +92,7 @@ print('1')
 
 
 
-thetaDM = np.random.uniform(0,2*np.pi,n_DM_particles)
+thetaDM = np.random.uniform(0, 2*np.pi, n_DM_particles)
 phiDM = np.arccos(np.random.uniform(-1,1,n_DM_particles))
 rDM = DMrd.PIradSample(n_DM_particles, R_halo=18)
 
@@ -137,7 +138,7 @@ plt.hist(np.linalg.norm(velocities, axis =1))
 
 galaxy = gen_galaxy(posarray, posarrayDM, m_stars, m_DM, velocities, velocities_DM)
 print("Done with step 1")
-result = cs.LeapFrogSaveC(galaxy, dt=5e15, n_steps=n_steps, thetamax=thetamax, G=sc.G, save_every=10, epsilon=4e16)
+result = cs.LeapFrogSaveC(galaxy, dt=1e12, n_steps=n_steps, thetamax=thetamax, G=sc.G, save_every=10, epsilon=4e16)
 result.save("bolletjes_test.binv")
 print("Done saving")
 #PQ.speedcurve(result.numpy(), -1)
