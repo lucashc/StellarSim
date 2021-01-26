@@ -18,7 +18,7 @@ def gen_dummy(pos, DM_pos, m, mDM):
     nDM = len(DM_pos)
     massarray = m
     velarray = np.zeros((n, 3))
-    bodies = [cs.Body3(pos=np.zeros(3), vel=np.zeros(3), mass=sc.Msgra/1e6)]
+    bodies = [cs.Body3(pos=np.zeros(3), vel=np.zeros(3), mass=sc.Msgra)] #/1e6)]
     for i in range(n):
         bodies.append(cs.Body3(pos=posarray[i], vel=velarray[i], mass=massarray[i]))
 
@@ -44,7 +44,7 @@ def gen_galaxy(pos, DM_pos, m, mDM, v, vDM):
     nDM = len(DM_pos)
     massarray = m
     velarray = v
-    bodies = [cs.Body3(pos=np.zeros(3), vel=np.zeros(3), mass=sc.Msgra/1e6)]
+    bodies = [cs.Body3(pos=np.zeros(3), vel=np.zeros(3), mass=sc.Msgra)] #/1e6)]
     for i in range(n):
         bodies.append(cs.Body3(pos=posarray[i], vel=velarray[i], mass=massarray[i]))
 
@@ -70,6 +70,7 @@ n_stars = 3000
 n_DM_particles = 3000
 
 m_stars = md.massSample(n_stars)
+m_stars = m_stars * sc.Mlummw/sum(m_stars)
 DM_mass = np.sum(m_stars)*5
 m_DM = np.ones(n_DM_particles)*DM_mass/n_DM_particles
 spherical = True
@@ -80,7 +81,7 @@ if spherical == True:
 else:
     phi = np.pi/2
 
-r = np.sort(rd.radSample(size=n_stars))
+r = np.sort(rd.radSample(size=n_stars, rad_min = sc.RCmw/20))
 x = r * np.cos(theta) * np.sin(phi)
 y = r * np.sin(theta) * np.sin(phi)
 z = r * np.cos(phi)
@@ -91,7 +92,7 @@ print('1')
 
 
 
-thetaDM = np.random.uniform(0,2*np.pi,n_DM_particles)
+thetaDM = np.random.uniform(0, 2*np.pi, n_DM_particles)
 phiDM = np.arccos(np.random.uniform(-1,1,n_DM_particles))
 rDM = DMrd.PIradSample(n_DM_particles, R_halo=18)
 
@@ -116,6 +117,7 @@ plt.show()
 v_unit_vec = np.column_stack((-np.sin(theta), np.cos(theta), np.zeros(n_stars)))
 velocities = v_norm.reshape((n_stars, 1)) * v_unit_vec
 
+factor = 1
 
 
 gamma = np.random.uniform(0,2*np.pi,n_DM_particles)
@@ -125,7 +127,8 @@ for i, pos in enumerate(posarrayDM):
     b1 /= np.linalg.norm(b1)
     b2 = np.array([0,pos[2], -pos[1]])
     b2 /= np.linalg.norm(b2)
-    v_unit_vec_DM.append(np.cos(gamma[i])*b1 + np.sin(gamma[i])*b2)
+    attenuation_z = pos[2]/np.linalg.norm(pos)
+    v_unit_vec_DM.append(np.array([0, 0, factor**(1 - attenuation_z)])*(np.cos(gamma[i])*b1 + np.sin(gamma[i])*b2))
 
 v_unit_vec_DM = np.array(v_unit_vec_DM)
 velocities_DM = v_norm_DM.reshape((n_DM_particles, 1)) * v_unit_vec_DM
@@ -137,7 +140,7 @@ plt.hist(np.linalg.norm(velocities, axis =1))
 
 galaxy = gen_galaxy(posarray, posarrayDM, m_stars, m_DM, velocities, velocities_DM)
 print("Done with step 1")
-result = cs.LeapFrogSaveC(galaxy, dt=5e15, n_steps=n_steps, thetamax=thetamax, G=sc.G, save_every=10, epsilon=4e16)
+result = cs.LeapFrogSaveC(galaxy, dt=1e12, n_steps=n_steps, thetamax=thetamax, G=sc.G, save_every=10, epsilon=4e16)
 result.save("bolletjes_test.binv")
 print("Done saving")
 #PQ.speedcurve(result.numpy(), -1)
