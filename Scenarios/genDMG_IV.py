@@ -116,6 +116,7 @@ plt.show()
 v_unit_vec = np.column_stack((-np.sin(theta), np.cos(theta), np.zeros(n_stars)))
 velocities = v_norm.reshape((n_stars, 1)) * v_unit_vec
 
+factor = 1
 
 
 gamma = np.random.uniform(0,2*np.pi,n_DM_particles)
@@ -125,7 +126,8 @@ for i, pos in enumerate(posarrayDM):
     b1 /= np.linalg.norm(b1)
     b2 = np.array([0,pos[2], -pos[1]])
     b2 /= np.linalg.norm(b2)
-    v_unit_vec_DM.append(np.cos(gamma[i])*b1 + np.sin(gamma[i])*b2)
+    attenuation_z = pos[2]/np.linalg.norm(pos)
+    v_unit_vec_DM.append(np.array([0, 0, factor**(1 - attenuation_z)])*(np.cos(gamma[i])*b1 + np.sin(gamma[i])*b2))
 
 v_unit_vec_DM = np.array(v_unit_vec_DM)
 velocities_DM = v_norm_DM.reshape((n_DM_particles, 1)) * v_unit_vec_DM
