@@ -48,7 +48,7 @@ def radSample(size=1, r_char=sc.RDmw, r_bulge=sc.RCmw, length_guess=5, rad_min=0
     append_length = length_guess*size
 
     while len(samples) < size:
-        unif_samples = np.random.uniform(low=rad_min, high=5 * RD, size=append_length)
+        unif_samples = np.random.uniform(low=rad_min/r_bulge, high=5 * RD, size=append_length)
         prop = radPDF_v(unif_samples, R, RD)/normalise
         keep_sample = np.random.uniform(low=0, high=1, size=append_length) <= prop
         samples = np.concatenate((samples, unif_samples[keep_sample]))
