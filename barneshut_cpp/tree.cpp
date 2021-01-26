@@ -15,31 +15,21 @@ public:
     bool leaf;
 
     OctNode(vec3 center, BASETYPE size, bodylist &bodies) :
-            mass(), dark_matter_mass(), size(size), children(), COM(), center(center)
+            mass(), size(size), children(), COM(), center(center)
         {
         int n_points = bodies.size();
         if (n_points == 1) {
             COM = bodies[0]->pos;
-            if (bodies[0]->dark_matter){
-                DM_COM = bodies[0]->pos;
-                dark_matter_mass = bodies[0]->mass;
-            }
-            else{
-                DM_COM = vec3();
-            }
             mass = bodies[0]->mass;
             id = bodies[0];
             leaf = true;
         } else {
             GenerateChildren(bodies);
             for (auto c : children) {
-                dark_matter_mass += c->dark_matter_mass;
                 mass += c->mass;
                 COM += c->COM * c->mass;
-                DM_COM += c->DM_COM * c->dark_matter_mass;
             }
             COM = COM / mass;
-            DM_COM = DM_COM / dark_matter_mass;
             id = nullptr;
             leaf = false;
         }
@@ -77,37 +67,19 @@ public:
 
 
 void TreeWalk(OctNode* node, Body* b, BASETYPE thetamax, BASETYPE G, BASETYPE epsilon) {
-    if (b->dark_matter){
-        vec3 dr = node->DM_COM - b->pos;
-        BASETYPE r = dr.norm();
-        BASETYPE rs = r*r + epsilon*epsilon;
-        if (rs > 0) {
-            if ((node->leaf || node->size / r < thetamax) && node->id != b) {
-                b->g = b->g + (dr / r) * G * node->dark_matter_mass / rs;
-            }
-            else {
-                for (auto child : node->children) {
-                    TreeWalk(child, b, thetamax, G, epsilon);
-                }
+    vec3 dr = node->COM - b->pos;
+    BASETYPE r = dr.norm();
+    BASETYPE rs = r*r + epsilon*epsilon;
+    if (rs > 0) {
+        if ((node->leaf || node->size / r < thetamax) && node->id != b) {
+            b->g = b->g + (dr / r) * G * node->mass / rs;
+        }
+        else {
+            for (auto child : node->children) {
+                TreeWalk(child, b, thetamax, G, epsilon);
             }
         }
     }
-    else{
-        vec3 dr = node->COM - b->pos;
-        BASETYPE r = dr.norm();
-        BASETYPE rs = r*r + epsilon*epsilon;
-        if (rs > 0) {
-            if ((node->leaf || node->size / r < thetamax) && node->id != b) {
-                b->g = b->g + (dr / r) * G * node->mass / rs;
-            }
-            else {
-                for (auto child : node->children) {
-                    TreeWalk(child, b, thetamax, G, epsilon);
-                }
-            }
-        }
-    }
-
 };
 
 #endif
