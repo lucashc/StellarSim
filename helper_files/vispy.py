@@ -11,6 +11,7 @@ from vispy import io
 import imageio
 from tqdm import tqdm
 
+app.use_app('PyQt5')
 
 """
 This module visualizes a BINV-file using VisPy and OpenGL. 
@@ -181,7 +182,7 @@ def write_recording():
     print("Saved to file", filename)
 
 
-# Handle speedup
+# Handle speedupapp.use_app('Pyglet')
 @canvas.events.key_press.connect
 def handle_key(ev):
     global timescale, record, can_record, frames, filename, canvas, paused, start_shot
@@ -228,5 +229,4 @@ def handle_key(ev):
         paused = not paused
     elif ev.text == 'm':
         start_shot = True
-
 app.run()
