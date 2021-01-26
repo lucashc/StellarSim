@@ -21,6 +21,7 @@ Keybinding:
 * `[` Half speed of replay
 * `r` Start recording, only if `-r` passed
 * `s` Stop recording, quits the visualization
+* `m` Make shot (one full play)
 * `Esc` Quit the visualization
 * `f` Set full HD size, 1920x1080
 * `h` Set HD size, 1280x720  
@@ -124,6 +125,9 @@ frames = []
 fps = 1
 paused = False
 lag = 0
+start_shot= False
+started_shot = False
+finished_shot = False
 
 # fps setter
 def set_fps(result):
@@ -133,15 +137,30 @@ def set_fps(result):
 
 # Handle update
 def update_vertices(ev, *args):
-    global vis, timescale, canvas, frames, lag, paused
+    global vis, timescale, canvas, frames, lag, paused, record, start_shot, started_shot, finished_shot
     if not paused:
         index = int((ev.count-lag) / timescale) % vis.frames
         vis.set_vertex_data(index)
+        if start_shot and index == 0:
+            if started_shot:
+                finished_shot = True
+            print("Start round")
+            record = True
+            started_shot = True
+
     else:
         lag += 1
     if record:
         im = canvas.render()
         frames.append(im)
+        if finished_shot:
+            print("Start saving")
+            record = False
+            can_record = False
+            app.quit()
+            canvas.close()
+            print("Saving...")
+            write_recording()
 
 timer = app.Timer()
 timer.connect(update_vertices)
@@ -159,7 +178,7 @@ def write_recording():
 # Handle speedup
 @canvas.events.key_press.connect
 def handle_key(ev):
-    global timescale, record, can_record, frames, filename, canvas, paused
+    global timescale, record, can_record, frames, filename, canvas, paused, start_shot
     if ev.text == ']':
         # Increase speed
         timescale /= 2
@@ -201,5 +220,7 @@ def handle_key(ev):
         else:
             print("Paused")
         paused = not paused
+    elif ev.text == 'm':
+        start_shot = True
 
 app.run()
