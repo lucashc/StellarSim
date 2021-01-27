@@ -67,6 +67,7 @@ def gen_galaxy(pos, DM_pos, m, mDM, mBH, v, vDM):
 def create_galaxy(n_stars, n_DM_particles, visible_mass, DM_mass, BH_mass, R, R_bulge, R_halo, thetamax=0.7, spherical=True, evolve=None, epsilon=4e16, factor = 0.8):
     # generate particle masses
     m_stars = md.massSample(n_stars)
+    print('mass_ratio =', visible_mass/sum(m_stars))
     m_stars = m_stars * visible_mass/sum(m_stars)
     DM_mass = np.sum(m_stars)*DM_mass/visible_mass
     m_DM = np.ones(n_DM_particles)*DM_mass/n_DM_particles
@@ -75,7 +76,6 @@ def create_galaxy(n_stars, n_DM_particles, visible_mass, DM_mass, BH_mass, R, R_
     theta = np.random.uniform(0, 2 * np.pi, n_stars)
 
     r = np.sort(rd.radSample(size=n_stars, r_char=R/5, r_bulge=R_bulge, rad_min = R_bulge/20))
-    print("r_max =", max(r))
     x = r * np.cos(theta)
     y = r * np.sin(theta)
     if spherical:
@@ -86,7 +86,6 @@ def create_galaxy(n_stars, n_DM_particles, visible_mass, DM_mass, BH_mass, R, R_
     posarray = np.column_stack((x, y, z))
 
     # generate positions of dark matter
-    print("DMpos")
     thetaDM = np.random.uniform(0, 2*np.pi, n_DM_particles)
     phiDM = np.arccos(np.random.uniform(-1,1,n_DM_particles))
     rDM = DMrd.PIradSample(n_DM_particles)
@@ -96,7 +95,6 @@ def create_galaxy(n_stars, n_DM_particles, visible_mass, DM_mass, BH_mass, R, R_
     zDM = rDM * np.cos(phiDM)
     posarrayDM = np.column_stack((xDM, yDM, zDM))
 
-    print("dummy")
     # generate dummy for determining initial velocity norms
     dummy = gen_dummy(posarray, posarrayDM, m_stars, m_DM, BH_mass)
     # result = cs.LeapFrogSaveC(dummy, dt=0, n_steps=1, thetamax=thetamax, G=sc.G, save_every=1, epsilon=epsilon).numpy()
@@ -106,7 +104,6 @@ def create_galaxy(n_stars, n_DM_particles, visible_mass, DM_mass, BH_mass, R, R_
     v_norm_vis = np.sqrt(r*g[0:n_stars])
     v_norm_DM = np.sqrt(rDM*g[n_stars:])
 
-    print("velvec")
     # calculate velocity vector for visible matter 
     v_unit_vec_vis = np.column_stack((-np.sin(theta), np.cos(theta), np.zeros(n_stars)))
     velocities_vis = v_norm_vis.reshape((n_stars, 1)) * v_unit_vec_vis
@@ -128,7 +125,7 @@ def create_galaxy(n_stars, n_DM_particles, visible_mass, DM_mass, BH_mass, R, R_
 
 
 def create_milky_way(n_stars, n_DM_particles, thetamax=0.7, spherical=True, epsilon=4e16, factor = 0.8):
-    return create_galaxy(n_stars=n_stars, n_DM_particles=n_DM_particles, thetamax=thetamax, visible_mass=sc.Mlummw, DM_mass=sc.MDMmw, BH_mass = sc.Msgra, R=sc.Rmw, R_bulge=sc.RCmw, R_halo = 3*sc.Rmw, spherical=spherical, epsilon=epsilon, factor=factore)
+    return create_galaxy(n_stars=n_stars, n_DM_particles=n_DM_particles, thetamax=thetamax, visible_mass=sc.Mlummw, DM_mass=sc.MDMmw, BH_mass = sc.Msgra, R=sc.Rmw, R_bulge=sc.RCmw, R_halo = 10*sc.Rmw, spherical=spherical, epsilon=epsilon, factor=factor)
 
 
 def create_andromeda(n_stars, n_DM_particles, thetamax=0.7, spherical=True, epsilon=4e16, factor = 0.8):  # TODO: implement
@@ -136,5 +133,5 @@ def create_andromeda(n_stars, n_DM_particles, thetamax=0.7, spherical=True, epsi
 
 if __name__ == '__main__':
     MW = create_milky_way(3000, 3000)
-    result = cs.LeapFrogSaveC(MW, dt=1e12, n_steps=40, thetamax=0.7, G=sc.G, save_every=1, epsilon=4e16)
+    result = cs.LeapFrogSaveC(MW, dt=1e12, n_steps=5000, thetamax=0.7, G=sc.G, save_every=100, epsilon=4e16)
     result.save("mw_test.binv")
