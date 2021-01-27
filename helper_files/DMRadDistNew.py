@@ -39,7 +39,7 @@ def PIradPDF(r, Rc=scale, R_halo=edge):
         return 0
 
 
-def PIradSample(size, Rc=scale, R_halo = edge):
+def PIradSample(size, Rc=scale, R_halo = edge): # bulge radius & halo radius
       """Returns n samples from radial distribution described by PIradPDF."""
       samples = []
       while len(samples) < size:
