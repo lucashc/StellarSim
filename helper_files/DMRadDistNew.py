@@ -50,10 +50,6 @@ def PIradSample(size, Rc=sc.RCmw, R_halo = 12*sc.RCmw): # bulge radius & halo ra
 
       return np.array(samples) * Rc
 
-x = PIradSample(10000)
-binwidth = sc.RCmw/10
-plt.hist(x,bins=np.arange(min(x), max(x) + binwidth, binwidth))
-plt.show()
 """
 a=edge
 x = np.linspace(0.001,a,1000*a)
