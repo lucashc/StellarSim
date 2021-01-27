@@ -73,15 +73,16 @@ def create_galaxy(n_stars, n_DM_particles, visible_mass, DM_mass, BH_mass, R, R_
     
     # generate positions of visible matter
     theta = np.random.uniform(0, 2 * np.pi, n_stars)
+    if spherical:
+        phi = np.pi/2 - np.random.normal(0,0.1,n_stars)
+    else:
+        phi = np.pi/2
 
     r = np.sort(rd.radSample(size=n_stars, r_char=R/5, r_bulge=R_bulge, rad_min = R_bulge/20))
-    x = r * np.cos(theta)
-    y = r * np.sin(theta)
-    if spherical:
-        alpha = R_bulge*(0.05+0.4/(1+(r/R_bulge)**2.5))
-        z = np.random.uniform(-alpha,alpha, n_stars)
-    else:
-        z=np.zeros(n_stars)
+    print("r_max =", max(r))
+    x = r * np.cos(theta) * np.sin(phi)
+    y = r * np.sin(theta) * np.sin(phi)
+    z = r * np.cos(phi)
     posarray = np.column_stack((x, y, z))
 
     # generate positions of dark matter
