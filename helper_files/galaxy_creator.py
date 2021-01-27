@@ -64,7 +64,7 @@ def gen_galaxy(pos, DM_pos, m, mDM, mBH, v, vDM):
 
 
 
-def create_galaxy(n_stars, n_DM_particles, visible_mass, DM_mass, BH_mass, R, R_bulge, R_halo, thetamax=0.7, spherical=True, evolve=None, epsilon=4e16):
+def create_galaxy(n_stars, n_DM_particles, visible_mass, DM_mass, BH_mass, R, R_bulge, R_halo, thetamax=0.7, spherical=True, evolve=None, epsilon=4e16, factor = 0.8):
     # generate particle masses
     m_stars = md.massSample(n_stars)
     m_stars = m_stars * visible_mass/sum(m_stars)
@@ -111,7 +111,6 @@ def create_galaxy(n_stars, n_DM_particles, visible_mass, DM_mass, BH_mass, R, R_
     v_unit_vec_vis = np.column_stack((-np.sin(theta), np.cos(theta), np.zeros(n_stars)))
     velocities_vis = v_norm_vis.reshape((n_stars, 1)) * v_unit_vec_vis
 
-
     # calculate velocity vector for dark matter 
     gamma = np.random.uniform(0,2*np.pi,n_DM_particles)
     v_unit_vec_DM = []
@@ -120,19 +119,20 @@ def create_galaxy(n_stars, n_DM_particles, visible_mass, DM_mass, BH_mass, R, R_
         b1 /= np.linalg.norm(b1)
         b2 = np.array([0,pos[2], -pos[1]])
         b2 /= np.linalg.norm(b2)
-        v_unit_vec_DM.append(np.cos(gamma[i])*b1 + np.sin(gamma[i])*b2)
+        attenuation_z = (abs(pos[2])/np.linalg.norm(pos))**0.5
+        v_unit_vec_DM.append(np.array([1, 1, factor**(1 - attenuation_z)])*(np.cos(gamma[i])*b1 + np.sin(gamma[i])*b2))
 
     v_unit_vec_DM = np.array(v_unit_vec_DM)
     velocities_DM = v_norm_DM.reshape((n_DM_particles, 1)) * v_unit_vec_DM
     return gen_galaxy(posarray, posarrayDM, m_stars, m_DM, BH_mass, velocities_vis, velocities_DM)
 
 
-def create_milky_way(n_stars, n_DM_particles, thetamax=0.7, spherical=True, epsilon=4e16):
-    return create_galaxy(n_stars=n_stars, n_DM_particles=n_DM_particles, thetamax=thetamax, visible_mass=sc.Mlummw, DM_mass=sc.MDMmw, BH_mass = sc.Msgra, R=sc.Rmw, R_bulge=sc.RCmw, R_halo = 3*sc.Rmw, spherical=spherical, epsilon=epsilon)
+def create_milky_way(n_stars, n_DM_particles, thetamax=0.7, spherical=True, epsilon=4e16, factor = 0.8):
+    return create_galaxy(n_stars=n_stars, n_DM_particles=n_DM_particles, thetamax=thetamax, visible_mass=sc.Mlummw, DM_mass=sc.MDMmw, BH_mass = sc.Msgra, R=sc.Rmw, R_bulge=sc.RCmw, R_halo = 3*sc.Rmw, spherical=spherical, epsilon=epsilon, factor=factore)
 
 
-def create_andromeda(n_stars, n_DM_particles, thetamax=0.7, spherical=True, epsilon=4e16):  # TODO: implement
-    return create_galaxy(n_stars=n_stars, n_DM_particles=n_DM_particles, thetamax=thetamax, visible_mass=sc.Mlumandr, DM_mass=sc.MDMandr, BH_mass = sc.Mandrbh, R=sc.Randr, R_bulge=sc.RCandr, R_halo = 3*sc.Randr, spherical=spherical, epsilon=epsilon)
+def create_andromeda(n_stars, n_DM_particles, thetamax=0.7, spherical=True, epsilon=4e16, factor = 0.8):  # TODO: implement
+    return create_galaxy(n_stars=n_stars, n_DM_particles=n_DM_particles, thetamax=thetamax, visible_mass=sc.Mlumandr, DM_mass=sc.MDMandr, BH_mass = sc.Mandrbh, R=sc.Randr, R_bulge=sc.RCandr, R_halo = 3*sc.Randr, spherical=spherical, epsilon=epsilon, factor = factor)
 
 if __name__ == '__main__':
     MW = create_milky_way(3000, 3000)
