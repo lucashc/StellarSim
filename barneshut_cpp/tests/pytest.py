@@ -107,6 +107,26 @@ class PyTest(unittest.TestCase):
         cs.set_thread_count(12)
         self.assertEqual(cs.get_thread_count(), 12)
 
+    def test_transform(self):
+        import cppsim as cs
+        import numpy as np
+        from copy import copy
+        x = cs.BodyList3(np.array([
+            cs.Body3(),
+            cs.Body3(np.array([1,2,3], dtype=np.double))
+        ]))
+        y = cs.BodyList3(np.array([
+            cs.Body3(),
+            cs.Body3(np.array([1,2,3], dtype=np.double))
+        ]))
+        x.translate(np.array([1,1,1], dtype=np.double))
+        x.add_velocity(np.array([1,1,1], dtype=np.double))
+        self.assertTrue((x[0].pos == np.array([1,1,1], dtype=np.double)).all())
+        self.assertTrue((x[1].pos == np.array([2,3,4], dtype=np.double)).all())
+        self.assertTrue((x[0].vel == np.array([1,1,1], dtype=np.double)).all())
+        b = x + y
+        self.assertTrue(len(b) == len(x) + len(y))
+
 
 class CppTest(unittest.TestCase):
 

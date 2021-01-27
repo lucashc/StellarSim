@@ -240,6 +240,33 @@ cdef class BodyList3:
                     raise ValueError("Some bodies are at the same location")
         return
     
+    def translate(self, np.ndarray[double] translation):
+        for i in self.b:
+            i.pos += translation
+    
+    def rotate(self, double angle, np.ndarray[double] axis_begin, np.ndarray[double] axis_end):
+        axis = axis_end - axis_begin
+        k = axis/np.linalg.norm(axis)
+        
+        def rotate_vector(np.ndarray[double] vector, double angle, np.ndarray[double] center, np.ndarray[double] k):
+            v = vector - center
+            v_rot = v*np.cos(angle) + np.cross(k, v)*np.sin(angle) + k*np.dot(v, k).reshape((len(v), 1))*(1-np.cos(angle))
+            return v_rot + center
+        
+        for i in self.b:
+            i.pos = rotate_vector(i.pos, angle, axis_begin, k)
+            i.vel = rotate_vector(i.vel, angle, axis_begin, k)
+        
+    def add_velocity(self, np.ndarray[double] velocity):
+        for i in self.b:
+            i.vel += velocity
+    
+    def __add__(self, BodyList3 other):
+        cdef object[:] b2 = (<BodyList3>other).b
+        cdef object[:] b1 = (<BodyList3>self).b
+        bodies = np.concatenate((b1, b2))
+        return BodyList3(bodies)
+    
     def __copy__(self):
         """
         Implements a copy method. Use with copy from the copy module.
