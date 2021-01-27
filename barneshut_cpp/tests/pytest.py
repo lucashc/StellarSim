@@ -43,6 +43,8 @@ class PyTest(unittest.TestCase):
         result_np = result.numpy()
         result.save("test123.bin")
         loaded = cs.Result.load("test123.bin")
+        loaded_last = cs.Result.load_last("test123.bin")
+        self.assertTrue((loaded_last[1].pos == x[1].pos).all())
         loaded_np = loaded.numpy(make_copy=False)
         loaded_np_copy = loaded.numpy(make_copy=True)
         self.assertTrue((result_np[19,1].pos == loaded_np[19,1].pos).all())
@@ -106,6 +108,26 @@ class PyTest(unittest.TestCase):
         self.assertEqual(cs.get_thread_count(), 4)
         cs.set_thread_count(12)
         self.assertEqual(cs.get_thread_count(), 12)
+
+    def test_transform(self):
+        import cppsim as cs
+        import numpy as np
+        from copy import copy
+        x = cs.BodyList3(np.array([
+            cs.Body3(),
+            cs.Body3(np.array([1,2,3], dtype=np.double))
+        ]))
+        y = cs.BodyList3(np.array([
+            cs.Body3(),
+            cs.Body3(np.array([1,2,3], dtype=np.double))
+        ]))
+        x.translate(np.array([1,1,1], dtype=np.double))
+        x.add_velocity(np.array([1,1,1], dtype=np.double))
+        self.assertTrue((x[0].pos == np.array([1,1,1], dtype=np.double)).all())
+        self.assertTrue((x[1].pos == np.array([2,3,4], dtype=np.double)).all())
+        self.assertTrue((x[0].vel == np.array([1,1,1], dtype=np.double)).all())
+        b = x + y
+        self.assertTrue(len(b) == len(x) + len(y))
 
 
 class CppTest(unittest.TestCase):
