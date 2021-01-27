@@ -87,7 +87,7 @@ def create_galaxy(n_stars, n_DM_particles, visible_mass, DM_mass, BH_mass, R, R_
     # generate positions of dark matter
     thetaDM = np.random.uniform(0, 2*np.pi, n_DM_particles)
     phiDM = np.arccos(np.random.uniform(-1,1,n_DM_particles))
-    rDM = DMrd.PIradSample(n_DM_particles)
+    rDM = DMrd.PIradSample(n_DM_particles, R_bulge, R_halo)
 
     xDM = rDM * np.cos(thetaDM) * np.sin(phiDM)
     yDM = rDM * np.sin(thetaDM) * np.sin(phiDM)
