@@ -63,7 +63,7 @@ def gen_galaxy(pos, DM_pos, m, mDM, mBH, v, vDM):
 
 
 
-def create_galaxy(n_stars, n_DM_particles, visible_mass, DM_mass, BH_mass, R, R_bulge, R_halo, thetamax=0.7, spherical=True, evolve=None, epsilon=4e16, factor = 0.8):
+def create_galaxy(n_stars, n_DM_particles, visible_mass, DM_mass, BH_mass, R, R_bulge, R_halo, thetamax=0.7, spherical=True, epsilon=4e16, factor = 0.8):
     # generate particle masses
     m_stars = md.massSample(n_stars)
     print('mass_ratio =', visible_mass/sum(m_stars))
