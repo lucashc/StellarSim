@@ -11,14 +11,14 @@ import helper_files.DMRadDistNew as DMrd
 import helper_files.PhysQuants as pq
 from mpl_toolkits import mplot3d
 
-def gen_dummy(pos, DM_pos, m, mDM):
+def gen_dummy(pos, DM_pos, m, mDM, mBH):
     """Generate a galaxy (Bodylist) of a massive black hole M and n stars, with initial positions, velocities and masses randomly distributed"""
     posarray = pos
     n = len(pos)
     nDM = len(DM_pos)
     massarray = m
     velarray = np.zeros((n, 3))
-    bodies = [cs.Body3(pos=np.zeros(3), vel=np.zeros(3), mass=sc.Msgra)] #/1e6)]
+    bodies = [cs.Body3(pos=np.zeros(3), vel=np.zeros(3), mass=mBH)]
     for i in range(n):
         bodies.append(cs.Body3(pos=posarray[i], vel=velarray[i], mass=massarray[i]))
 
@@ -37,14 +37,14 @@ def gen_dummy(pos, DM_pos, m, mDM):
     return cs.BodyList3(np.array(allbodies))
 
 
-def gen_galaxy(pos, DM_pos, m, mDM, v, vDM):
+def gen_galaxy(pos, DM_pos, m, mDM, mBH, v, vDM):
     """Generate a galaxy (Bodylist) of a massive black hole M and n stars, with initial positions, velocities and masses randomly distributed"""
     posarray = pos
     n = len(pos)
     nDM = len(DM_pos)
     massarray = m
     velarray = v
-    bodies = [cs.Body3(pos=np.zeros(3), vel=np.zeros(3), mass=sc.Msgra)] #/1e6)]
+    bodies = [cs.Body3(pos=np.zeros(3), vel=np.zeros(3), mass=mBH)]
     for i in range(n):
         bodies.append(cs.Body3(pos=posarray[i], vel=velarray[i], mass=massarray[i]))
 
@@ -64,7 +64,7 @@ def gen_galaxy(pos, DM_pos, m, mDM, v, vDM):
 
 
 
-def create_galaxy(n_stars, n_DM_particles, visible_mass, DM_mass, R, R_bulge, R_halo, thetamax=0.7, spherical=True, evolve=None, epsilon=4e16):
+def create_galaxy(n_stars, n_DM_particles, visible_mass, DM_mass, BH_mass, R, R_bulge, R_halo, thetamax=0.7, spherical=True, evolve=None, epsilon=4e16):
     # generate particle masses
     m_stars = md.massSample(n_stars)
     m_stars = m_stars * visible_mass/sum(m_stars)
@@ -79,33 +79,34 @@ def create_galaxy(n_stars, n_DM_particles, visible_mass, DM_mass, R, R_bulge, R_
         phi = np.pi/2
 
     r = np.sort(rd.radSample(size=n_stars, r_char=R/5, r_bulge=R_bulge, rad_min = R_bulge/20))
-    print(max(r))
+    print("r_max =", max(r))
     x = r * np.cos(theta) * np.sin(phi)
     y = r * np.sin(theta) * np.sin(phi)
     z = r * np.cos(phi)
     posarray = np.column_stack((x, y, z))
 
-
     # generate positions of dark matter
+    print("DMpos")
     thetaDM = np.random.uniform(0, 2*np.pi, n_DM_particles)
     phiDM = np.arccos(np.random.uniform(-1,1,n_DM_particles))
-    rDM = DMrd.PIradSample(n_DM_particles, R_halo=R_halo)
+    rDM = DMrd.PIradSample(n_DM_particles)
 
     xDM = rDM * np.cos(thetaDM) * np.sin(phiDM)
     yDM = rDM * np.sin(thetaDM) * np.sin(phiDM)
     zDM = rDM * np.cos(phiDM)
     posarrayDM = np.column_stack((xDM, yDM, zDM))
 
-
+    print("dummy")
     # generate dummy for determining initial velocity norms
-    dummy = gen_dummy(posarray, posarrayDM, m_stars, m_DM)
+    dummy = gen_dummy(posarray, posarrayDM, m_stars, m_DM, BH_mass)
     # result = cs.LeapFrogSaveC(dummy, dt=0, n_steps=1, thetamax=thetamax, G=sc.G, save_every=1, epsilon=epsilon).numpy()
     # g = np.linalg.norm(utils.get_vec_attribute(result, 'g')[0], axis=1)[1:]
     cs.acceleratedAccelerationsC(dummy, thetamax=thetamax, G=sc.G, epsilon=epsilon)
-    g = np.linalg.norm(utils.get_vec_attribute(dummy, 'g')[0], axis=1)[1:]
+    g = np.linalg.norm([b.g for b in dummy], axis=1)[1:]
     v_norm_vis = np.sqrt(r*g[0:n_stars])
     v_norm_DM = np.sqrt(rDM*g[n_stars:])
 
+    print("velvec")
     # calculate velocity vector for visible matter 
     v_unit_vec_vis = np.column_stack((-np.sin(theta), np.cos(theta), np.zeros(n_stars)))
     velocities_vis = v_norm_vis.reshape((n_stars, 1)) * v_unit_vec_vis
@@ -123,15 +124,15 @@ def create_galaxy(n_stars, n_DM_particles, visible_mass, DM_mass, R, R_bulge, R_
 
     v_unit_vec_DM = np.array(v_unit_vec_DM)
     velocities_DM = v_norm_DM.reshape((n_DM_particles, 1)) * v_unit_vec_DM
-    return gen_galaxy(posarray, posarrayDM, m_stars, m_DM, velocities_vis, velocities_DM)
+    return gen_galaxy(posarray, posarrayDM, m_stars, m_DM, BH_mass, velocities_vis, velocities_DM)
 
 
 def create_milky_way(n_stars, n_DM_particles, thetamax=0.7, spherical=True, epsilon=4e16):
-    return create_galaxy(n_stars=n_stars, n_DM_particles=n_DM_particles, thetamax=thetamax, visible_mass=sc.Mlummw, DM_mass=sc.MDMmw, R=sc.Rmw, R_bulge=sc.RCmw, R_halo = 100*sc.Rmw, spherical=spherical, epsilon=epsilon)
+    return create_galaxy(n_stars=n_stars, n_DM_particles=n_DM_particles, thetamax=thetamax, visible_mass=sc.Mlummw, DM_mass=sc.MDMmw, BH_mass = sc.Msgra, R=sc.Rmw, R_bulge=sc.RCmw, R_halo = 3*sc.Rmw, spherical=spherical, epsilon=epsilon)
 
 
-def create_andromeda():  # TODO: implement
-    pass
+def create_andromeda(n_stars, n_DM_particles, thetamax=0.7, spherical=True, epsilon=4e16):  # TODO: implement
+    return create_galaxy(n_stars=n_stars, n_DM_particles=n_DM_particles, thetamax=thetamax, visible_mass=sc.Mlumandr, DM_mass=sc.MDMandr, BH_mass = sc.Mandrbh, R=sc.Randr, R_bulge=sc.RCandr, R_halo = 3*sc.Randr, spherical=spherical, epsilon=epsilon)
 
 if __name__ == '__main__':
     MW = create_milky_way(3000, 3000)
