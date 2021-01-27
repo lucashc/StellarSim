@@ -5,16 +5,17 @@ import helper_files.stellarConstants as sc
 import matplotlib.pyplot as plt
 import helper_files.PhysQuants as pq
 
-cs.set_thread_count(8)
-MW = gc.create_milky_way(3000, 6000, R_halo=3*sc.Rmw)
+# cs.set_thread_count(8)
+# MW = gc.create_milky_way(3000, 6000, R_halo=3*sc.Rmw)
 
 
 
-result = cs.LeapFrogSaveC(MW, dt=1e12, n_steps=3000, thetamax=0.7, G=sc.G, save_every=10, epsilon=4e16)
-result.save("bsc.binv")
+# result = cs.LeapFrogSaveC(MW, dt=1e12, n_steps=3000, thetamax=0.7, G=sc.G, save_every=10, epsilon=4e16)
+# result.save("bsc.binv")
 last = cs.Result.load_last("bsc.binv")
 r = []
 v = []
+g = []
 for b in last:
     if not b.dark_matter:
         r.append(np.linalg.norm(b.pos))
@@ -27,11 +28,17 @@ r = [x[0] for x in rv]
 v = [x[1] for x in rv]
 g = [x[2] for x in rv]
 
-avg = np.convolve(v, np.ones(20), 'valid')/20
-print(len(avg), len(v))
-plt.plot(r[10:-9], avg, 'r')
 
+plt.subplot(121)
+avg = np.convolve(v, np.ones(20), 'valid')/20
+plt.plot(r[10:-9], avg, 'r')
 plt.scatter(r,v)
+plt.xlim((0,sc.Rmw))
+
+plt.subplot(122)
+avg = np.convolve(g, np.ones(20), 'valid')/20
+plt.plot(r[10:-9], avg, 'r')
+plt.scatter(r,g)
 plt.xlim((0,sc.Rmw))
 plt.show()
 
