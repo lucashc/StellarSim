@@ -79,7 +79,7 @@ def create_galaxy(n_stars, n_DM_particles, visible_mass, DM_mass, BH_mass, R, R_
     x = r * np.cos(theta)
     y = r * np.sin(theta)
     if spherical:
-        alpha = R_bulge*(0.05+1/(1+(r/R_bulge)**2.5))
+        alpha = R_bulge*(0.05+0.4/(1+(r/R_bulge)**2.5))
         z = np.random.uniform(-alpha,alpha, n_stars)
     else:
         z=np.zeros(n_stars)
