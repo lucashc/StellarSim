@@ -128,13 +128,20 @@ def create_galaxy(n_stars, n_DM_particles, visible_mass, DM_mass, BH_mass, R, R_
 
 
 def create_milky_way(n_stars, n_DM_particles, thetamax=0.7, spherical=True, epsilon=4e16, factor = 0.8):
-    return create_galaxy(n_stars=n_stars, n_DM_particles=n_DM_particles, thetamax=thetamax, visible_mass=sc.Mlummw, DM_mass=sc.MDMmw, BH_mass = sc.Msgra, R=sc.Rmw, R_bulge=sc.RCmw, R_halo = 3*sc.Rmw, spherical=spherical, epsilon=epsilon, factor=factore)
+    return create_galaxy(n_stars=n_stars, n_DM_particles=n_DM_particles, thetamax=thetamax, visible_mass=sc.Mlummw, DM_mass=sc.MDMmw, BH_mass = sc.Msgra, R=sc.Rmw, R_bulge=sc.RCmw, R_halo = 3*sc.Rmw, spherical=spherical, epsilon=epsilon, factor=factor)
 
 
-def create_andromeda(n_stars, n_DM_particles, thetamax=0.7, spherical=True, epsilon=4e16, factor = 0.8):  # TODO: implement
+def create_andromeda(n_stars, n_DM_particles, thetamax=0.7, spherical=True, epsilon=4e16, factor = 0.8): 
     return create_galaxy(n_stars=n_stars, n_DM_particles=n_DM_particles, thetamax=thetamax, visible_mass=sc.Mlumandr, DM_mass=sc.MDMandr, BH_mass = sc.Mandrbh, R=sc.Randr, R_bulge=sc.RCandr, R_halo = 3*sc.Randr, spherical=spherical, epsilon=epsilon, factor = factor)
 
 if __name__ == '__main__':
-    MW = create_milky_way(3000, 3000)
-    result = cs.LeapFrogSaveC(MW, dt=1e12, n_steps=40, thetamax=0.7, G=sc.G, save_every=1, epsilon=4e16)
+    cs.set_thread_count(8)
+    MW = create_milky_way(2000, 3000)
+    MW.translate(np.array([-1, 0, 0])*sc.ly*1e6/2)
+    MW.add_velocity(np.array([1, 0, 0])*225e3/2)
+    AM = create_andromeda(2000, 3000)
+    AM.translate(np.array([1, 0, 0])*sc.ly*1e6/2)
+    AM.add_velocity(np.array([-1, 0, 0])*225e3/2)
+    Collision = MW + AM
+    result = cs.LeapFrogSaveC(Collision, dt=1e13, n_steps=8000, thetamax=0.7, G=sc.G, save_every=10, epsilon=4e16)
     result.save("mw_test.binv")

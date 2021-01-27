@@ -1,4 +1,5 @@
 G = 6.67430e-11         # m^3 kg/s^2    Gravitational constant
+ly = 9.4605284e15       # m             One light year in meters
 Rmw = 5e20              # m             Radius of disk of Milky Way
 RCmw = 6.1495e+19       # m             Size of central bulge of Milky Way
 RDmw = Rmw/5            # m             6.47992e16  # Characteristic scale length of Milky Way  (previously /2)
