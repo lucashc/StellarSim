@@ -39,16 +39,21 @@ def PIradPDF(r, Rc=scale, R_halo=edge):
         return 0
 
 
-def PIradSample(size, Rc=scale, R_halo = edge): # bulge radius & halo radius
+def PIradSample(size, Rc=sc.RCmw, R_halo = 12*sc.RCmw): # bulge radius & halo radius
       """Returns n samples from radial distribution described by PIradPDF."""
       samples = []
       while len(samples) < size:
-          r = np.random.uniform(low=0, high=R_halo)
-          prop = PIradPDF(r, Rc, R_halo)
+          r = np.random.uniform(low=0, high=R_halo/Rc)
+          prop = PIradPDF(r, 1, R_halo/Rc)
           if np.random.uniform(low=0, high=1) <= prop:
               samples += [r]
 
-      return np.array(samples) * sc.RCmw
+      return np.array(samples) * Rc
+
+x = PIradSample(10000)
+binwidth = sc.RCmw/10
+plt.hist(x,bins=np.arange(min(x), max(x) + binwidth, binwidth))
+plt.show()
 """
 a=edge
 x = np.linspace(0.001,a,1000*a)
