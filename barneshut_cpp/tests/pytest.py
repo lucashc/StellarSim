@@ -43,6 +43,8 @@ class PyTest(unittest.TestCase):
         result_np = result.numpy()
         result.save("test123.bin")
         loaded = cs.Result.load("test123.bin")
+        loaded_last = cs.Result.load_last("test123.bin")
+        self.assertTrue((loaded_last[1].pos == x[1].pos).all())
         loaded_np = loaded.numpy(make_copy=False)
         loaded_np_copy = loaded.numpy(make_copy=True)
         self.assertTrue((result_np[19,1].pos == loaded_np[19,1].pos).all())

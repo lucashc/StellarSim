@@ -313,8 +313,7 @@ cdef class Result:
     """
     This class represents the result of a simulation as done by LeapFrogSaveC. This class is merely
     a wrapper of the underlying vecto<bodylist> C++-object. To extract the contents, use
-    the numpy() function. This class is not meant to be initialized from Python,
-    only Cython code should initialize this class.
+    the numpy() function. 
     Important to note: This class wraps a 2D vector of pointers, so deallocating this, will not free the memory.
     So if this class goes out of scope and Python garbage collects this class, it will not free memory and leak.
     To prevent this, extract the contents with the numpy() method. This creates a numpy array of Body3 objects.
@@ -326,6 +325,10 @@ cdef class Result:
     want to use the make_copy parameter.
     """
     cdef vector[bodylist] saves
+
+    def __init__(self, BodyList3 b = None):
+        if b:
+            self.saves.push_back(b.bl)
 
     def numpy(self, make_copy=False):
         """
@@ -422,6 +425,28 @@ cdef class Result:
         empty_result = Result()
         empty_result.saves = blv
         return empty_result
+    
+    @staticmethod
+    def load_last(filename):
+        cdef string cpp_filename = filename.encode('UTF-8')
+        cdef vector[bodylist] blv = read_bodylist_vectorized(cpp_filename)
+        # Get last
+        cdef bodylist last = blv[blv.size()-1]
+        # Empty rest of memory
+        for i in range(blv.size()-1):
+            for j in range(blv[i].size()):
+                del blv[i][j]
+        new_bl = BodyList3(make_bodylist_obj=False)
+        new_bl.bl = last
+        b = np.empty((last.size(),), dtype=Body3_t)
+        for i in range(last.size()):
+            x = Body3(make_body_obj=False)
+            x.body = last[i]
+            b[i] = x
+        new_bl.b = b
+        return new_bl
+
+
 
 
 
