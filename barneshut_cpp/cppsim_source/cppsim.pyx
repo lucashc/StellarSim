@@ -250,7 +250,8 @@ cdef class BodyList3:
         
         def rotate_vector(np.ndarray[double] vector, double angle, np.ndarray[double] center, np.ndarray[double] k):
             v = vector - center
-            v_rot = v*np.cos(angle) + np.cross(k, v)*np.sin(angle) + k*np.dot(v, k).reshape((len(v), 1))*(1-np.cos(angle))
+            # v_rot = v*np.cos(angle) + np.cross(k, v)*np.sin(angle) + k*np.dot(v, k).reshape((len(v), 1))*(1-np.cos(angle))
+            v_rot = v*np.cos(angle) + np.cross(k, v)*np.sin(angle) + k*np.dot(v, k)*(1-np.cos(angle))
             return v_rot + center
         
         for i in self.b:
