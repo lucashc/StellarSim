@@ -137,8 +137,9 @@ if __name__ == '__main__':
     MW.translate(np.array([-1, 0, 0])*sc.ly*1e6/2)
     MW.add_velocity(np.array([1, 0, 0])*225e3/2)
     AM = create_andromeda(2000, 3000)
+    AM.rotate(np.pi/6, np.zeros(3, dtype=np.double), np.array([1,1,0], dtype=np.double))
     AM.translate(np.array([1, 0, 0])*sc.ly*1e6/2)
     AM.add_velocity(np.array([-1, 0, 0])*225e3/2)
     Collision = MW + AM
     result = cs.LeapFrogSaveC(Collision, dt=1e13, n_steps=8000, thetamax=0.7, G=sc.G, save_every=10, epsilon=4e16)
-    result.save("mw_test.binv")
+    result.save("collision.binv")
