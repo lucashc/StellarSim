@@ -89,7 +89,7 @@ def create_galaxy(n_stars, n_DM_particles, visible_mass, DM_mass, BH_mass, R, R_
     print("DMpos")
     thetaDM = np.random.uniform(0, 2*np.pi, n_DM_particles)
     phiDM = np.arccos(np.random.uniform(-1,1,n_DM_particles))
-    rDM = DMrd.PIradSample(n_DM_particles)
+    rDM = DMrd.PIradSample(n_DM_particles, R_bulge, R_halo)
 
     xDM = rDM * np.cos(thetaDM) * np.sin(phiDM)
     yDM = rDM * np.sin(thetaDM) * np.sin(phiDM)
@@ -127,12 +127,12 @@ def create_galaxy(n_stars, n_DM_particles, visible_mass, DM_mass, BH_mass, R, R_
     return gen_galaxy(posarray, posarrayDM, m_stars, m_DM, BH_mass, velocities_vis, velocities_DM)
 
 
-def create_milky_way(n_stars, n_DM_particles, thetamax=0.7, spherical=True, epsilon=4e16, factor = 0.8):
-    return create_galaxy(n_stars=n_stars, n_DM_particles=n_DM_particles, thetamax=thetamax, visible_mass=sc.Mlummw, DM_mass=sc.MDMmw, BH_mass = sc.Msgra, R=sc.Rmw, R_bulge=sc.RCmw, R_halo = 3*sc.Rmw, spherical=spherical, epsilon=epsilon, factor=factor)
+def create_milky_way(n_stars, n_DM_particles, thetamax=0.7, spherical=True, epsilon=4e16, factor = 0.8, R_halo=3*sc.Rmw):
+    return create_galaxy(n_stars=n_stars, n_DM_particles=n_DM_particles, thetamax=thetamax, visible_mass=sc.Mlummw, DM_mass=sc.MDMmw, BH_mass = sc.Msgra, R=sc.Rmw, R_bulge=sc.RCmw, R_halo = R_halo, spherical=spherical, epsilon=epsilon, factor=factor)
 
 
-def create_andromeda(n_stars, n_DM_particles, thetamax=0.7, spherical=True, epsilon=4e16, factor = 0.8):
-    return create_galaxy(n_stars=n_stars, n_DM_particles=n_DM_particles, thetamax=thetamax, visible_mass=sc.Mlumandr, DM_mass=sc.MDMandr, BH_mass = sc.Mandrbh, R=sc.Randr, R_bulge=sc.RCandr, R_halo = 3*sc.Randr, spherical=spherical, epsilon=epsilon, factor = factor)
+def create_andromeda(n_stars, n_DM_particles, thetamax=0.7, spherical=True, epsilon=4e16, factor = 0.8, R_halo=3*sc.Randr):
+    return create_galaxy(n_stars=n_stars, n_DM_particles=n_DM_particles, thetamax=thetamax, visible_mass=sc.Mlumandr, DM_mass=sc.MDMandr, BH_mass = sc.Mandrbh, R=sc.Randr, R_bulge=sc.RCandr, R_halo = R_halo, spherical=spherical, epsilon=epsilon, factor = factor)
 
 if __name__ == '__main__':
     MW = create_milky_way(3000, 3000)
