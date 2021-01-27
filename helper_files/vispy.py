@@ -182,7 +182,7 @@ timer.start(0)
 
 def write_recording():
     global frames, filename, fps
-    writer = imageio.get_writer(filename, fps=fps, codec='libx264', quality=10, pixelformat='yuvj444p')
+    writer = imageio.get_writer(filename, fps=fps, codec='libx264', quality=10, pixelformat='yuv420p')
     for i in tqdm(frames):
         writer.append_data(i)
     writer.close()

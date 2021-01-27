@@ -1,1 +1,0 @@
-Simulation of the nbody problem
