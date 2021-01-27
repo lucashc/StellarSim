@@ -226,8 +226,10 @@ def handle_key(ev):
         canvas.size = (1280, 720)
     elif ev.text == '=':
         vis.pointsize += 1
+        print(f"Pointsize is {vis.pointsize}")
     elif ev.text == '-':
         vis.pointsize -= 1
+        print(f"Pointsize is {vis.pointsize}")
     elif ev.text == ' ':
         if paused:
             print("Unpaused")
