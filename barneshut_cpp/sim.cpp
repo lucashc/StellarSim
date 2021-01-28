@@ -82,6 +82,20 @@ void get_accelerations(bodylist &bodies, BASETYPE thetamax, BASETYPE G, BASETYPE
     delete topnode;
 }
 
+BASETYPE get_energies(bodylist &bodies, BASETYPE thetamax, BASETYPE G) {
+    auto bounds = get_bounding_vectors(bodies);
+    auto center = (bounds.first + bounds.second)/2;
+    BASETYPE max_size = (bounds.first - bounds.second).abs().max();
+    auto topnode = new OctNode(center, max_size, bodies);
+
+    BASETYPE U = 0;
+	for (long unsigned int i = 0; i < bodies.size(); i++) {
+        U += TreeWalkEnergy(topnode, bodies.at(i), thetamax, G);
+    }
+    delete topnode;
+    return U;
+}
+
 void accelerated_accelerations(OctNode ** topnode, bodylist &bodies, BASETYPE thetamax, BASETYPE G, BASETYPE epsilon, BASETYPE DM_mass) {
     auto bounds = get_bounding_vectors(bodies);
     auto center = (bounds.first + bounds.second)/2;

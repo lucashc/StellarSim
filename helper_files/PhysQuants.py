@@ -54,40 +54,38 @@ def energy(result,t=0):
 
     return Ekin+Epot, Ekin, Epot
 
-def energies(positions, velocities, masses):
-    _, _, _, momenta_magnitudes = linearMomenta(velocities, masses)
-    kinetic_energy = np.sum(momenta_magnitudes**2/2/masses, axis = 1)
-    potential_energy = np.zeros(kinetic_energy.shape)
-    for i in range(len(masses[0])):
-        for j in range(i+1,len(masses[0])):
-            dist = np.expand_dims(np.linalg.norm(positions[:,i]-positions[:,j], axis=1), 1)
-            potential_energy -= sc.G*masses[:,i]*masses[:,j]/dist
-
-    return kinetic_energy+potential_energy, kinetic_energy, potential_energy
-
 
 def potential_energies_barnes_hut(result): # return potential energy in each frame
-    # change line 75 in tree.cpp to b->g = b->g + vec3(1,0,0) * G * node->mass / r
     frames = result.numpy()
-    potential_energy = []
-    for frame in frames:
-        bl = cs.acceleratedAccelerations(frame, thetamax=0.7, G=sc.G)
-        potential_energy.append(sum([b.g[0] for b in bl]))
-    return potential_energy
+    return np.array([cs.getEnergiesC(cs.BodyList3(frame), thetamax=0.7, G=sc.G) for frame in frames])
+
+
+def energies(positions, velocities, masses, result):
+    _, _, _, momenta_magnitudes = linearMomenta(velocities, masses)
+    kinetic_energy = np.sum(momenta_magnitudes**2/2/masses, axis = 1)
+    potential_energy = np.expand_dims(potential_energies_barnes_hut(result), 1)
+    print(potential_energy.shape, kinetic_energy.shape)
+    return kinetic_energy+potential_energy, kinetic_energy, potential_energy
 
 def quantities(result):
     positions, velocities, masses = utils.unzip_result(result)
     _, total_momenta, _, magnitude = linearMomenta(velocities, masses)
     _, total_angular_momenta, _ = angularMomenta(positions, velocities, masses)
-    #total_energy, _, _ = energies(positions, velocities, masses)
-    plt.subplot(311)
-    plt.plot(np.sum(magnitude, axis = 1))
-    plt.plot((total_momenta[:,0]**2 + total_momenta[:,1]**2 + total_momenta[:,2]**2)**0.5)
-    plt.subplot(312)
-    plt.plot(np.sum(magnitude, axis = 1))
-    plt.plot((total_angular_momenta[:,0]**2 + total_angular_momenta[:,1]**2 + total_angular_momenta[:,2]**2)**0.5)
-    plt.subplot(313)
-    #plt.plot(total_energy)
+    #total_energy, _, _ = energies(positions, velocities, masses, result)
+    plt.subplot(211)
+    plt.plot(np.sum(magnitude, axis = 1), label="Summed absolute momentum")
+    plt.plot((total_momenta[:,0]**2 + total_momenta[:,1]**2 + total_momenta[:,2]**2)**0.5, label="Norm of netto momentum")
+    plt.title("Plot of the momentum at each timestep")
+    plt.xlabel(r"t ($10^{14} s$)")
+    plt.ylabel(r"|p| ($kg \cdot m \cdot s^{-1}$)")
+    plt.legend()
+    plt.subplot(212)
+    plt.plot(np.sum(magnitude, axis = 1), label="Summed absolute angular momentum")
+    plt.plot((total_angular_momenta[:,0]**2 + total_angular_momenta[:,1]**2 + total_angular_momenta[:,2]**2)**0.5, label="Norm of netto angular momentum")
+    plt.title("Plot of the angular momentum at each timestep")
+    plt.xlabel(r"t ($10^{14} s$)")
+    plt.ylabel(r"|L| ($kg\cdot m^2\cdot s^{-1}$)")
+    plt.legend()
     plt.show()
 
 
