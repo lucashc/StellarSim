@@ -1,20 +1,22 @@
 import barneshut_cpp.cppsim as cs
+import numpy as np
+import helper_files.stellarConstants as sc
 
-k = # INVULLEN
+k = # Invullen
 
 MW = cs.BodyList3.load("MWMatureFinal.bin")
 AM = cs.BodyList3.load("AMMatureFinal.bin")
 
-MW.translate(np.array([-1, 0, 0])*sc.ly*1e6/1.5 + + np.array([0,-k/2,0]*sc.Randr))
+MW.translate(np.array([-1, 0, 0])*sc.ly*1e6/1.5 + np.array([0,-k/2,0])*sc.Randr)
 MW.add_velocity(np.array([1, 0, 0])*225e3/2)
 
 AM.rotate(np.pi/6, np.zeros(3, dtype=np.double), np.array([1,1,0], dtype=np.double))
-AM.translate(np.array([1, 0, 0])*sc.ly*1e6/1.5 + np.array([0,k/2,0]*sc.Randr))
+AM.translate(np.array([1, 0, 0])*sc.ly*1e6/1.5 + np.array([0,k/2,0])*sc.Randr)
 AM.add_velocity(np.array([-1, 0, 0])*225e3/2)
 
 CC = MW + AM
 
-result = cs.LeapFrogSaveC(CC, dt=1e13, n_steps=15000, thetamax=0.7, G=sc.G, save_every=300, epsilon=4e16)
+result = cs.LeapFrogSaveC(CC, dt=1e13, n_steps=8000, thetamax=0.7, G=sc.G, save_every=300, epsilon=4e16)
 result.save("cd{}.binv".format(k))
 
 bl = cs.Result.load_last("cd{}.binv".format(k))
