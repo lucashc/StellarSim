@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import helper_files.stellarConstants as sc
 import helper_files.sim_utils as utils
+import barneshut_cpp.cppsim as cs
 
 
 def mass(result, t=0):
@@ -63,6 +64,16 @@ def energies(positions, velocities, masses):
             potential_energy -= sc.G*masses[:,i]*masses[:,j]/dist
 
     return kinetic_energy+potential_energy, kinetic_energy, potential_energy
+
+
+def potential_energies_barnes_hut(result): # return potential energy in each frame
+    # change line 75 in tree.cpp to b->g = b->g + vec3(1,0,0) * G * node->mass / r
+    frames = result.numpy()
+    potential_energy = []
+    for frame in frames:
+        bl = cs.acceleratedAccelerations(frame, thetamax=0.7, G=sc.G)
+        potential_energy.append(sum([b.g[0] for b in bl]))
+    return potential_energy
 
 def quantities(result):
     positions, velocities, masses = utils.unzip_result(result)

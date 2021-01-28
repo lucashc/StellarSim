@@ -77,6 +77,7 @@ def filter_points(bodylist, crit):
 M = sum([b.mass for b in dm])
 COM = sum([b.mass*b.pos for b in dm])/M
 DM_filter = lambda b: np.dot(b.vel, b.pos - COM)/np.linalg.norm(b.pos - COM) < np.sqrt(abs(2*np.dot(b.g, b.pos - COM))) # or np.linalg.norm(b.pos - COM) < sc.Rmw
+print([np.sqrt(abs(2*np.dot(b.g, b.pos - COM))) for b in vis])
 filtered  = list(filter(DM_filter, dm))
 star_ratio = len(filtered)/len(dm)
 mass_ratio = sum([b.mass for b in filtered])/M
