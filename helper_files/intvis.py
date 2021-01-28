@@ -71,9 +71,9 @@ def visualize_result(result, timescale=100, scale=1e18, record=False, dark_matte
     app = RenderApp(data, timescale, scale, record, dark_matter, no_ordinary_matter)
     app.run()
 
-def visualize_bodylist(bl, scale=1e18, record=False):
+def visualize_bodylist(bl, scale=1e18, record=False, dark_matter=False, no_ordinary_matter=False):
     data = np.expand_dims(np.array([bl[i] for i in range(len(bl))]), axis=0)
-    app = RenderApp(data, 0, scale, record)
+    app = RenderApp(data, 0, scale, record, dark_matter, no_ordinary_matter)
     app.run()
 
 
@@ -92,4 +92,4 @@ if __name__ == "__main__":
         visualize_result(data, args.timescale, args.scale, args.record, args.dark_matter, args.no_ordinary_matter)
     else:
         data = cs.BodyList3.load(args.file)
-        visualize_bodylist(data, args.scale, args.record)
+        visualize_bodylist(data, args.scale, args.record, args.dark_matter, args.no_ordinary_matter)

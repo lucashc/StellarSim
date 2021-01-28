@@ -146,6 +146,7 @@ barneshut_cpp/cppsim_source/cppsim.cpp
 *.mp4
 *.png
 *.jpg
+*.eps
 
 # Exclude docs
 *.html
