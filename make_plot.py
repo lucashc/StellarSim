@@ -4,14 +4,12 @@ import helper_files.stellarConstants as sc
 import barneshut_cpp.cppsim as cs
 from scipy.optimize import curve_fit
 
-data = cs.Result.load('IV_test_normal.binv').numpy()
-first = data[0]
+first = cs.Result.load_last('IV_test_normal_part2.binv')
 
 pos = np.linalg.norm(np.array([body.pos for body in first]), axis=1)
 vel = np.linalg.norm(np.array([body.vel for body in first]), axis=1)
 
-plt.style.use('dark_background')
-plt.plot(pos, vel, '.', color='white')
+plt.plot(pos, vel, '.')
 
 def f(x, a, b, c):
     return a-np.exp(-b*x+c)

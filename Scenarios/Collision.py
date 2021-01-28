@@ -20,5 +20,5 @@ AM.add_velocity(np.array([-1, 0, 0])*225e3/2)
 
 CC = MW + AM
 
-result = cs.LeapFrogSaveC(CC, dt=1e13, n_steps=10000, thetamax=0.7, G=sc.G, save_every=100, epsilon=4e16)
+result = cs.LeapFrogSaveC(CC, dt=1e13, n_steps=15000, thetamax=0.7, G=sc.G, save_every=100, epsilon=4e16)
 result.save("Collision.binv")

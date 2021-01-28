@@ -10,7 +10,7 @@ import helper_files.MassDist as MassDist
 import time
 import matplotlib as mpl
 
-np.random.seed(1)
+
 
 cs.set_thread_count(8)
 
@@ -41,16 +41,16 @@ def gen_galaxy(r, theta, v, m, m_bh):
 
 
 thetamax = 0.7
-n_steps = 2000
-n_stars = int(5e4)
+n_steps = 10000
+n_stars = 5000
 theta = np.random.uniform(0, 2 * np.pi, n_stars)
 r = np.sort(RadDist.radSample(size=n_stars))
 m_stars = MassDist.massSample(n_stars)
 m_BH = sc.Msgra
 mass_ratio = (sc.Mlummw - m_BH)/sum(m_stars)
-# m_stars = mass_ratio*m_stars
-m_BH /= mass_ratio
-m_DM = (np.sum(m_stars) + m_BH)*5
+print("Ratio", mass_ratio)
+m_stars = mass_ratio*m_stars
+m_DM = sc.MDMmw
 #plt.scatter(r, m_stars)
 #plt.show()
 
@@ -79,10 +79,10 @@ velocities = v_norm.reshape((n_stars, 1)) * v_unit_vec
 galaxy = gen_galaxy(r, theta, velocities, m_stars, m_BH)
 print("Done with step 1")
 begin = time.time()
-cs.LeapFrogC(galaxy, dt=1e12, n_steps=n_steps, thetamax=thetamax, G=sc.G, epsilon=4e18,
-                          DM_mass=m_DM)
+result = cs.LeapFrogSaveC(galaxy, dt=1e12, n_steps=n_steps, thetamax=thetamax, G=sc.G, epsilon=4e18,
+                          DM_mass=m_DM, save_every=100)
 end = time.time()
 print(end-begin)
-# result.save("IV_test.binv")
-# print("Done saving")
-# PQ.speedcurve(result.numpy(), -1)
+result.save("IV_test.binv")
+print("Done saving")
+PQ.speedcurve(result.numpy(), -1)

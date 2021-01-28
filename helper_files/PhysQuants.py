@@ -68,7 +68,7 @@ def quantities(result):
     positions, velocities, masses = utils.unzip_result(result)
     _, total_momenta, _, magnitude = linearMomenta(velocities, masses)
     _, total_angular_momenta, _ = angularMomenta(positions, velocities, masses)
-    total_energy, _, _ = energies(positions, velocities, masses)
+    #total_energy, _, _ = energies(positions, velocities, masses)
     plt.subplot(311)
     plt.plot(np.sum(magnitude, axis = 1))
     plt.plot((total_momenta[:,0]**2 + total_momenta[:,1]**2 + total_momenta[:,2]**2)**0.5)
@@ -76,7 +76,7 @@ def quantities(result):
     plt.plot(np.sum(magnitude, axis = 1))
     plt.plot((total_angular_momenta[:,0]**2 + total_angular_momenta[:,1]**2 + total_angular_momenta[:,2]**2)**0.5)
     plt.subplot(313)
-    plt.plot(total_energy)
+    #plt.plot(total_energy)
     plt.show()
 
 
