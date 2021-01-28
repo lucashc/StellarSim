@@ -28,7 +28,7 @@ M = sum([b.mass for b in bl])
 COM = sum([b.mass*b.pos for b in bl])/M
 bl_filter = lambda b: np.dot(b.vel, b.pos - COM)/np.linalg.norm(b.pos - COM) < np.sqrt(abs(2*np.dot(b.g, b.pos - COM))) 
 filtered  = list(filter(bl_filter, bl))
-bl_ratio = len(filtered)/len(bl)
+star_ratio = len(filtered)/len(bl)
 mass_ratio = sum([b.mass for b in filtered])/M
 print("All matter:", star_ratio, mass_ratio)
 
