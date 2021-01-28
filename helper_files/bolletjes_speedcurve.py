@@ -5,14 +5,23 @@ import helper_files.stellarConstants as sc
 import matplotlib.pyplot as plt
 import helper_files.PhysQuants as pq
 
+
+# result = cs.Result.load_last("stableAM.binv")
+# cs.Result(result).save("Andromeda.binv")
+# exit()
+
+
+
+
 # cs.set_thread_count(8)
-# MW = gc.create_milky_way(3000, 6000, R_halo=3*sc.Rmw)
+# MW = gc.create_andromeda(3000, 6000, R_halo=3*sc.Rmw, random_DM=False)
+# #Andr = gc.create_andromeda(int(3000*1.25), int(6000*1.25), R_halo=3*sc.Randr)
 
 
 
 # result = cs.LeapFrogSaveC(MW, dt=1e12, n_steps=3000, thetamax=0.7, G=sc.G, save_every=10, epsilon=4e16)
-# result.save("bsc.binv")
-last = cs.Result.load_last("bsc.binv")
+# result.save("DMorbit2.binv")
+last = cs.Result.load_last("DMorbit2.binv")
 r = []
 v = []
 g = []
@@ -41,6 +50,8 @@ plt.plot(r[10:-9], avg, 'r')
 plt.scatter(r,g)
 plt.xlim((0,sc.Rmw))
 plt.show()
+
+
 
 # result = cs.Result.load("bsc.binv")
 # pq.quantities(result)
