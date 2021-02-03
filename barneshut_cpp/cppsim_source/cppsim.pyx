@@ -49,6 +49,7 @@ cdef extern from "sim.cpp":
     vector[bodylist] LeapFrogSave(bodylist&, double, int, double, double, int, double, double) nogil
     vector[bodylist] ModifiedEulerSave(bodylist&, double, int, double, double, int, double, double) nogil
     void get_accelerations(bodylist&, double, double, double, double) nogil
+    double get_energies(bodylist&, double, double) nogil
     # Static constants
     cdef double r_max
     cdef double rcmw
@@ -509,6 +510,22 @@ def acceleratedAccelerationsC(BodyList3 bodies, double thetamax = 0.5, double G 
    """
    with nogil:
        get_accelerations(bodies.bl, thetamax, G, epsilon, DM_mass)
+
+def getEnergiesC(BodyList3 bodies, double thetamax = 0.5, double G = 1):
+   """
+   Calculates the potential energy of each body in the bodylist using the Barnes-Hut algorithm.
+   Important: the bodylist is modified in place, its U-attributes are modified
+   Args:
+       bodies      | BodyList3 type
+       thetamax    | double type, thetamax parameter to Barnes-Hut
+       G           | double type, used Newton's coefficient of Gravity
+   Returns:
+       None
+   """
+   U = 0
+   with nogil:
+       U = get_energies(bodies.bl, thetamax, G)
+   return U
 
 
 # Update static constants

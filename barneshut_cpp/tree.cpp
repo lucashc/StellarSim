@@ -82,4 +82,22 @@ void TreeWalk(OctNode* node, Body* b, BASETYPE thetamax, BASETYPE G, BASETYPE ep
     }
 };
 
+BASETYPE TreeWalkEnergy(OctNode* node, Body* b, BASETYPE thetamax, BASETYPE G) {
+    vec3 dr = node->COM - b->pos;
+    BASETYPE r = dr.norm();
+    if (r > 0) {
+        if ((node->leaf || node->size / r < thetamax) && node->id != b) {
+            return -b->mass * G * node->mass / r;
+        }
+        else {
+            BASETYPE U = 0;
+            for (auto child : node->children) {
+                U += TreeWalkEnergy(child, b, thetamax, G);
+            }
+            return U;
+        }
+    }
+    return 0;
+};
+
 #endif
